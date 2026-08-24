@@ -305,6 +305,15 @@
         .flex-group { display: flex; align-items: center; gap: 4px; }
         .flex-group input { width: 65px !important; }
 
+        /* 📅 曜日限定スポット（本日のみ）バッジ */
+        .today-spot-badge {
+            display: inline-flex; align-items: center; gap: 3px;
+            background: rgba(52,199,89,0.15); color: var(--accent-green);
+            border: 1px solid var(--accent-green); border-radius: 10px;
+            padding: 1px 8px; font-size: 11px; font-weight: 700; line-height: 1.6;
+            white-space: nowrap;
+        }
+
         /* ═══ 🗺️ 地図で選ぶビュー（オリジナル模式図） ═══ */
         .view-toggle-row {
             display: flex; gap: 8px; margin-bottom: 14px;
@@ -463,6 +472,10 @@
             border: 2.5px solid #D93025; background: #fff; box-sizing: border-box;
         }
         .map-legend-dot.sel { background: #D93025; }
+        .map-legend-dot.today { background: var(--accent-green); border-color: var(--accent-green); }
+
+        /* 📅 曜日限定スポットの「本日該当」マーカー用ドット */
+        .map-marker-today-dot { fill: var(--accent-green); stroke: #fff; stroke-width: 1.2px; }
 
         .realm-map-empty {
             font-size: 12px; color: var(--text-gray); text-align: center; padding: 18px 0;
@@ -836,10 +849,19 @@
                         <div style="display:flex; gap:8px; flex-wrap:wrap;">
                             <span v-for="(tm, tIdx) in shardPrediction.times" :key="tIdx"
                                   style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; font-size: 15px; font-weight: 700;">
-                                {{ tm }}
+                                {{ tm.label }}
                             </span>
                         </div>
                         <div style="font-size:12px; color:var(--text-gray); margin-top:8px;">{{ t('refine.receiveOnceNote') }}</div>
+
+                        <!-- 🔔 発生前の通知リマインダー（オプトイン） -->
+                        <div style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--border-color);">
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; font-weight:600;">
+                                <input type="checkbox" :checked="shardNotifyEnabled" @change="onToggleShardNotify($event)" style="width:20px;height:20px;">
+                                {{ t('refine.shardNotifyLabel') }}
+                            </label>
+                            <div v-if="shardNotifyStatus" style="font-size:12px; color:var(--text-gray); margin-top:4px;">{{ shardNotifyStatus }}</div>
+                        </div>
                     </div>
                 </div>
 
@@ -940,6 +962,31 @@
                         {{ projectedCandles }} {{ t('refine.candlesUnit') }}
                     </div>
                 </div>
+
+                <!-- 📊 キャンドル残高予測の日別内訳 -->
+                <div v-if="eventDays > 0" style="margin: -2px 0 10px;">
+                    <span @click="toggleCandleProjectionDetail" style="font-size:12px; color:var(--accent-blue); cursor:pointer; font-weight:600;">
+                        {{ showCandleProjectionDetail ? t('candle.dailyBreakdownHide') : t('candle.dailyBreakdownShow') }}
+                    </span>
+                    <div v-if="showCandleProjectionDetail" style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; margin-top: 8px;">
+                        <div v-if="candleProjectionFirstNegative" class="inline-alert inline-alert-error" style="margin-top:0; margin-bottom:8px;">
+                            {{ t('candle.dailyBreakdownNegativeWarning', { date: candleProjectionFirstNegative.dateLabel }) }}
+                        </div>
+                        <div style="max-height: 220px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px;">
+                            <div v-for="row in candleProjectionDaily" :key="row.day"
+                                 style="display:flex; justify-content:space-between; align-items:center; padding:5px 10px; font-size:12.5px; border-bottom:1px solid var(--border-color);"
+                                 :style="{ background: row.total < 0 ? 'rgba(255,59,48,0.08)' : 'transparent' }">
+                                <span style="color:var(--text-gray);">{{ t('candle.dailyBreakdownDayLabel', { n: row.day }) }} {{ row.dateLabel }}</span>
+                                <span style="font-weight:700;" :style="{ color: row.total < 0 ? 'var(--accent-red)' : 'inherit' }">
+                                    {{ row.total }} {{ t('refine.candlesUnit') }}
+                                </span>
+                            </div>
+                        </div>
+                        <div style="font-size:11px; color:var(--text-gray); margin-top:8px;">{{ t('candle.dailyBreakdownAssumptionNote') }}</div>
+                        <div v-if="candleProjectionTruncated" style="font-size:11px; color:var(--text-gray); margin-top:2px;">{{ t('candle.dailyBreakdownTruncatedNote', { days: candleProjectionMaxDays }) }}</div>
+                    </div>
+                </div>
+
                 <div class="row" style="flex-direction: column; align-items: flex-start; border-bottom: none; padding-bottom: 0; margin-top: 10px;">
                     <div style="font-size: 12px; color: var(--text-gray); margin-bottom: 6px;">{{ t('candle.memoLabel') }}</div>
                     <textarea v-model="candleMemo" :placeholder="t('candle.memoPlaceholder')" style="width: 100%; height: 70px; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-family: inherit; font-size: 13px; box-sizing: border-box; resize: vertical;"></textarea>
@@ -1050,6 +1097,7 @@
 
                             <button class="btn-outline-blue" @click="applyRoute(route)" style="padding: 4px 10px; font-size: 12px; background: var(--accent-blue); color: white; font-weight: bold; border: none; border-radius: 6px;">{{ t('route.apply') }}</button>
                             <button class="btn-outline-blue" @click="shareRoute(route)" style="padding: 4px 8px; font-size: 12px; background: var(--accent-purple); color: white; border: none; border-radius: 6px; font-weight: bold;">{{ t('route.share') }}</button>
+                            <button class="btn-outline-blue" @click="exportRouteAsText(route)" style="padding: 4px 8px; font-size: 12px; font-weight: bold; white-space: nowrap;">{{ t('route.exportTextBtn') }}</button>
                             <button class="btn-outline-blue" @click="runRouteInTimer(route)" style="padding: 4px 8px; font-size: 12px; background: var(--accent-green); color: white; border: none; border-radius: 6px; font-weight: bold; white-space: nowrap;">{{ t('route.rtaBtn') }}</button>
                             <button class="expand-toggle-btn" @click="toggleRouteExpand(route)" style="padding: 4px 8px; font-size: 12px; border-radius: 6px; min-width: auto; height: auto; margin:0;">
                                 {{ route.isExpanded ? '▼' : '▶' }}
@@ -1065,6 +1113,11 @@
                     <div v-if="route.generatedSpell" style="margin-top: 8px;">
                         <div style="font-size: 11px; color: var(--text-gray); margin-bottom: 4px;">{{ t('route.shareResultLabel') }}</div>
                         <textarea readonly :value="route.generatedSpell" @click="$event.target.select()" style="width: 100%; height: 50px; padding: 6px; border: 1px solid var(--border-color); border-radius: 6px; font-family: monospace; font-size: 11px; box-sizing: border-box; resize: none; background: var(--input-bg); color: var(--text-color);"></textarea>
+                    </div>
+
+                    <div v-if="route.generatedTextExport" style="margin-top: 8px;">
+                        <div style="font-size: 11px; color: var(--text-gray); margin-bottom: 4px;">{{ t('route.exportTextResultLabel') }}</div>
+                        <textarea readonly :value="route.generatedTextExport" @click="$event.target.select()" style="width: 100%; height: 80px; padding: 6px; border: 1px solid var(--border-color); border-radius: 6px; font-family: monospace; font-size: 11px; box-sizing: border-box; resize: vertical; background: var(--input-bg); color: var(--text-color);"></textarea>
                     </div>
 
                     <div v-if="!route.isExpanded && (route.actualSeconds || 0) === 0"
@@ -1094,6 +1147,24 @@
                                 <button class="btn-outline-red" @click="resetTimer(route)" style="padding: 5px 10px; font-size:12px;">
                                     {{ t('route.resetBtn') }}
                                 </button>
+                            </div>
+
+                            <!-- 🏁 タイムアタック履歴（直近分）とベスト/平均 -->
+                            <div v-if="getRunHistoryStats(route)" style="margin-top:10px; padding-top:8px; border-top:1px dashed var(--border-color); font-size:11.5px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+                                    <span style="color:var(--text-gray);">
+                                        🏆 {{ t('route.historyBestLabel') }} <b style="color:var(--accent-green);">{{ formatSeconds(getRunHistoryStats(route).best) }}</b>
+                                        ／ 📊 {{ t('route.historyAvgLabel') }} <b>{{ formatSeconds(getRunHistoryStats(route).avg) }}</b>
+                                        <span>({{ t('route.historyCountLabel', { n: getRunHistoryStats(route).count }) }})</span>
+                                    </span>
+                                    <span @click="requestClearRunHistory(route)" style="color:var(--accent-red); cursor:pointer; white-space:nowrap; font-weight:600;">{{ t('route.historyClearBtn') }}</span>
+                                </div>
+                                <div style="display:flex; flex-wrap:wrap; gap:5px; margin-top:6px;">
+                                    <span v-for="(h, hIdx) in [...route.runHistory].reverse()" :key="hIdx"
+                                          style="background:var(--stat-box-bg); border:1px solid var(--border-color); border-radius:5px; padding:2px 6px; font-family:'Courier New',Courier,monospace; font-size:11px;">
+                                        {{ formatSeconds(h.seconds) }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
@@ -1281,6 +1352,7 @@
                     <div class="map-legend" style="margin:0 0 10px;">
                         <span class="map-legend-dot"></span><span>{{ t('area.mapLegendSpot') }}</span>
                         <span class="map-legend-dot sel"></span><span>{{ t('area.mapLegendSelected') }}</span>
+                        <span class="map-legend-dot today"></span><span>{{ t('area.mapLegendToday') }}</span>
                         <span style="opacity:0.8;">{{ t('area.mapLegendControls') }}</span>
                     </div>
                     <div v-for="(mainArea, mIdx) in areas" :key="'map_'+mainArea.id" class="realm-map-card">
@@ -1354,8 +1426,9 @@
                                        @click="onMapMarkerClick(mIdx, m)"
                                        @keydown.enter="onMapMarkerClick(mIdx, m)"
                                        @keydown.space.prevent="onMapMarkerClick(mIdx, m)">
-                                        <title>{{ displayAreaName(m.name) }}（🔥{{ m.light }}）</title>
+                                        <title>{{ displayAreaName(m.name) }}（🔥{{ m.light }}）{{ m.isToday ? '・' + t('area.todayBadge') : '' }}</title>
                                         <circle :r="m.r"></circle>
+                                        <circle v-if="m.isToday" class="map-marker-today-dot" :cx="m.r * 0.72" :cy="-(m.r * 0.72)" r="4.2"></circle>
                                         <text class="map-marker-num" :font-size="m.fs">{{ m.light }}</text>
                                         <text class="map-marker-name" :y="m.r + 13"
                                               :fill="mini.theme.label" :stroke="mini.theme.halo">{{ m.short }}</text>
@@ -1370,8 +1443,15 @@
                 <template v-if="areaViewMode === 'list'">
 
                 <!-- 🔍 エリア・サブエリア・スポット名での絞り込み検索 -->
-                <div style="margin-bottom: 14px;">
+                <div style="margin-bottom: 10px;">
                     <input type="text" v-model="areaSearchQuery" :placeholder="t('area.searchPlaceholder')" style="font-size: 13px;">
+                </div>
+                <!-- 📅 曜日限定スポットの「本日のみ」絞り込み -->
+                <div style="margin-bottom: 14px;">
+                    <label style="display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--text-gray); cursor:pointer;">
+                        <input type="checkbox" :checked="showTodayOnlyFilter" @change="toggleTodayOnlyFilter" style="width:15px;height:15px;">
+                        {{ t('area.todayOnlyFilterLabel') }}
+                    </label>
                 </div>
                 <div v-if="!hasAreaSearchResults" style="text-align: center; color: var(--text-gray); padding: 20px 0; font-size: 13px; line-height: 1.5;">
                     {{ t('area.searchNoResults', { q: areaSearchQuery }) }}
@@ -1496,7 +1576,7 @@
                             <!-- 折り畳み内：スポット一覧 -->
                             <div v-if="isSubAreaExpandedView(subArea)">
                                 <div v-if="subArea.spots.length > 0" class="spot-list">
-                                    <div v-for="(spot, spIdx) in subArea.spots" v-show="spotMatchesAreaSearch(spot)" :key="spot.id" class="spot-item">
+                                    <div v-for="(spot, spIdx) in subArea.spots" v-show="spotMatchesAreaSearch(spot) && (!showTodayOnlyFilter || isSpotActiveToday(spot))" :key="spot.id" class="spot-item">
                                         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px;">
                                             <div style="display:flex; align-items:center; gap:8px; flex-grow:1; min-width:0;">
                                                 <input type="checkbox" v-model="spot.isSelected" @change="handleSpotChange(mIdx,sIdx,spIdx)" style="width:17px;height:17px; flex-shrink:0;">
@@ -1514,6 +1594,7 @@
                                                 <span>{{ t('area.groupLabel') }}</span>
                                                 <input type="text" v-model="spot.group" :placeholder="t('area.groupPlaceholder')" style="width:68px; padding:2px 4px; font-size:12px;">
                                             </div>
+                                            <span v-if="isWeekdayRotationSpot(spot) && isSpotActiveToday(spot)" class="today-spot-badge">📅 {{ t('area.todayBadge') }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -2073,6 +2154,23 @@ const plannedUsage = ref(0);
                 }
             };
 
+            // 指定したPT暦日の「翌日」から最大31日先まで探索し、次に発生する黒シャードの日を返す
+            // （通知リマインダーが、ある発生日の3回をすべて消化した後に次の発生日へ進むために使う）
+            const findNextBlackShardAfter = (year, month, day) => {
+                try {
+                    let cursor = addDaysToPacificDate(year, month, day, 1);
+                    for (let i = 0; i <= 31; i++) {
+                        const pred = predictShardForPacificDate(cursor.year, cursor.month, cursor.day, cursor.weekday);
+                        if (pred.occurs && pred.color === 'black') return pred;
+                        cursor = addDaysToPacificDate(cursor.year, cursor.month, cursor.day, 1);
+                    }
+                    return null;
+                } catch (e) {
+                    console.error("Shard lookahead error:", e);
+                    return null;
+                }
+            };
+
             // PTの暦日+時刻(壁時計)に対応するUTCミリ秒を求める（DSTを自動考慮／外部ライブラリ不要）
             const pacificWallClockToUtcMs = (year, month, day, hour, minute) => {
                 let guessMs = Date.UTC(year, month - 1, day, hour + 8, minute, 0); // 初期推定 PST(-8)
@@ -2111,7 +2209,8 @@ const plannedUsage = ref(0);
                     if (dayDiff === 0) dayLabel = t('date.today');
                     else if (dayDiff === 1) dayLabel = t('date.tomorrow');
                     else dayLabel = `${m}/${d}(${SHARD_JP_WEEKDAY[new Date(Date.UTC(y, m - 1, d)).getUTCDay()]})`;
-                    results.push(`${dayLabel} ${timeLabel}`);
+                    // labelは表示用の文字列、utcMsは通知リマインダーのスケジューリングで使う実時刻(UTCミリ秒)
+                    results.push({ label: `${dayLabel} ${timeLabel}`, utcMs });
                 }
                 return results;
             };
@@ -2130,6 +2229,96 @@ const plannedUsage = ref(0);
                 const p = predictTodayShard();
                 dailyShard.value = (p && p.occurs && p.color === 'black') ? 'black' : 'none';
                 localStorage.setItem('sky_shard_sync_date', dateKey);
+            };
+
+            // ────────────────────────────────────────────────────
+            // 🔔 黒シャード発生前の通知リマインダー（Notification API・オプトイン）
+            // ・タブを開いたまま（バックグラウンド／最小化は可）にしている間、次回発生の
+            // 　SHARD_NOTIFY_LEAD_MINUTES分前にブラウザ通知を出す。閉じたタブには届かない
+            // 　（サーバー側のプッシュ通知ではなく、あくまでこのタブのsetTimeoutによる予約のため）。
+            // ・発生済みの回に対しては直後にもう一度呼び出し、次回発生分を続けて予約する。
+            // ────────────────────────────────────────────────────
+            const SHARD_NOTIFY_LEAD_MINUTES = 5;
+            const shardNotifyEnabled = ref(localStorage.getItem('sky_shard_notify_enabled') === '1');
+            const shardNotifyStatus = ref('');
+            let shardNotifyTimerId = null;
+            let lastNotifiedShardUtcMs = 0; // 🔔 直前に通知済みの発生時刻（同じ回への二重通知を防ぐ）
+            let currentShardHit = null; // 🔔 現在追跡中の発生日（year/month/day/time等）。その日の3回を消化したら次の発生日へ進める
+
+            const clearShardNotifyTimer = () => {
+                if (shardNotifyTimerId) { clearTimeout(shardNotifyTimerId); shardNotifyTimerId = null; }
+            };
+
+            const scheduleShardNotification = () => {
+                clearShardNotifyTimer();
+                if (!shardNotifyEnabled.value) return;
+                if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+                // shardPrediction（画面表示用のcomputed）は日付をまたいでも自動更新されないため、
+                // ここではfindTodayOrNextBlackShard/getBlackShardOccurrencesInJstを直接呼び直して
+                // 常に「今」を基準にした最新の発生予測を使う（タブを長時間開いたままでも予約が途切れない）
+                if (!currentShardHit) currentShardHit = findTodayOrNextBlackShard();
+                let times = null, next = null;
+                for (let guard = 0; guard < 32 && currentShardHit; guard++) {
+                    times = getBlackShardOccurrencesInJst(currentShardHit.year, currentShardHit.month, currentShardHit.day, currentShardHit.time, 3);
+                    // 直前に通知済みの回はスキップ（発生5分前に鳴らした直後の再予約で同じ回に再度鳴るのを防ぐ）
+                    next = times.find(tm => tm.utcMs > Date.now() && tm.utcMs > lastNotifiedShardUtcMs);
+                    if (next) break;
+                    // この発生日の3回をすべて消化済み（通知済み or 過去）→ 次の発生日へ進める
+                    currentShardHit = findNextBlackShardAfter(currentShardHit.year, currentShardHit.month, currentShardHit.day);
+                }
+                if (!currentShardHit || !next) return; // 直近31日以内に次の発生予定が見つからない場合はここで待つ
+                const hit = currentShardHit;
+                const leadMs = SHARD_NOTIFY_LEAD_MINUTES * 60 * 1000;
+                let delay = next.utcMs - leadMs - Date.now();
+                if (delay < 0) delay = Math.max(0, next.utcMs - Date.now()); // 通知予定分がすでに間近ならその時刻に鳴らす
+                shardNotifyTimerId = setTimeout(() => {
+                    lastNotifiedShardUtcMs = next.utcMs;
+                    try {
+                        new Notification(t('notify.shardTitle'), {
+                            body: t('notify.shardBody', { realm: displayAreaName(hit.realm), time: next.label }),
+                            icon: 'icons/app-icon-192.png',
+                            tag: 'sky-black-shard'
+                        });
+                    } catch (e) { console.error("Shard notification error:", e); }
+                    scheduleShardNotification(); // 次回発生分を続けて予約
+                }, delay);
+            };
+
+            const requestShardNotifyPermission = async () => {
+                if (typeof Notification === 'undefined') return 'unsupported';
+                if (Notification.permission === 'granted') return 'granted';
+                if (Notification.permission === 'denied') return 'denied';
+                try { return await Notification.requestPermission(); } catch (e) { return 'denied'; }
+            };
+
+            // 設定チェックボックスの@changeから呼ぶ。許可が下りなければトグルを元に戻す
+            const onToggleShardNotify = async (e) => {
+                const checked = !!(e && e.target && e.target.checked);
+                if (checked) {
+                    const perm = await requestShardNotifyPermission();
+                    if (perm !== 'granted') {
+                        shardNotifyEnabled.value = false;
+                        shardNotifyStatus.value = (perm === 'unsupported') ? t('refine.shardNotifyUnsupported') : t('refine.shardNotifyDenied');
+                        try { localStorage.setItem('sky_shard_notify_enabled', '0'); } catch (err) { /* noop */ }
+                        // Vueの:checkedバインディングは「直前のVNode値との比較」でDOM更新を省略することがあり、
+                        // ネイティブのクリックで先にチェック済みになったDOM状態が視覚的に残ってしまう。
+                        // 許可が下りなかった場合は見た目のズレを防ぐため、ここでDOM側も明示的に戻しておく。
+                        if (e && e.target) e.target.checked = false;
+                        return;
+                    }
+                    shardNotifyEnabled.value = true;
+                    shardNotifyStatus.value = t('refine.shardNotifyOnHint');
+                    try { localStorage.setItem('sky_shard_notify_enabled', '1'); } catch (err) { /* noop */ }
+                    scheduleShardNotification();
+                } else {
+                    shardNotifyEnabled.value = false;
+                    shardNotifyStatus.value = '';
+                    try { localStorage.setItem('sky_shard_notify_enabled', '0'); } catch (err) { /* noop */ }
+                    clearShardNotifyTimer();
+                    // 次回オンにした時は「今日以降」の予測から探し直す（オフの間の追跡状態を持ち越さない）
+                    currentShardHit = null;
+                    lastNotifiedShardUtcMs = 0;
+                }
             };
 
             const uuid = () => crypto.randomUUID();
@@ -2281,6 +2470,38 @@ const plannedUsage = ref(0);
                 const diffPercent = Math.round((newMult / oldMult - 1) * 100);
                 const dir = diffPercent < 0 ? t('route.correctionShorter') : t('route.correctionLonger');
                 showRouteHint(t('route.correctionMsg', { name: route.name, percent: Math.abs(diffPercent), dir, mult: newMult.toFixed(2) }));
+            };
+
+            // ────────────────────────────────────────────────────
+            // 🏁 タイムアタック履歴（直近RUN_HISTORY_MAX回分）
+            // ・calibrateFromRouteと同じ「1回分の実測」の単位・しきい値(CALIBRATION_MIN_SECONDS)で記録する
+            // ・resetTimer（現在の計測をリセット）では消さない。履歴は明示的な操作でのみ削除する
+            // ────────────────────────────────────────────────────
+            const RUN_HISTORY_MAX = 10;
+            const recordRunHistory = (route) => {
+                if (!route) return;
+                const seconds = route.actualSeconds || 0;
+                if (seconds < CALIBRATION_MIN_SECONDS) return; // 極端に短い計測はノイズとして記録しない
+                if (!Array.isArray(route.runHistory)) route.runHistory = [];
+                route.runHistory.push({ seconds, ts: Date.now() });
+                if (route.runHistory.length > RUN_HISTORY_MAX) route.runHistory = route.runHistory.slice(-RUN_HISTORY_MAX);
+            };
+
+            const getRunHistoryStats = (route) => {
+                const hist = (route && Array.isArray(route.runHistory)) ? route.runHistory : [];
+                if (hist.length === 0) return null;
+                const seconds = hist.map(h => h.seconds);
+                const best = Math.min(...seconds);
+                const avg = seconds.reduce((a, b) => a + b, 0) / seconds.length;
+                return { count: hist.length, best, avg };
+            };
+
+            const requestClearRunHistory = (route) => {
+                if (!route) return;
+                openCustomConfirm(t('route.clearHistoryConfirm', { name: route.name || '' }), () => {
+                    route.runHistory = [];
+                    save();
+                });
             };
 
             const getDefaultAreas = (timeMult = 1.0) => {
@@ -2452,7 +2673,8 @@ plannedUsage.value = 0;
                             id: r.id, name: r.name, memo: r.memo,
                             selectedSpotIds: r.selectedSpotIds || [],
                             actualSeconds: r.actualSeconds || 0,
-                            splitTimes: r.splitTimes || {} // 🚩 スポット別の区間タイム
+                            splitTimes: r.splitTimes || {}, // 🚩 スポット別の区間タイム
+                            runHistory: Array.isArray(r.runHistory) ? r.runHistory : [] // 🏁 タイムアタック履歴（直近分）
                         })),
                         visibleSections: visibleSections.value
                     };
@@ -2541,7 +2763,9 @@ plannedUsage.value = 0;
                                     selectedSpotIds: Array.isArray(r.selectedSpotIds) ? r.selectedSpotIds : [],
                                     actualSeconds: Number(r.actualSeconds) || 0,
                                     splitTimes: (r.splitTimes && typeof r.splitTimes === 'object') ? r.splitTimes : {}, // 🚩 スポット別の区間タイム
-                                    generatedSpell: "" // リアクティブ保持用
+                                    runHistory: Array.isArray(r.runHistory) ? r.runHistory : [], // 🏁 タイムアタック履歴（直近分）
+                                    generatedSpell: "", // リアクティブ保持用
+                                    generatedTextExport: ""
                                 }));
                             } else { myRoutes.value = []; }
                             if (decoded.visibleSections) visibleSections.value = { ...visibleSections.value, ...decoded.visibleSections };
@@ -2570,6 +2794,32 @@ plannedUsage.value = 0;
             const getSubMode = (subArea) => {
                 if (!subArea || !Array.isArray(subArea.spots) || subArea.spots.length === 0) return "sub";
                 return "spot";
+            };
+
+            // ────────────────────────────────────────────────────
+            // 📅 曜日限定スポット（group:"曜日"、例:「月・水・金・日 エリア全体」）の「本日該当」判定
+            // areas-data.js には曜日ごとの専用フィールドはなく、group欄に"曜日"と入力されたスポットの
+            // name に含まれる曜日の漢字（月火水木金土日）から対象曜日を読み取る運用になっている
+            // （area.groupPlaceholder の「例: 曜日」表記もこの前提）。
+            // 「本日」は黒シャード予測と同じくPT(太平洋時間)の日付を基準にする。
+            // ────────────────────────────────────────────────────
+            const WEEKDAY_KANJI_TO_PT = { '月': 'Mon', '火': 'Tue', '水': 'Wed', '木': 'Thu', '金': 'Fri', '土': 'Sat', '日': 'Sun' };
+            const isWeekdayRotationSpot = (spot) => !!(spot && typeof spot.group === 'string' && spot.group.trim() === '曜日');
+            const getSpotWeekdays = (spot) => {
+                if (!isWeekdayRotationSpot(spot) || !spot.name) return [];
+                return Object.keys(WEEKDAY_KANJI_TO_PT).filter(k => spot.name.includes(k)).map(k => WEEKDAY_KANJI_TO_PT[k]);
+            };
+            // 曜日限定スポットでない場合は常にtrue（表示・選択に一切制約をかけない）
+            const isSpotActiveToday = (spot) => {
+                const days = getSpotWeekdays(spot);
+                if (days.length === 0) return true;
+                try { return days.includes(getPacificDateParts().weekday); } catch (e) { return true; }
+            };
+
+            const showTodayOnlyFilter = ref(localStorage.getItem('sky_area_today_filter') === '1');
+            const toggleTodayOnlyFilter = () => {
+                showTodayOnlyFilter.value = !showTodayOnlyFilter.value;
+                try { localStorage.setItem('sky_area_today_filter', showTodayOnlyFilter.value ? '1' : '0'); } catch (e) { /* noop */ }
             };
 
             const selectedLight = computed(() => {
@@ -2670,6 +2920,43 @@ plannedUsage.value = 0;
                 - plannedUsage.value
                 - (dailyHeartCost.value * eventDays.value)
             );
+
+            // ────────────────────────────────────────────────────
+            // 📊 キャンドル残高予測の日別内訳
+            // ・projectedCandles と同じ前提（今選択中のスポット構成を毎日そのまま周回し、
+            // 　毎日同じ数のハートを送る）を、1日ずつの累計として展開する。
+            // ・使用予定数(plannedUsage)は日付を持たない一括入力のため、目標日(最終日)に
+            // 　まとめて反映する。こうすることで最終日の累計は必ず projectedCandles と一致する。
+            // ・targetDateがあまりに先だと表示が肥大化するため、先頭 CANDLE_PROJECTION_MAX_DAYS 日分までに制限する
+            //   （それ以降の増減は上の合計欄にはすべて反映済み）。
+            // ────────────────────────────────────────────────────
+            const CANDLE_PROJECTION_MAX_DAYS = 60;
+            const candleProjectionMaxDays = CANDLE_PROJECTION_MAX_DAYS;
+            const candleProjectionDaily = computed(() => {
+                const days = eventDays.value;
+                if (days <= 0) return [];
+                const dailyDelta = calculated.value.candles - dailyHeartCost.value;
+                const today = new Date(); today.setHours(0, 0, 0, 0);
+                const shown = Math.min(days, CANDLE_PROJECTION_MAX_DAYS);
+                const locale = lang.value === 'en' ? 'en-US' : 'ja-JP';
+                let fmt;
+                try {
+                    fmt = new Intl.DateTimeFormat(locale, { month: 'numeric', day: 'numeric', weekday: 'short' });
+                } catch (e) { fmt = null; }
+                const rows = [];
+                for (let d = 1; d <= shown; d++) {
+                    const date = new Date(today);
+                    date.setDate(date.getDate() + d);
+                    const isTargetDay = d === days; // 最終日にのみ使用予定数を一括反映
+                    const total = currentCandles.value + dailyDelta * d - (isTargetDay ? plannedUsage.value : 0);
+                    rows.push({ day: d, dateLabel: fmt ? fmt.format(date) : `${date.getMonth() + 1}/${date.getDate()}`, total, isTargetDay });
+                }
+                return rows;
+            });
+            const candleProjectionTruncated = computed(() => eventDays.value > CANDLE_PROJECTION_MAX_DAYS);
+            const candleProjectionFirstNegative = computed(() => candleProjectionDaily.value.find(r => r.total < 0) || null);
+            const showCandleProjectionDetail = ref(false);
+            const toggleCandleProjectionDetail = () => { showCandleProjectionDetail.value = !showCandleProjectionDetail.value; };
 
             const isAllSubSelected = (subArea) => {
                 const sMode = getSubMode(subArea);
@@ -2853,11 +3140,11 @@ plannedUsage.value = 0;
                             const pos = def.spots[spot.name];
                             const x = pos ? pos[0] : MINI_W / 2;
                             const y = pos ? pos[1] : h / 2;
-                            markers.push({ x, y, light: spot.light || 0, selected: !!spot.isSelected, name: spot.name, label: displayAreaName(spot.name), kind: 'spot', sIdx, spIdx });
+                            markers.push({ x, y, light: spot.light || 0, selected: !!spot.isSelected, name: spot.name, label: displayAreaName(spot.name), kind: 'spot', sIdx, spIdx, isToday: isWeekdayRotationSpot(spot) && isSpotActiveToday(spot) });
                         });
                     } else if (spots.length === 1) {
                         h = 170;
-                        markers.push({ x: MINI_W / 2, y: 86, light: spots[0].light || 0, selected: !!spots[0].isSelected, name: spots[0].name, label: displayAreaName(spots[0].name), kind: 'spot', sIdx, spIdx: 0 });
+                        markers.push({ x: MINI_W / 2, y: 86, light: spots[0].light || 0, selected: !!spots[0].isSelected, name: spots[0].name, label: displayAreaName(spots[0].name), kind: 'spot', sIdx, spIdx: 0, isToday: isWeekdayRotationSpot(spots[0]) && isSpotActiveToday(spots[0]) });
                     } else {
                         // 自動配置: 2〜4個は2列、それ以外は3列で、列ごとに少し上下をずらして地図らしく
                         const n = spots.length;
@@ -2869,7 +3156,7 @@ plannedUsage.value = 0;
                             const col = spIdx % cols, row = Math.floor(spIdx / cols);
                             const x = 20 + cellW * (col + 0.5);
                             const y = 96 + row * MINI_ROW_H + (cols > 1 ? (col % 2) * 10 : 0);
-                            markers.push({ x, y, light: spot.light || 0, selected: !!spot.isSelected, name: spot.name, label: displayAreaName(spot.name), kind: 'spot', sIdx, spIdx });
+                            markers.push({ x, y, light: spot.light || 0, selected: !!spot.isSelected, name: spot.name, label: displayAreaName(spot.name), kind: 'spot', sIdx, spIdx, isToday: isWeekdayRotationSpot(spot) && isSpotActiveToday(spot) });
                         });
                     }
 
@@ -3269,7 +3556,9 @@ plannedUsage.value = 0;
                     isExpanded: true,
                     actualSeconds: 0,
                     splitTimes: {},
-                    generatedSpell: ""
+                    runHistory: [],
+                    generatedSpell: "",
+                    generatedTextExport: ""
                 });
                 save();
                 showRouteHint(t('route.savedHint'));
@@ -3351,7 +3640,91 @@ plannedUsage.value = 0;
                 }
                 const timeStr = t('time.minSec', { m: Math.floor(time / 60), s: Math.floor(time % 60) });
                 const eff = time > 0 ? (light / time) : 0.0;
-                return { light, timeStr, eff };
+                return { light, time, timeStr, eff };
+            };
+
+            // 📄 ルートのスポット一覧をテキスト/CSV書き出し用に平坦化する
+            // ・エリア/サブエリア丸ごと選択の場合は、そのエリア自身のtimeが個別に分かるので time を持たせる
+            // ・個別スポット選択の場合、所要時間はサブエリア単位で共有されており個々のスポットには
+            //   割り当てられないため time は null にする（合計欄にのみ反映：getRouteStats参照）
+            const getRouteLineItems = (route) => {
+                const items = [];
+                if (!route || !Array.isArray(route.selectedSpotIds)) return items;
+                route.selectedSpotIds.forEach(id => {
+                    for (const area of areas.value) {
+                        if (!area) continue;
+                        if (area.id === id) {
+                            items.push({ name: displayAreaName(area.name), light: area.light || 0, time: area.time || 0 });
+                            return;
+                        }
+                        if (Array.isArray(area.subAreas)) {
+                            let matched = false;
+                            for (const sub of area.subAreas) {
+                                if (!sub) continue;
+                                if (sub.id === id) {
+                                    items.push({ name: `${displayAreaName(area.name)}・${displayAreaName(sub.name)}`, light: sub.light || 0, time: sub.time || 0 });
+                                    matched = true; break;
+                                }
+                                if (Array.isArray(sub.spots)) {
+                                    const sp = sub.spots.find(s => s.id === id);
+                                    if (sp) {
+                                        items.push({ name: `${displayAreaName(sub.name)}・${displayAreaName(sp.name)}`, light: sp.light || 0, time: null });
+                                        matched = true; break;
+                                    }
+                                }
+                            }
+                            if (matched) return;
+                        }
+                    }
+                });
+                return items;
+            };
+
+            // 📄「テキスト」ボタン: ルートのスポット一覧・合計をプレーンテキストとして生成し、
+            // クリップボードへコピーする（Discordやメモ帳に貼り付けられる、デコード不要の書き出し）
+            const generateRouteTextExport = (route) => {
+                if (!route) return "";
+                const items = getRouteLineItems(route);
+                const stats = getRouteStats(route);
+                const lines = [];
+                lines.push(`📍 ${route.name || ""}`);
+                if (route.memo) lines.push(`📝 ${route.memo}`);
+                lines.push("");
+                let hasSharedTime = false;
+                items.forEach((it, idx) => {
+                    let line = `${idx + 1}. ${it.name} 🔥${it.light}`;
+                    if (it.time != null) {
+                        line += ` ⏱️${t('time.minSec', { m: Math.floor(it.time / 60), s: Math.floor(it.time % 60) })}`;
+                    } else {
+                        hasSharedTime = true;
+                    }
+                    lines.push(line);
+                });
+                lines.push("──────────");
+                lines.push(`${t('route.exportTotalLabel')} 🔥${stats.light} ／ ⏱️${stats.timeStr} ／ ⚡${stats.eff.toFixed(1)}/s`);
+                if (hasSharedTime) lines.push(t('route.exportSharedTimeNote'));
+                return lines.join('\n');
+            };
+
+            const exportRouteAsText = (route) => {
+                const text = generateRouteTextExport(route);
+                if (!route || !text) return;
+                route.generatedTextExport = text;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        routeSpellMessage.value = t('route.exportCopiedHint');
+                        routeSpellMessageType.value = "success";
+                        setTimeout(() => { routeSpellMessage.value = ""; }, 5000);
+                    }).catch(() => {
+                        routeSpellMessage.value = t('route.shareCopyFailedHint');
+                        routeSpellMessageType.value = "error";
+                        setTimeout(() => { routeSpellMessage.value = ""; }, 5000);
+                    });
+                } else {
+                    routeSpellMessage.value = t('route.shareCopyFailedHint');
+                    routeSpellMessageType.value = "error";
+                    setTimeout(() => { routeSpellMessage.value = ""; }, 5000);
+                }
             };
 
             const moveRouteCard = (index, direction) => {
@@ -3425,11 +3798,12 @@ plannedUsage.value = 0;
                 if (timerId) { clearInterval(timerId); timerId = null; }
                 if (route) {
                     route.actualSeconds = (Date.now() - startTime) / 1000;
+                    recordRunHistory(route);
                     calibrateFromRoute(route);
                 }
                 runningRouteId.value = null;
                 runningSeconds.value = 0;
-                save(); 
+                save();
             };
 
             const pauseTimer = (route) => { if (route && runningRouteId.value === route.id) saveActiveTimerValue(route); };
@@ -3511,7 +3885,9 @@ plannedUsage: plannedUsage.value, heartsToSend: heartsToSend.value, targetCandle
                             ...r, isExpanded: false,
                             selectedSpotIds: Array.isArray(r.selectedSpotIds) ? r.selectedSpotIds : [],
                             actualSeconds: Number(r.actualSeconds) || 0,
-                            generatedSpell: ""
+                            runHistory: Array.isArray(r.runHistory) ? r.runHistory : [], // 🏁 タイムアタック履歴（直近分）
+                            generatedSpell: "",
+                            generatedTextExport: ""
                         }));
                     }
                     if (decoded.visibleSections) visibleSections.value = { ...visibleSections.value, ...decoded.visibleSections };
@@ -3657,7 +4033,9 @@ plannedUsage: plannedUsage.value, heartsToSend: heartsToSend.value, targetCandle
                         isExpanded: true,
                         actualSeconds: decoded.actualSeconds || 0,
                         splitTimes: {},
-                        generatedSpell: ""
+                        runHistory: [],
+                        generatedSpell: "",
+                        generatedTextExport: ""
                     });
 
                     routeInputSpell.value = "";
@@ -3862,6 +4240,16 @@ plannedUsage: plannedUsage.value, heartsToSend: heartsToSend.value, targetCandle
                 }
                 // 🌋 闇の破片(黒)を本日分まだ自動判定していなければ予測値を反映
                 syncDailyShardWithPrediction(false);
+                // 🔔 前回オンにしていた通知を今回のセッションでも継続する（許可が既に下りている場合のみ）
+                if (shardNotifyEnabled.value) {
+                    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+                        scheduleShardNotification();
+                    } else {
+                        // ブラウザ設定側で許可が取り消されていた場合はトグルも合わせてオフにする
+                        shardNotifyEnabled.value = false;
+                        try { localStorage.setItem('sky_shard_notify_enabled', '0'); } catch (err) { /* noop */ }
+                    }
+                }
                 window.addEventListener('resize', () => { isWideScreen.value = window.innerWidth >= 850; });
                 document.addEventListener('keydown', handleGlobalKeydown);
             });
@@ -3890,17 +4278,22 @@ plannedUsage: plannedUsage.value, heartsToSend: heartsToSend.value, targetCandle
                 confirmModal, executeConfirm,
                 showSettings, showSidebar, openToolsSidebar, myRoutes, visibleSections, routeError, routeHintMessage,
                 dailyBonusArea, dailyShard, shardPrediction, syncDailyShardWithPrediction,
+                shardNotifyEnabled, shardNotifyStatus, onToggleShardNotify,
                 totalLight, calculated, projectedCandles, totalEfficiency, formattedTotalTime, dailyReset, optimize,
+                candleProjectionDaily, candleProjectionTruncated, candleProjectionFirstNegative, candleProjectionMaxDays, showCandleProjectionDetail, toggleCandleProjectionDetail,
                 heartsToSend, dailyHeartCost,
                 isAllMainSelected, toggleMainArea, isAllSubSelected, toggleSubArea, getSubAreaStats, getMainAreaStats, getMainAreaSelectedCount, moveMainArea, moveSubArea, generateSpell, requestApplySpell, confirmApplySpell,
                 areaSearchQuery, mainAreaMatchesAreaSearch, subAreaMatchesAreaSearch, spotMatchesAreaSearch, isMainAreaExpandedView, isSubAreaExpandedView, hasAreaSearchResults,
+                isWeekdayRotationSpot, isSpotActiveToday, showTodayOnlyFilter, toggleTodayOnlyFilter,
                 skillModal, openSkillModal, applySkillLevel,
                 generateRouteSpell, shareRoute, applyRouteSpell, runRouteInTimer, RTA_TIMER_URL,
+                exportRouteAsText,
                 addMainArea, addSubArea, addSpot, requestDeleteMainArea, requestDeleteSubArea, requestDeleteSpot,
                 handleSpotChange,
                 saveCurrentRoute, deleteRoute, applyRoute, getRouteStats, getRouteAreaNames, resetCalculatorData,
                 moveRouteCard, getSpotNameById, moveRouteSpot, removeSpotFromRoute,
                 runningRouteId, runningSeconds, formatSeconds, startTimer, pauseTimer, resetTimer, toggleRouteExpand, currentTimeMult, recordRouteSplit,
+                getRunHistoryStats, requestClearRunHistory,
                 getAreaMode, getSubMode,
                 areaViewMode, setAreaViewMode, getMiniMaps, toggleMapSpot, onMapMarkerClick,
                 atlasMapNames, atlasMapName, setAtlasMap, atlasViewBox, atlasTheme, atlasModel,
