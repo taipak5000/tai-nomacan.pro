@@ -609,13 +609,7 @@
             display: none;
         }
 
-        @media (min-width: 850px) {
-            .sidebar {
-                display: block;
-            }
-        }
-
-        /* モバイル時のオーバーレイ表示 */
+        /* 全幅でオーバーレイ表示（🧭ドックの「他のツール」ボタンでのみ開く） */
         .sidebar.sidebar-open {
             display: flex !important;
             flex-direction: column;
@@ -708,11 +702,6 @@
             padding: 0;
             line-height: 1;
             flex-shrink: 0;
-        }
-
-        @media (min-width: 850px) {
-            .sidebar-toggle-btn { display: none; }
-            .sidebar-close-btn  { display: none; }
         }
 
         /* ═══ 🧭 サイトドック（クイックメニュー / ボトムナビ） ═══ */
@@ -2107,11 +2096,9 @@ const plannedUsage = ref(0);
             const targetCandlesForOptimization = ref(20);
             const isWideScreen = ref(window.innerWidth >= 850);
 
-            // 🧭ドックの「他のツール」ボタン用。≥850px幅では.sidebarが常時インライン表示
-            // されているため（sidebar-toggle-btn/sidebar-close-btnを隠すのと同じisWideScreen
-            // ガード）、同じ内容をフルスクリーンオーバーレイで重ねて開かず何もしない。
+            // 🧭ドックの「他のツール」ボタン用。幅を問わず常にオーバーレイ（ドロワー）で
+            // 関連ツール一覧を開く（常時表示のサイドバー列は廃止済み）。
             const openToolsSidebar = () => {
-                if (isWideScreen.value) return;
                 showSidebar.value = true;
             };
 
