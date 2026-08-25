@@ -693,6 +693,13 @@
             font-weight: 500;
         }
 
+        /* 🧭ドックの「他のツール」ボタンが全幅で同じオーバーレイを開けるため、
+           ≥850pxではヘッダー側のこのボタンは重複コントロールになる。非表示にする
+           （閉じるボタンはオーバーレイ自体が全幅で使われるため、常に表示のままにする）。 */
+        @media (min-width: 850px) {
+            .sidebar-toggle-btn { display: none; }
+        }
+
         .sidebar-close-btn {
             background: none;
             border: none;
