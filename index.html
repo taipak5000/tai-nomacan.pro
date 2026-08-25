@@ -86,6 +86,11 @@
             margin-bottom: 20px;
             flex-wrap: wrap;
             gap: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: var(--bg-color);
+            padding: 10px 0;
         }
 
         h1 {
@@ -97,6 +102,26 @@
             display: flex;
             gap: 8px;
             align-items: center;
+        }
+
+        /* 🌓/🌐 ヘッダーのテーマ切替・言語切替ボタン（他のヘッダーボタンと統一した見た目） */
+        .theme-toggle-btn {
+            background: var(--stat-box-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-color);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        .theme-toggle-btn:hover {
+            background: var(--tab-bg);
         }
 
         .layout-grid {
@@ -529,7 +554,7 @@
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.4);
             display: flex; justify-content: center; align-items: center;
-            z-index: 9999;
+            z-index: 1000;
             animation: fadeIn 0.15s ease-out;
             padding: 16px;
             box-sizing: border-box;
@@ -539,7 +564,7 @@
             color: var(--text-color);
             padding: 22px;
             border-radius: 14px;
-            max-width: 440px;
+            max-width: 360px;
             width: 100%;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             box-sizing: border-box;
@@ -580,7 +605,7 @@
             width: 200px;
             flex-shrink: 0;
             position: sticky;
-            top: 16px;
+            top: 58px;
             display: none;
         }
 
@@ -724,6 +749,38 @@
         .site-dock .site-dock-icon { font-size: 20px; line-height: 1; }
         .site-dock .site-dock-label { font-size: 10px; font-weight: 700; color: var(--text-gray); }
 
+        /* ═══ 🔔 トースト通知（保存・エラー等の一時的なフィードバック） ═══ */
+        .toast-stack {
+            position: fixed;
+            left: 50%;
+            bottom: calc(84px + env(safe-area-inset-bottom));
+            z-index: 2000;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            gap: 8px;
+            transform: translateX(-50%);
+            pointer-events: none;
+            width: 100%;
+            max-width: calc(100% - 32px);
+        }
+        .toast {
+            background: rgba(28, 28, 30, 0.92);
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow-wrap: break-word;
+        }
+        .toast.toast-error { background: rgba(255, 59, 48, 0.92); }
+        .toast-fade-enter-active, .toast-fade-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
+        .toast-fade-enter-from, .toast-fade-leave-to { opacity: 0; transform: translateY(10px); }
+
     </style>
 </head>
 <body>
@@ -766,26 +823,35 @@
                 <button class="sidebar-close-btn" @click="showSidebar = false">×</button>
             </div>
             <nav>
-                <a href="https://taipak5000.github.io/tai-nomacan-pro/" class="sidebar-nav-link current-tool">
-                    {{ t('tools.taiNomacanPro') }}
+                <a href="https://taipak5000.github.io/tai-item/" class="sidebar-nav-link">
+                    {{ t('tools.item') }}
                 </a>
-                <a href="https://taipak5000.github.io/tai-nomacan/" class="sidebar-nav-link">
-                    {{ t('tools.taiNomacan') }}
-                </a>
-                <a href="https://taipak5000.github.io/companion/" class="sidebar-nav-link">
-                    {{ t('tools.companion') }}
+                <a href="https://taipak5000.github.io/tai-emote/" class="sidebar-nav-link">
+                    {{ t('tools.emote') }}
                 </a>
                 <a href="https://taipak5000.github.io/share/" class="sidebar-nav-link">
                     {{ t('tools.share') }}
                 </a>
-                <a href="https://taipak5000.github.io/tai-item/" class="sidebar-nav-link">
-                    {{ t('tools.item') }}
+                <a href="https://taipak5000.github.io/tai-nomacan/" class="sidebar-nav-link">
+                    {{ t('tools.taiNomacan') }}
+                </a>
+                <a href="https://taipak5000.github.io/star-candle/" class="sidebar-nav-link">
+                    {{ t('tools.starCandle') }}
+                </a>
+                <a href="https://taipak5000.github.io/companion/" class="sidebar-nav-link">
+                    {{ t('tools.companion') }}
+                </a>
+                <a href="https://taipak5000.github.io/wings/" class="sidebar-nav-link">
+                    {{ t('tools.wings') }}
                 </a>
                 <a href="https://taipak5000.github.io/tai-transfer/" class="sidebar-nav-link">
                     {{ t('tools.dataTransfer') }}
                 </a>
-                <a :href="RTA_TIMER_URL" class="sidebar-nav-link">
-                    {{ t('tools.rtaTimer') }}
+                <a href="https://taipak5000.github.io/tai-nomacan-pro/" class="sidebar-nav-link current-tool">
+                    {{ t('tools.taiNomacanPro') }}
+                </a>
+                <a href="https://taipak5000.github.io/tai-info/" class="sidebar-nav-link">
+                    {{ t('tools.info') }}
                 </a>
             </nav>
         </aside>
@@ -1701,7 +1767,7 @@
     </footer>
 
     <!-- ════ 習熟度アンケートモーダル ════ -->
-    <div v-if="skillModal.show" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:3000;display:flex;align-items:center;justify-content:center;padding:16px;" @click.self="skillModal.show=false">
+    <div v-if="skillModal.show" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;" @click.self="skillModal.show=false">
         <div style="background:var(--card-bg);border-radius:16px;padding:0;max-width:460px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.35);max-height:92vh;overflow-y:auto;display:flex;flex-direction:column;">
 
             <!-- ヘッダー -->
@@ -1793,6 +1859,13 @@
             <span class="site-dock-label">{{ t('dock.preferences') }}</span>
         </button>
     </nav>
+
+    <!-- ═══ 🔔 トースト通知 ═══ -->
+    <transition-group tag="div" name="toast-fade" class="toast-stack" aria-live="polite">
+        <div v-for="toast in toasts" :key="toast.id" class="toast" :class="{ 'toast-error': toast.type === 'error' }">
+            {{ toast.msg }}
+        </div>
+    </transition-group>
 
 </div>
 
@@ -1985,7 +2058,21 @@
             const isConfirming = ref(false);
             const spellMessage = ref("");
             const spellMessageType = ref("");
-            
+
+            // 🔔 トースト通知（画面下部に一時表示するフィードバック。site-dockの標準に合わせて
+            // 複数件同時発火しても重ならないよう配列でスタックし、一定時間後に自動で消える）
+            const toasts = ref([]);
+            let toastSeq = 0;
+            const showToast = (msg, type = "success") => {
+                if (!msg) return;
+                const id = ++toastSeq;
+                toasts.value.push({ id, msg, type });
+                setTimeout(() => {
+                    const idx = toasts.value.findIndex(x => x.id === id);
+                    if (idx !== -1) toasts.value.splice(idx, 1);
+                }, type === "error" ? 3400 : 2600);
+            };
+
             // 📥 マイルート個別の共有・読込用変数
             const routeInputSpell = ref("");
             const routeSpellMessage = ref("");
@@ -4081,6 +4168,7 @@ plannedUsage: plannedUsage.value, heartsToSend: heartsToSend.value, targetCandle
             const showInlineMessage = (msg, type) => {
                 spellMessage.value = msg; spellMessageType.value = type;
                 if (type === 'success') setTimeout(() => { spellMessage.value = ""; }, 5000);
+                showToast(msg, type);
             };
 
             const dailyReset = () => {
@@ -4275,6 +4363,7 @@ plannedUsage: plannedUsage.value, heartsToSend: heartsToSend.value, targetCandle
                 isDraggingCarryGauge, startCarryDrag, moveCarryDrag, endCarryDrag, handleCarryGaugeKeydown, carryFillPercent,
                 generatedSpell, inputSpell, isConfirming, spellMessage, spellMessageType,
                 routeInputSpell, routeSpellMessage, routeSpellMessageType,
+                toasts,
                 confirmModal, executeConfirm,
                 showSettings, showSidebar, openToolsSidebar, myRoutes, visibleSections, routeError, routeHintMessage,
                 dailyBonusArea, dailyShard, shardPrediction, syncDailyShardWithPrediction,

@@ -35,6 +35,10 @@ window.SKY_TRANSLATIONS = {
         "tools.item": "🗂️ アイテム所持管理",
         "tools.dataTransfer": "🔄 データ引継ぎ",
         "tools.rtaTimer": "⏱️ RTAタイマー",
+        "tools.emote": "🎭 エモート所持率管理",
+        "tools.wings": "🪽 羽トラッカー",
+        "tools.starCandle": "🕯️ 星のキャンドル計算機",
+        "tools.info": "⚙️ 設定・更新情報",
 
         // ── 表示設定パネル ──
         "settings.displaySettingsBtn": "⚙️ 表示設定",
@@ -346,6 +350,10 @@ window.SKY_TRANSLATIONS = {
         "tools.item": "🗂️ Item Collection",
         "tools.dataTransfer": "🔄 Data Transfer",
         "tools.rtaTimer": "⏱️ RTA Timer",
+        "tools.emote": "🎭 Emote Collection",
+        "tools.wings": "🪽 Wing Tracker",
+        "tools.starCandle": "🕯️ Star Candle Calculator",
+        "tools.info": "⚙️ Settings & Updates",
 
         "settings.displaySettingsBtn": "⚙️ Display Settings",
         "settings.panelHeader": "⚙️ Show/Hide Each Panel",
