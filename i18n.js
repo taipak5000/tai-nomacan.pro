@@ -89,6 +89,10 @@ window.SKY_TRANSLATIONS = {
         "refine.totalTime": "総所要時間:",
         "refine.nextThreshold": "次まで:",
         "refine.dailyResetBtn": "デイリーリセット",
+        "refine.dailyResetNotifyLabel": "🔔 デイリーリセット5分前に通知でお知らせ",
+        "refine.dailyResetNotifyUnsupported": "⚠️ この端末のブラウザは通知に対応していません",
+        "refine.dailyResetNotifyDenied": "⚠️ 通知が許可されませんでした。ブラウザの設定から通知を許可してください",
+        "refine.dailyResetNotifyOnHint": "🔔 通知をオンにしました（このタブを開いたままにしてください）",
 
         // ── キャンドル管理カード ──
         "candle.sectionHeader": "📅 キャンドル管理",
@@ -166,21 +170,9 @@ window.SKY_TRANSLATIONS = {
         "skill.multTemplate": "基準×{mult}",
         "skill.appliedMsg": "{label} として所要時間を設定しました（{multStr}）",
 
-        // ── データの共有（復活の呪文）カード ──
-        "spell.sectionHeader": "🧙‍♂️ データの共有（復活の呪文）",
-        "spell.exportLabel": "この端末のデータを呪文にする：",
-        "spell.generateBtn": "✨ 復活の呪文を生成",
-        "spell.generatedPlaceholder": "ボタンを押すとここに呪文が生成されます...",
-        "spell.importLabel": "他の端末の呪文から復元する：",
-        "spell.importPlaceholder": "他端末で生成した呪文をここに貼り付けてください...",
-        "spell.confirmOverwrite": "⚠️ 呪文を唱えると現在のデータが上書きされます。よろしいですか？",
-        "spell.confirmYes": "はい、唱えます",
-        "spell.confirmCancel": "やめる",
-        "spell.applyBtn": "🔮 呪文を唱える",
-        "spell.genFailed": "呪文の生成に失敗しました。",
-        "spell.emptyInput": "呪文を入力してください。",
-        "spell.restoreSuccess": "🌟 データの復元に成功しました！",
-        "spell.restoreFailed": "😢 じじゅもんが ちがいます！",
+        // ── データの共有（バックアップ・引き継ぎ）カード ──
+        "spell.sectionHeader": "💾 データのバックアップ・引き継ぎ",
+        "spell.transferGuideText": "このサイトのバックアップ・復元は、姉妹サイトの「データ引継ぎ」ツールに統合されました。下のボタンから開いて、他の端末へのデータ移行にご利用ください。",
 
         // ── マイルート管理カード ──
         "route.sectionHeader": "📍 マイルート管理（ルート比較・メモ・タイマー）",
@@ -188,6 +180,7 @@ window.SKY_TRANSLATIONS = {
         "route.importLabel": "📥 他人のルート呪文を読み込む",
         "route.importPlaceholder": "ここにルート共有用の呪文を貼り付け...",
         "route.importBtn": "読み込み",
+        "route.spellNoBgImageNote": "※ルート呪文にはカスタムアトラス背景画像は含まれません（この端末にのみ保存されるため、共有先には反映されません）。",
         "route.emptyState": "保存されたルートはありません。<br>下のエリア管理でスポットのチェックを入れて、お気に入りルートを保存してみましょう！",
         "route.namePlaceholder": "ルート名",
         "route.moveUp": "↑",
@@ -309,6 +302,10 @@ window.SKY_TRANSLATIONS = {
         "notify.shardTitle": "🌋 黒シャード発生間近",
         "notify.shardBody": "{realm}でまもなく黒シャードが発生します（{time}）",
 
+        // ── ブラウザ通知（デイリーリセット リマインダー） ──
+        "notify.dailyResetTitle": "🔄 デイリーリセット間近",
+        "notify.dailyResetBody": "まもなくデイリーリセットです。「デイリーリセット」ボタンの押し忘れにご注意ください。",
+
         // ── アトラス（精密マップ） ──
         "atlas.kindCandle": "キャンドル",
         "atlas.kindTreasure": "宝キャンドル",
@@ -401,6 +398,10 @@ window.SKY_TRANSLATIONS = {
         "refine.totalTime": "Total Time Required:",
         "refine.nextThreshold": "Next At:",
         "refine.dailyResetBtn": "Daily Reset",
+        "refine.dailyResetNotifyLabel": "🔔 Notify me 5 minutes before the daily reset",
+        "refine.dailyResetNotifyUnsupported": "⚠️ Notifications aren't supported on this browser",
+        "refine.dailyResetNotifyDenied": "⚠️ Notification permission was denied. Please allow notifications in your browser settings",
+        "refine.dailyResetNotifyOnHint": "🔔 Notifications are on (keep this tab open)",
 
         "candle.sectionHeader": "📅 Candle Management",
         "candle.dcNote": "*Grand Candle = DC",
@@ -475,26 +476,15 @@ window.SKY_TRANSLATIONS = {
         "skill.multTemplate": "baseline ×{mult}",
         "skill.appliedMsg": "Set time required as {label} ({multStr})",
 
-        "spell.sectionHeader": "🧙‍♂️ Data Sharing (Revival Spell)",
-        "spell.exportLabel": "Turn this device's data into a spell:",
-        "spell.generateBtn": "✨ Generate Revival Spell",
-        "spell.generatedPlaceholder": "Press the button to generate a spell here...",
-        "spell.importLabel": "Restore from a spell from another device:",
-        "spell.importPlaceholder": "Paste the spell generated on another device here...",
-        "spell.confirmOverwrite": "⚠️ Casting this spell will overwrite your current data. Are you sure?",
-        "spell.confirmYes": "Yes, cast it",
-        "spell.confirmCancel": "Cancel",
-        "spell.applyBtn": "🔮 Cast Spell",
-        "spell.genFailed": "Failed to generate the spell.",
-        "spell.emptyInput": "Please enter a spell.",
-        "spell.restoreSuccess": "🌟 Data restored successfully!",
-        "spell.restoreFailed": "😢 That spell doesn't look right!",
+        "spell.sectionHeader": "💾 Data Backup & Transfer",
+        "spell.transferGuideText": "Backup and restore for this site have been merged into the sister \"Data Transfer\" tool. Open it below to move your data to another device.",
 
         "route.sectionHeader": "📍 My Routes (Compare, Memo, Timer)",
         "route.saveCurrentBtn": "💾 Save Current Selection as a Route",
         "route.importLabel": "📥 Load Someone Else's Route Spell",
         "route.importPlaceholder": "Paste a route-sharing spell here...",
         "route.importBtn": "Load",
+        "route.spellNoBgImageNote": "*Route spells do not include custom atlas background images (they're saved only on this device and aren't carried over to whoever you share with).",
         "route.emptyState": "No saved routes yet.<br>Check some spots in the Area Management below and try saving your favorite route!",
         "route.namePlaceholder": "Route name",
         "route.moveUp": "↑",
@@ -612,6 +602,10 @@ window.SKY_TRANSLATIONS = {
         // ── Browser notifications (Black Shard reminder) ──
         "notify.shardTitle": "🌋 Black Shard Incoming",
         "notify.shardBody": "A black shard is about to erupt in {realm} ({time})",
+
+        // ── Browser notifications (Daily Reset reminder) ──
+        "notify.dailyResetTitle": "🔄 Daily Reset Coming Up",
+        "notify.dailyResetBody": "The daily reset is coming up soon. Don't forget to press the \"Daily Reset\" button.",
 
         "atlas.kindCandle": "Candle",
         "atlas.kindTreasure": "Treasure Candle",

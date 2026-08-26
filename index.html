@@ -948,6 +948,15 @@
                     <div style="color: var(--text-gray);">{{ calculated.nextReq }}</div>
                 </div>
                 <button class="btn btn-blue" @click="dailyReset">{{ t('refine.dailyResetBtn') }}</button>
+
+                <!-- 🔔 デイリーリセット前の通知リマインダー（オプトイン。黒シャード通知と同じ許可を流用） -->
+                <div style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--border-color);">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; font-weight:600;">
+                        <input type="checkbox" :checked="dailyResetNotifyEnabled" @change="onToggleDailyResetNotify($event)" style="width:20px;height:20px;">
+                        {{ t('refine.dailyResetNotifyLabel') }}
+                    </label>
+                    <div v-if="dailyResetNotifyStatus" style="font-size:12px; color:var(--text-gray); margin-top:4px;">{{ dailyResetNotifyStatus }}</div>
+                </div>
             </div>
 
             <div v-if="visibleSections.candleManage" class="section-card">
@@ -1091,31 +1100,15 @@
 
             <div v-if="visibleSections.spellShare" class="section-card">
                 <div class="section-header">{{ t('spell.sectionHeader') }}</div>
-                <div class="row" style="flex-direction: column; align-items: flex-start;">
-                    <div style="font-size: 12px; color: var(--text-gray); margin-bottom: 6px;">{{ t('spell.exportLabel') }}</div>
-                    <button class="btn btn-blue" @click="generateSpell" style="margin-top: 0; padding: 8px; font-size:14px;">{{ t('spell.generateBtn') }}</button>
-                    <textarea v-model="generatedSpell" readonly :placeholder="t('spell.generatedPlaceholder')" style="width: 100%; height: 60px; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-family: monospace; font-size: 11px; box-sizing: border-box; resize: none; margin-top: 8px; background: var(--input-bg); color: var(--text-color);" @click="$event.target.select()"></textarea>
+                <div style="font-size: 13px; color: var(--text-gray); line-height: 1.7; margin-bottom: 12px;">
+                    {{ t('spell.transferGuideText') }}
                 </div>
+                <a href="https://taipak5000.github.io/tai-transfer/" class="btn btn-blue" style="text-decoration: none; font-size: 14px;">
+                    {{ t('tools.dataTransfer') }}
+                </a>
 
-                <hr style="border: none; border-top: 1px solid var(--border-color); margin: 16px 0;">
-
-                <div class="row" style="flex-direction: column; align-items: flex-start; border-bottom: none; padding-bottom: 0;">
-                    <div style="font-size: 12px; color: var(--text-gray); margin-bottom: 6px;">{{ t('spell.importLabel') }}</div>
-                    <textarea v-model="inputSpell" :placeholder="t('spell.importPlaceholder')" style="width: 100%; height: 60px; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-family: monospace; font-size: 11px; box-sizing: border-box; resize: none;"></textarea>
-
-                    <div v-if="isConfirming" class="inline-alert inline-alert-confirm" style="width:100%; box-sizing:border-box;">
-                        {{ t('spell.confirmOverwrite') }}
-                        <div style="display:flex; gap:10px; margin-top:8px;">
-                            <button class="btn-outline-blue" @click="confirmApplySpell" style="background:var(--accent-orange); color:white; border:none; padding:6px 12px; font-weight:bold;">{{ t('spell.confirmYes') }}</button>
-                            <button class="btn-outline-blue" @click="isConfirming = false" style="background:#ccc; color:#333; border:none; padding:6px 12px;">{{ t('spell.confirmCancel') }}</button>
-                        </div>
-                    </div>
-
-                    <button v-else class="btn btn-orange" @click="requestApplySpell" style="margin-top: 8px; padding: 8px; font-size:14px;">{{ t('spell.applyBtn') }}</button>
-
-                    <div v-if="spellMessage" :class="['inline-alert', spellMessageType === 'success' ? 'inline-alert-success' : 'inline-alert-error']" style="width:100%; box-sizing:border-box;">
-                        {{ spellMessage }}
-                    </div>
+                <div v-if="spellMessage" :class="['inline-alert', spellMessageType === 'success' ? 'inline-alert-success' : 'inline-alert-error']" style="width:100%; box-sizing:border-box; margin-top: 12px;">
+                    {{ spellMessage }}
                 </div>
             </div>
         </div>
@@ -1134,6 +1127,7 @@
                         <input type="text" v-model="routeInputSpell" :placeholder="t('route.importPlaceholder')" style="flex-grow: 1; text-align: left; font-size: 12px; padding: 6px;">
                         <button class="btn-outline-blue" @click="applyRouteSpell" style="padding: 6px 12px; font-size: 12px; background: var(--accent-orange); color: white; border: none; font-weight: bold; white-space: nowrap;">{{ t('route.importBtn') }}</button>
                     </div>
+                    <div style="font-size: 11px; color: var(--text-gray); margin-top: 6px;">{{ t('route.spellNoBgImageNote') }}</div>
                     <div v-if="routeSpellMessage" :class="['inline-alert', routeSpellMessageType === 'success' ? 'inline-alert-success' : 'inline-alert-error']" style="margin-top: 6px; font-size: 12px; padding: 6px;">
                         {{ routeSpellMessage }}
                     </div>
@@ -2049,9 +2043,6 @@
                 myRoutes: true 
             });
 
-            const generatedSpell = ref("");
-            const inputSpell = ref("");
-            const isConfirming = ref(false);
             const spellMessage = ref("");
             const spellMessageType = ref("");
 
@@ -2399,6 +2390,68 @@ const plannedUsage = ref(0);
                     // 次回オンにした時は「今日以降」の予測から探し直す（オフの間の追跡状態を持ち越さない）
                     currentShardHit = null;
                     lastNotifiedShardUtcMs = 0;
+                }
+            };
+
+            // ────────────────────────────────────────────────────
+            // 🔔 デイリーリセット（このアプリが「今日」の境界としているPT 0:00）前の通知リマインダー
+            // 黒シャード通知と同じNotification API・許可（requestShardNotifyPermission）を
+            // そのまま流用したオプトイン機能。別個の許可を求めるものではない。
+            // ────────────────────────────────────────────────────
+            const DAILY_RESET_NOTIFY_LEAD_MINUTES = 5;
+            const dailyResetNotifyEnabled = ref(localStorage.getItem('sky_dailyreset_notify_enabled') === '1');
+            const dailyResetNotifyStatus = ref('');
+            let dailyResetNotifyTimerId = null;
+
+            const clearDailyResetNotifyTimer = () => {
+                if (dailyResetNotifyTimerId) { clearTimeout(dailyResetNotifyTimerId); dailyResetNotifyTimerId = null; }
+            };
+
+            const scheduleDailyResetNotification = () => {
+                clearDailyResetNotifyTimer();
+                if (!dailyResetNotifyEnabled.value) return;
+                if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+                // 「今日」はPT暦日基準（getPacificDateParts等と同じ）。次のリセットは常に翌PT日の0:00。
+                const now = getPacificNow();
+                const nextDay = addDaysToPacificDate(now.year, now.month, now.day, 1);
+                const nextResetUtcMs = pacificWallClockToUtcMs(nextDay.year, nextDay.month, nextDay.day, 0, 0);
+                const leadMs = DAILY_RESET_NOTIFY_LEAD_MINUTES * 60 * 1000;
+                let delay = nextResetUtcMs - leadMs - Date.now();
+                if (delay < 0) delay = Math.max(0, nextResetUtcMs - Date.now()); // すでにリセット間近ならその時刻に鳴らす
+                dailyResetNotifyTimerId = setTimeout(() => {
+                    try {
+                        new Notification(t('notify.dailyResetTitle'), {
+                            body: t('notify.dailyResetBody'),
+                            icon: 'icons/app-icon-192.png',
+                            tag: 'sky-daily-reset'
+                        });
+                    } catch (e) { console.error("Daily reset notification error:", e); }
+                    scheduleDailyResetNotification(); // 翌日分を続けて予約
+                }, delay);
+            };
+
+            // 設定チェックボックスの@changeから呼ぶ。許可の確認・要求は黒シャード通知と共通の
+            // requestShardNotifyPermission()をそのまま使う（デイリーリセット専用の許可は存在しないため）
+            const onToggleDailyResetNotify = async (e) => {
+                const checked = !!(e && e.target && e.target.checked);
+                if (checked) {
+                    const perm = await requestShardNotifyPermission();
+                    if (perm !== 'granted') {
+                        dailyResetNotifyEnabled.value = false;
+                        dailyResetNotifyStatus.value = (perm === 'unsupported') ? t('refine.dailyResetNotifyUnsupported') : t('refine.dailyResetNotifyDenied');
+                        try { localStorage.setItem('sky_dailyreset_notify_enabled', '0'); } catch (err) { /* noop */ }
+                        if (e && e.target) e.target.checked = false;
+                        return;
+                    }
+                    dailyResetNotifyEnabled.value = true;
+                    dailyResetNotifyStatus.value = t('refine.dailyResetNotifyOnHint');
+                    try { localStorage.setItem('sky_dailyreset_notify_enabled', '1'); } catch (err) { /* noop */ }
+                    scheduleDailyResetNotification();
+                } else {
+                    dailyResetNotifyEnabled.value = false;
+                    dailyResetNotifyStatus.value = '';
+                    try { localStorage.setItem('sky_dailyreset_notify_enabled', '0'); } catch (err) { /* noop */ }
+                    clearDailyResetNotifyTimer();
                 }
             };
 
@@ -3922,60 +3975,6 @@ plannedUsage.value = 0;
                 route.isExpanded = !route.isExpanded;
             };
 
-            // 🪄 データの共有（全体の復活の呪文用）
-            const generateSpell = () => {
-                try {
-                    stopAnyActiveTimer();
-                    const dataToSave = { areas: areas.value, placedItems: placedItems.value, carryOverPercent: carryOverPercent.value, targetDate: targetDate.value, currentCandles: currentCandles.value,
-plannedUsage: plannedUsage.value, heartsToSend: heartsToSend.value, targetCandlesForOptimization: targetCandlesForOptimization.value, candleMemo: candleMemo.value, myRoutes: myRoutes.value, visibleSections: visibleSections.value, dailyBonusArea: dailyBonusArea.value, dailyShard: dailyShard.value };
-                    const uint8array = new TextEncoder().encode(JSON.stringify(dataToSave));
-                    let binString = "";
-                    for (let i = 0; i < uint8array.length; i++) binString += String.fromCharCode(uint8array[i]);
-                    generatedSpell.value = btoa(binString);
-                } catch (e) { showInlineMessage(t('spell.genFailed'), "error"); }
-            };
-
-            const requestApplySpell = () => {
-                if (!inputSpell.value.trim()) { showInlineMessage(t('spell.emptyInput'), "error"); return; }
-                isConfirming.value = true;
-            };
-
-            const confirmApplySpell = () => {
-                isConfirming.value = false;
-                try {
-                    stopAnyActiveTimer();
-                    const binString = atob(inputSpell.value.trim());
-                    const uint8array = new Uint8Array(binString.length);
-                    for (let i = 0; i < binString.length; i++) uint8array[i] = binString.charCodeAt(i);
-                    const decoded = JSON.parse(new TextDecoder().decode(uint8array));
-                    
-                    if (decoded.areas) areas.value = decoded.areas;
-                    if (decoded.placedItems) placedItems.value = decoded.placedItems;
-                    if (decoded.carryOverPercent !== undefined) carryOverPercent.value = decoded.carryOverPercent;
-                    if (decoded.candleMemo !== undefined) candleMemo.value = decoded.candleMemo;
-                    if (decoded.targetDate) targetDate.value = decoded.targetDate;
-                    if (decoded.currentCandles !== undefined) currentCandles.value = decoded.currentCandles;
-                    if (decoded.plannedUsage !== undefined) plannedUsage.value = decoded.plannedUsage;
-                    if (decoded.heartsToSend !== undefined) heartsToSend.value = decoded.heartsToSend;
-                    if (decoded.targetCandlesForOptimization !== undefined) targetCandlesForOptimization.value = decoded.targetCandlesForOptimization;
-                    if (decoded.dailyBonusArea !== undefined) dailyBonusArea.value = Number(decoded.dailyBonusArea) || 0;
-                    if (decoded.dailyShard) dailyShard.value = decoded.dailyShard;
-                    
-                    if (Array.isArray(decoded.myRoutes)) {
-                        myRoutes.value = decoded.myRoutes.map(r => ({
-                            ...r, isExpanded: false,
-                            selectedSpotIds: Array.isArray(r.selectedSpotIds) ? r.selectedSpotIds : [],
-                            actualSeconds: Number(r.actualSeconds) || 0,
-                            runHistory: Array.isArray(r.runHistory) ? r.runHistory : [], // 🏁 タイムアタック履歴（直近分）
-                            generatedSpell: "",
-                            generatedTextExport: ""
-                        }));
-                    }
-                    if (decoded.visibleSections) visibleSections.value = { ...visibleSections.value, ...decoded.visibleSections };
-                    inputSpell.value = ""; showInlineMessage(t('spell.restoreSuccess'), "success");
-                } catch (e) { showInlineMessage(t('spell.restoreFailed'), "error"); }
-            };
-
             // 📤 特定のマイルートのみをパッケージして共有呪文を生成
             const generateRouteSpell = (route) => {
                 try {
@@ -4239,7 +4238,8 @@ plannedUsage: plannedUsage.value, heartsToSend: heartsToSend.value, targetCandle
                                 refs.push({ type: "sub", mIdx, sIdx, eff, light: lt });
                             } else if (Array.isArray(sub.spots)) {
                                 sub.spots.forEach((spot, spIdx) => {
-                                    if (spot) {
+                                    // 📅 曜日限定スポット（group:"曜日"）は本日該当しないものを自動最適化の候補から除外する
+                                    if (spot && isSpotActiveToday(spot)) {
                                         // スポット秒数廃止：サブエリアのtimeで効率を計算
                                         const subTime = sub.time || 0;
                                         const eff = subTime > 0 ? (spot.light / subTime) : 0.0;
@@ -4332,6 +4332,15 @@ plannedUsage: plannedUsage.value, heartsToSend: heartsToSend.value, targetCandle
                         try { localStorage.setItem('sky_shard_notify_enabled', '0'); } catch (err) { /* noop */ }
                     }
                 }
+                // 🔔 デイリーリセット通知も同様に、前回オンにしていた場合は許可が下りていれば継続する
+                if (dailyResetNotifyEnabled.value) {
+                    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+                        scheduleDailyResetNotification();
+                    } else {
+                        dailyResetNotifyEnabled.value = false;
+                        try { localStorage.setItem('sky_dailyreset_notify_enabled', '0'); } catch (err) { /* noop */ }
+                    }
+                }
                 window.addEventListener('resize', () => { isWideScreen.value = window.innerWidth >= 850; });
                 document.addEventListener('keydown', handleGlobalKeydown);
             });
@@ -4355,17 +4364,18 @@ plannedUsage: plannedUsage.value, heartsToSend: heartsToSend.value, targetCandle
                 lang, toggleLang, setLang, t, displayAreaName,
                 areas, carryOverPercent, targetDate, eventDays, currentCandles, plannedUsage, targetCandlesForOptimization, isWideScreen, thresholds, candleMemo,
                 isDraggingCarryGauge, startCarryDrag, moveCarryDrag, endCarryDrag, handleCarryGaugeKeydown, carryFillPercent,
-                generatedSpell, inputSpell, isConfirming, spellMessage, spellMessageType,
+                spellMessage, spellMessageType,
                 routeInputSpell, routeSpellMessage, routeSpellMessageType,
                 toasts,
                 confirmModal, executeConfirm,
                 showSettings, showSidebar, openToolsSidebar, myRoutes, visibleSections, routeError, routeHintMessage,
                 dailyBonusArea, dailyShard, shardPrediction, syncDailyShardWithPrediction,
                 shardNotifyEnabled, shardNotifyStatus, onToggleShardNotify,
+                dailyResetNotifyEnabled, dailyResetNotifyStatus, onToggleDailyResetNotify,
                 totalLight, calculated, projectedCandles, totalEfficiency, formattedTotalTime, dailyReset, optimize,
                 candleProjectionDaily, candleProjectionTruncated, candleProjectionFirstNegative, candleProjectionMaxDays, showCandleProjectionDetail, toggleCandleProjectionDetail,
                 heartsToSend, dailyHeartCost,
-                isAllMainSelected, toggleMainArea, isAllSubSelected, toggleSubArea, getSubAreaStats, getMainAreaStats, getMainAreaSelectedCount, moveMainArea, moveSubArea, generateSpell, requestApplySpell, confirmApplySpell,
+                isAllMainSelected, toggleMainArea, isAllSubSelected, toggleSubArea, getSubAreaStats, getMainAreaStats, getMainAreaSelectedCount, moveMainArea, moveSubArea,
                 areaSearchQuery, mainAreaMatchesAreaSearch, subAreaMatchesAreaSearch, spotMatchesAreaSearch, isMainAreaExpandedView, isSubAreaExpandedView, hasAreaSearchResults,
                 isWeekdayRotationSpot, isSpotActiveToday, showTodayOnlyFilter, toggleTodayOnlyFilter,
                 skillModal, openSkillModal, applySkillLevel,
