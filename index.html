@@ -793,11 +793,6 @@
     <header>
         <h1 v-if="isWideScreen">{{ t('pageTitleWide') }}</h1>
         <h1 v-else>{{ t('pageTitle') }}</h1>
-        <button class="theme-toggle-btn" @click="toggleTheme" :aria-label="themeAriaLabel">
-            <span v-if="themeMode === 'dark'">{{ t('themeDark') }}</span>
-            <span v-else-if="themeMode === 'light'">{{ t('themeLight') }}</span>
-            <span v-else>{{ t('themeSystem') }}</span>
-        </button>
         <button class="theme-toggle-btn" @click="toggleLang">
             {{ t('langToggleBtn') }}
         </button>
