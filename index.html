@@ -2005,6 +2005,10 @@
             const areas = ref([]);
             const placedItems = ref([]); 
             const carryOverPercent = ref(0.0);
+            // 🕯️ carryOverPercentが計算された時点の「次キャンドルまでの必要火種差」。
+            // thresholdsの段差は94固定ではないため、繰越%を実際の火種数へ戻す際は
+            // 常にこの値を基準にする（dailyReset()参照）。既定値94は低キャンドル帯の段差。
+            const carryOverGap = ref(94);
             const candleMemo = ref("");
 
             // 🕯️ 繰越ゲージ（キャンドル型・縦スライド）の操作
@@ -2704,6 +2708,7 @@ const plannedUsage = ref(0);
                 }
                 myRoutes.value = [];
                 carryOverPercent.value = 0;
+                carryOverGap.value = 94;
                 candleMemo.value = "";
 currentCandles.value = 0;
 plannedUsage.value = 0;
@@ -2721,6 +2726,7 @@ plannedUsage.value = 0;
                         plannedUsage.value = 0;
                         heartsToSend.value = 0;
                         carryOverPercent.value = 0;
+                        carryOverGap.value = 94;
                         dailyBonusArea.value = 0;
                         syncDailyShardWithPrediction(true);
                         candleMemo.value = "";
@@ -2801,6 +2807,7 @@ plannedUsage.value = 0;
                         areas: areas.value,
                         placedItems: placedItems.value,
                         carryOverPercent: carryOverPercent.value,
+                        carryOverGap: carryOverGap.value,
                         targetDate: targetDate.value,
                         currentCandles: currentCandles.value,
                         plannedUsage: plannedUsage.value,
@@ -2878,13 +2885,23 @@ plannedUsage.value = 0;
                                             if (!sub) return;
                                             const defSub = (defArea.subAreas || []).find(d => d.name === sub.name);
                                             if (!defSub || !Array.isArray(defSub.spots) || defSub.spots.length === 0) return;
-                                            sub.spots = defSub.spots.map(sp => ({ ...sp, id: uuid(), isSelected: false }));
+                                            // 既存スポットとname一致するものはid・isSelectedを引き継ぎ、
+                                            // ルート（myRoutes[].selectedSpotIds/splitTimes）の参照切れとユーザーの選択解除を防ぐ。
+                                            // light/time/groupなど中身の値のみ最新の既定データへ更新する。
+                                            const oldSpotsByName = new Map((sub.spots || []).filter(sp => sp && sp.name).map(sp => [sp.name, sp]));
+                                            sub.spots = defSub.spots.map(sp => {
+                                                const existing = oldSpotsByName.get(sp.name);
+                                                return existing
+                                                    ? { ...sp, id: existing.id, isSelected: !!existing.isSelected }
+                                                    : { ...sp, id: uuid(), isSelected: false };
+                                            });
                                         });
                                     });
                                 }
                             }
                             placedItems.value = Array.isArray(decoded.placedItems) ? decoded.placedItems : [];
                             carryOverPercent.value = decoded.carryOverPercent || 0;
+                            carryOverGap.value = Number(decoded.carryOverGap) || 94;
                             candleMemo.value = decoded.candleMemo || "";
                             if (decoded.targetDate) targetDate.value = decoded.targetDate;
                             currentCandles.value = Number(decoded.currentCandles) || 0;
@@ -3035,7 +3052,7 @@ plannedUsage.value = 0;
                 return totalTimeSelected > 0 ? (totalLightSelected / totalTimeSelected) : 0.0;
             });
 
-            const carryOverLight = computed(() => 94.0 * (carryOverPercent.value / 100.0));
+            const carryOverLight = computed(() => carryOverGap.value * (carryOverPercent.value / 100.0));
             
             const totalLight = computed(() => {
                 let bonus = 0;
@@ -3098,10 +3115,48 @@ plannedUsage.value = 0;
             const showCandleProjectionDetail = ref(false);
             const toggleCandleProjectionDetail = () => { showCandleProjectionDetail.value = !showCandleProjectionDetail.value; };
 
+            // 🔗 同一group（例:「曜日」で排他的な日替わりスポット）を持つスポット一覧について、
+            // 一括選択時にgroup内で1件だけが選択された状態になるようisSelectedを設定する。
+            // handleSpotChange()の排他ロジックと同じ制約を「全選択」系操作にも適用するためのヘルパー。
+            const setSpotsSelectedGroupAware = (spots, targetState) => {
+                if (!Array.isArray(spots)) return;
+                if (!targetState) {
+                    spots.forEach(s => { if (s) s.isSelected = false; });
+                    return;
+                }
+                const selectedGroups = new Set();
+                spots.forEach(s => {
+                    if (!s) return;
+                    const g = s.group && s.group.trim();
+                    if (!g) { s.isSelected = true; return; }
+                    if (selectedGroups.has(g)) { s.isSelected = false; }
+                    else { s.isSelected = true; selectedGroups.add(g); }
+                });
+            };
+            // groupを考慮した「これ以上選択できない（実質すべて選択済み）」判定。
+            // 排他groupは1件でも選択されていれば充足とみなす。
+            const isSpotsGroupAwareFullySelected = (spots) => {
+                if (!Array.isArray(spots) || spots.length === 0) return false;
+                const checkedGroups = new Set();
+                for (const s of spots) {
+                    if (!s) continue;
+                    const g = s.group && s.group.trim();
+                    if (!g) {
+                        if (!s.isSelected) return false;
+                        continue;
+                    }
+                    if (checkedGroups.has(g)) continue;
+                    checkedGroups.add(g);
+                    const anySelected = spots.some(sp => sp && sp.group && sp.group.trim() === g && sp.isSelected);
+                    if (!anySelected) return false;
+                }
+                return true;
+            };
+
             const isAllSubSelected = (subArea) => {
                 const sMode = getSubMode(subArea);
                 if (sMode === "sub") return !!subArea.isSelected;
-                return subArea && Array.isArray(subArea.spots) && subArea.spots.length > 0 && subArea.spots.every(s => s.isSelected);
+                return subArea && isSpotsGroupAwareFullySelected(subArea.spots);
             };
             const toggleSubArea = (subArea) => {
                 if (!subArea) return;
@@ -3110,7 +3165,7 @@ plannedUsage.value = 0;
                     subArea.isSelected = !subArea.isSelected;
                 } else {
                     const targetState = !isAllSubSelected(subArea);
-                    subArea.spots.forEach(s => s.isSelected = targetState);
+                    setSpotsSelectedGroupAware(subArea.spots, targetState);
                 }
                 save();
             };
@@ -3132,7 +3187,7 @@ plannedUsage.value = 0;
                         if (sMode === "sub") {
                             sub.isSelected = targetState;
                         } else if (sub && Array.isArray(sub.spots)) {
-                            sub.spots.forEach(s => { s.isSelected = targetState; });
+                            setSpotsSelectedGroupAware(sub.spots, targetState);
                         }
                     });
                 }
@@ -4173,12 +4228,15 @@ plannedUsage.value = 0;
             const dailyReset = () => {
                 const res = calculated.value;
                 let leftoverPercent = 0.0;
+                let gap = 94; // thresholdsの段差は一定でないため、%算出に使った段差を保持して繰越時に再利用する
                 if (res.candles < thresholds.length) {
                     const currentLevelBase = res.candles === 0 ? 0 : thresholds[res.candles - 1];
-                    leftoverPercent = (totalLight.value - currentLevelBase) / (thresholds[res.candles] - currentLevelBase);
+                    gap = thresholds[res.candles] - currentLevelBase;
+                    leftoverPercent = (totalLight.value - currentLevelBase) / gap;
                 }
                 currentCandles.value += res.candles;
                 carryOverPercent.value = Math.min(99, Math.max(0, leftoverPercent * 100));
+                carryOverGap.value = gap;
                 dailyBonusArea.value = 0; syncDailyShardWithPrediction(true);
 
                 if (Array.isArray(areas.value)) {
