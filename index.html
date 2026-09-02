@@ -1215,8 +1215,8 @@
                             <div v-if="getRunHistoryStats(route)" style="margin-top:10px; padding-top:8px; border-top:1px dashed var(--border-color); font-size:11.5px;">
                                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
                                     <span style="color:var(--text-gray);">
-                                        🏆 {{ t('route.historyBestLabel') }} <b style="color:var(--accent-green);">{{ formatSeconds(getRunHistoryStats(route).best) }}</b>
-                                        ／ 📊 {{ t('route.historyAvgLabel') }} <b>{{ formatSeconds(getRunHistoryStats(route).avg) }}</b>
+                                        {{ t('route.historyBestLabel') }} <b style="color:var(--accent-green);">{{ formatSeconds(getRunHistoryStats(route).best) }}</b>
+                                        ／ {{ t('route.historyAvgLabel') }} <b>{{ formatSeconds(getRunHistoryStats(route).avg) }}</b>
                                         <span>({{ t('route.historyCountLabel', { n: getRunHistoryStats(route).count }) }})</span>
                                     </span>
                                     <span @click="requestClearRunHistory(route)" style="color:var(--accent-red); cursor:pointer; white-space:nowrap; font-weight:600;">{{ t('route.historyClearBtn') }}</span>
@@ -1381,7 +1381,7 @@
                     <!-- 選択パネル: タップしたマーカーが属するサブエリアのスポットを選択できる -->
                     <div v-if="atlasActiveSub" class="atlas-sub-panel">
                         <div class="atlas-sub-panel-title">
-                            <span>📍 {{ displayAreaName(atlasActiveSub.area.name) }} ／ {{ displayAreaName(atlasActiveSub.sub.name) }}</span>
+                            <span>{{ displayAreaName(atlasActiveSub.area.name) }} ／ {{ displayAreaName(atlasActiveSub.sub.name) }}</span>
                             <span style="display:flex; align-items:center; gap:10px;">
                                 <label style="display:flex; align-items:center; gap:5px; cursor:pointer; font-weight:600;">
                                     <input type="checkbox" :checked="isAllSubSelected(atlasActiveSub.sub)" @change="toggleSubArea(atlasActiveSub.sub)">
@@ -3827,8 +3827,8 @@ plannedUsage.value = 0;
                 const items = getRouteLineItems(route);
                 const stats = getRouteStats(route);
                 const lines = [];
-                lines.push(`📍 ${route.name || ""}`);
-                if (route.memo) lines.push(`📝 ${route.memo}`);
+                lines.push(`${route.name || ""}`);
+                if (route.memo) lines.push(`${route.memo}`);
                 lines.push("");
                 let hasSharedTime = false;
                 items.forEach((it, idx) => {
