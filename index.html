@@ -66,6 +66,16 @@
         .inline-icon.ok { stroke: var(--accent-green); color: var(--accent-green); }
         .inline-icon.match { stroke: currentColor; color: currentColor; }
 
+        .icon-chip {
+            display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+            background: rgba(0,122,255,0.12);
+            background-image: linear-gradient(180deg, rgba(255,255,255,0.32), rgba(255,255,255,0) 60%);
+            border-radius: 26%;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35), inset 0 1px 1px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.10);
+            color: var(--accent-blue);
+        }
+        .icon-chip svg { display: block; stroke: var(--accent-blue); fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
@@ -832,6 +842,8 @@
     <symbol id="i-face-1" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 10.3v.01M15.5 10.3v.01"/><path d="M9 15c1-1 2-1.3 3-1.3s2 .3 3 1.3"/></symbol>
     <symbol id="i-face-2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 10.3v.01M15.5 10.3v.01"/><path d="M9 13.8c1 1 2 1.3 3 1.3s2-.3 3-1.3"/></symbol>
     <symbol id="i-face-3" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 10.3v.01M15.5 10.3v.01"/><path d="M8 13c1.3 2.2 2.6 3 4 3s2.7-.8 4-3"/></symbol>
+    <symbol id="i-keyboard" viewBox="0 0 24 24"><path d="M3.5 7.5A1.5 1.5 0 0 1 5 6h14a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 18H5a1.5 1.5 0 0 1-1.5-1.5Z"/><path d="M6.5 9.5h.01M9.5 9.5h.01M12.5 9.5h.01M15.5 9.5h.01M17.5 9.5h.01M6.5 12.5h.01M9.5 12.5h.01M12.5 12.5h.01M15.5 12.5h.01M17.5 12.5h.01M8 15.5h8"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.094) translate(-12 -12)"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M4.5 9h15M4.5 15h15"/><path d="M12 4a12 12 0 0 1 0 16"/><path d="M12 4a12 12 0 0 0 0 16"/></g></symbol>
 </defs></svg>
 
 
@@ -865,7 +877,7 @@
         <aside class="sidebar section-card" :class="{ 'sidebar-open': showSidebar }">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
                 <div class="sidebar-section-label" style="margin-bottom: 0;">{{ t('sidebar.relatedToolsLabel') }}</div>
-                <button class="sidebar-close-btn" @click="showSidebar = false"><svg class="inline-icon" width="14" height="14"><use href="#i-close"/></svg></button>
+                <button class="sidebar-close-btn" @click="showSidebar = false"><span class="icon-chip" style="width:22px; height:22px;"><svg width="16" height="16"><use href="#i-close"/></svg></span></button>
             </div>
             <nav>
                 <a href="https://taipak5000.github.io/tai-item/" class="sidebar-nav-link">
@@ -1746,11 +1758,11 @@
         <div class="app-modal-content" style="max-width: 420px;">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
                 <div style="font-size: 16px; font-weight: bold;">{{ t('settings.appSettingsBtn') }}</div>
-                <button @click="showAppSettingsModal = false" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-gray);line-height:1;padding:0 4px;">×</button>
+                <button @click="showAppSettingsModal = false" style="background:none;border:none;cursor:pointer;line-height:1;padding:0 4px;"><span class="icon-chip" style="width:22px; height:22px;"><svg width="16" height="16"><use href="#i-close"/></svg></span></button>
             </div>
 
             <div style="margin-bottom: 18px;">
-                <div style="font-size:13px; font-weight:bold; color: var(--accent-blue); margin-bottom:8px;">{{ t('settings.displaySectionHeader') }}</div>
+                <div style="font-size:13px; font-weight:bold; color: var(--accent-blue); margin-bottom:8px;"><svg class="inline-icon" width="15" height="15"><use href="#i-monitor"/></svg> {{ t('settings.displaySectionHeader') }}</div>
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:var(--stat-box-bg); border:1px solid var(--border-color); border-radius:8px; padding:10px 12px;">
                     <span style="font-size:14px;">{{ t('settings.darkModeLabel') }}</span>
                     <button class="btn-outline-blue" @click="toggleTheme" style="padding:6px 12px; font-size:13px;" :aria-label="themeAriaLabel">
@@ -1762,7 +1774,7 @@
             </div>
 
             <div style="margin-bottom: 18px;">
-                <div style="font-size:13px; font-weight:bold; color: var(--accent-blue); margin-bottom:8px;">{{ t('settings.shortcutsSectionHeader') }}</div>
+                <div style="font-size:13px; font-weight:bold; color: var(--accent-blue); margin-bottom:8px;"><svg class="inline-icon" width="15" height="15"><use href="#i-keyboard"/></svg> {{ t('settings.shortcutsSectionHeader') }}</div>
                 <label style="display:flex; align-items:center; justify-content:space-between; gap:8px; cursor:pointer; background:var(--stat-box-bg); border:1px solid var(--border-color); border-radius:8px; padding:10px 12px; margin-bottom:10px;">
                     <span style="font-size:14px;">{{ t('settings.shortcutsEnableLabel') }}</span>
                     <input type="checkbox" v-model="shortcutsEnabled" style="width:20px;height:20px;">
@@ -1785,7 +1797,7 @@
             </div>
 
             <div style="margin-bottom: 18px;">
-                <div style="font-size:13px; font-weight:bold; color: var(--accent-blue); margin-bottom:8px;">{{ t('settings.langSectionHeader') }}</div>
+                <div style="font-size:13px; font-weight:bold; color: var(--accent-blue); margin-bottom:8px;"><svg class="inline-icon" width="15" height="15"><use href="#i-globe"/></svg> {{ t('settings.langSectionHeader') }}</div>
                 <div class="view-toggle-row">
                     <button type="button" class="view-toggle-btn" :class="{active: lang === 'ja'}" @click="setLang('ja')">日本語</button>
                     <button type="button" class="view-toggle-btn" :class="{active: lang === 'en'}" @click="setLang('en')">English</button>
@@ -1817,7 +1829,7 @@
             <div style="padding:20px 24px 0;position:sticky;top:0;background:var(--card-bg);z-index:1;border-radius:16px 16px 0 0;">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
                     <div style="font-size:18px;font-weight:bold;">{{ t('skill.modalHeader') }}</div>
-                    <button @click="skillModal.show=false" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-gray);line-height:1;padding:0 4px;">×</button>
+                    <button @click="skillModal.show=false" style="background:none;border:none;cursor:pointer;line-height:1;padding:0 4px;"><span class="icon-chip" style="width:22px; height:22px;"><svg width="16" height="16"><use href="#i-close"/></svg></span></button>
                 </div>
                 <div style="font-size:12px;color:var(--text-gray);margin-bottom:14px;">{{ t('skill.modalDesc') }}</div>
                 <hr style="border:none;border-top:1px solid var(--border-color);margin:0 -24px 0;">
@@ -1890,15 +1902,15 @@
     <!-- ═══ 🧭 サイトドック（クイックメニュー） ═══ -->
     <nav class="site-dock" :aria-label="t('dock.ariaLabel')">
         <button type="button" @click="setAreaViewMode('map')">
-            <span class="site-dock-icon"><svg class="inline-icon" width="19" height="19"><use href="#i-map"/></svg></span>
+            <span class="site-dock-icon"><span class="icon-chip" style="width:28px; height:28px;"><svg width="22" height="22"><use href="#i-map"/></svg></span></span>
             <span class="site-dock-label">{{ t('dock.areaView') }}</span>
         </button>
         <button type="button" @click="openToolsSidebar">
-            <span class="site-dock-icon"><svg class="inline-icon" width="19" height="19"><use href="#i-menu"/></svg></span>
+            <span class="site-dock-icon"><span class="icon-chip" style="width:28px; height:28px;"><svg width="22" height="22"><use href="#i-menu"/></svg></span></span>
             <span class="site-dock-label">{{ t('dock.otherTools') }}</span>
         </button>
         <button type="button" @click="showAppSettingsModal = true">
-            <span class="site-dock-icon"><svg class="inline-icon" width="19" height="19"><use href="#i-settings"/></svg></span>
+            <span class="site-dock-icon"><span class="icon-chip" style="width:28px; height:28px;"><svg width="22" height="22"><use href="#i-settings"/></svg></span></span>
             <span class="site-dock-label">{{ t('dock.preferences') }}</span>
         </button>
     </nav>
