@@ -61,6 +61,11 @@
             --stat-box-bg: rgba(255, 255, 255, 0.04);
         }
 
+        .inline-icon { stroke: var(--accent-blue); fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; vertical-align: -3px; color: var(--accent-blue); }
+        .inline-icon.warn { stroke: var(--accent-red); color: var(--accent-red); }
+        .inline-icon.ok { stroke: var(--accent-green); color: var(--accent-green); }
+        .inline-icon.match { stroke: currentColor; color: currentColor; }
+
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
@@ -788,6 +793,47 @@
     </style>
 </head>
 <body>
+<svg id="pf-icon-sprite" width="0" height="0" style="position:absolute; overflow:hidden;" aria-hidden="true"><defs>
+    <symbol id="i-folder" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.094) translate(-12 -12)"><path d="M4 6.5A1.5 1.5 0 0 1 5.5 5h4l1.6 2H18.5A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5Z"/></g></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.458) translate(-12 -12)"><path d="M6 6l12 12M18 6L6 18"/></g></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><path d="M4.5 5.5h15a1 1 0 0 1 1 1V19a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1V6.5a1 1 0 0 1 1-1Z"/><path d="M8 3.5v4M16 3.5v4M3.5 10h17"/></symbol>
+    <symbol id="i-warning" viewBox="0 0 24 24"><path d="M12 4L3 20h18L12 4Z"/><path d="M12 10v4M12 17h.01"/></symbol>
+    <symbol id="i-candle" viewBox="0 0 24 24"><path d="M9.5 21h5a1 1 0 0 0 1-1v-7.5a3 3 0 0 0-3-3h-1a3 3 0 0 0-3 3V20a1 1 0 0 0 1 1Z"/><path d="M12 9.5V5M10.3 5.2C10.3 3.7 12 3.5 12 2c0 1.5 1.7 1.7 1.7 3.2 0 .9-.75 1.3-1.7 1.3s-1.7-.4-1.7-1.3Z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.129) translate(-12.25 -12)"><path d="M4.5 12.5l5 5L20 6.5"/></g></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.5 5.6 6.1.6-4.6 4.1 1.3 6-5.3-3.2-5.3 3.2 1.3-6-4.6-4.1 6.1-.6Z"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5c-5-3.5-9-7-9-11.2C3 6 5 4 7.7 4c1.7 0 3.3.9 4.3 2.4C13 4.9 14.6 4 16.3 4 19 4 21 6 21 9.3c0 4.2-4 7.7-9 11.2Z"/></symbol>
+    <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.5 6L20 12l-6.5 1.5L12 21l-1.5-6L4 12l6.5-1.5Z"/></symbol>
+    <symbol id="i-wing" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.281) translate(-10.5 -12.83)"><path d="M4 19c2-6 6-11 13-13-1 6-2 9-6 12-3 2-5 2-7 1Z"/><path d="M7 17c3-2 6-5 8-9"/></g></symbol>
+    <symbol id="i-music-note" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.207) translate(-13.75 -10.75)"><path d="M9 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/><path d="M11.5 15.5V5l7-1.5v9"/><path d="M18.5 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/></g></symbol>
+    <symbol id="i-sync" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.094) translate(-12 -12)"><path d="M17 7h-8a4 4 0 0 0-4 4"/><path d="M11 4l-2 3 2 3"/><path d="M7 17h8a4 4 0 0 0 4-4"/><path d="M13 20l2-3-2-3"/></g></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.094) translate(-12 -12)"><path d="M4 7h16M4 12h16M4 17h16"/></g></symbol>
+    <symbol id="i-lightbulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-6 6c0 2.5 1.5 4 2.5 5.5.5.7.5 1 .5 1.5h6c0-.5 0-.8.5-1.5C16.5 13 18 11.5 18 9a6 6 0 0 0-6-6Z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><path d="M12 6.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z"/><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.049) translate(-11.66 -12.34)"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></g></symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24"><path d="M4 5.5h16a1 1 0 0 1 1 1V16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6.5a1 1 0 0 1 1-1Z"/><path d="M9 20.5h6M12 17v3.5"/></symbol>
+    <symbol id="i-crown" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.094) translate(-12 -12)"><path d="M4 10l4 3 4-6 4 6 4-3v7H4Z"/></g></symbol>
+    <symbol id="i-gift" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.094) translate(-12 -12.5)"><path d="M4 9h16v3H4Z"/><path d="M5 12h14v8H5Z"/><path d="M12 9v11"/><path d="M9 9c-1.3 0-2.3-.9-2.3-2S7.7 5 9 5c1.3 0 3 1.7 3 4M15 9c1.3 0 2.3-.9 2.3-2S16.3 5 15 5c-1.3 0-3 1.7-3 4"/></g></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.074) translate(-12 -12.15)"><path d="M4 6l6-2 4 2 6-2v14l-6 2-4-2-6 2Z"/><path d="M10 4.3v14M14 6.3v14"/></g></symbol>
+    <symbol id="i-compass" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.094) translate(-12 -12)"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M14.5 9.5l-1.8 4.2-4.2 1.8 1.8-4.2Z"/></g></symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M12 3c-5 2-8 6-8 11a8 8 0 0 0 8 7c5-2 8-6 8-11a8 8 0 0 0-8-7Z"/><path d="M12 21V9"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 21c4 0 6-3 6-6.5 0-2-1-3.5-2-5 0 2-1.5 3-2.5 2C14 9 13 6 10 4c1 3-1 5-2.5 7-1 1.3-1.5 2.5-1.5 3.5C6 18 8 21 12 21Z"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3L5 14h5l-1 7 9-12h-5Z"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.094) translate(-12 -12)"><path d="M6.5 11h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1Z"/><path d="M8 11V8a4 4 0 1 1 8 0v3"/></g></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.458) translate(-12 -12)"><path d="M6 9l6 6 6-6"/></g></symbol>
+    <symbol id="i-chevron-right" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.458) translate(-12 -12)"><path d="M9 6l6 6-6 6"/></g></symbol>
+    <symbol id="i-masks" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.094) translate(-12 -12)"><path d="M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16Z"/><path d="M9 10v.01M15 10v.01"/><path d="M8.5 14.5q3.5 3 7 0"/></g></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M12 3.2a1.3 1.3 0 0 0-1.3 1.3v.4C8.6 5.5 7 7.8 7 10.4V14l-1.8 2.8h13.6L17 14v-3.6c0-2.6-1.6-4.9-3.7-5.5v-.4A1.3 1.3 0 0 0 12 3.2Z"/><path d="M9.8 18.3a2.2 2.2 0 0 0 4.4 0"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.167) translate(-12 -12)"><path d="M12 4.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15Z"/><path d="M12 8.2V12.3l3 1.8"/></g></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-6.1-6.5-11A6.5 6.5 0 0 1 18.5 10c0 4.9-6.5 11-6.5 11Z"/><path d="M12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.094) translate(-12 -12)"><path d="M12 4v11M8 11l4 4 4-4"/><path d="M5 13v6a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-6"/></g></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><g transform="translate(12 12) scale(1.094) translate(-12 -12)"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.5" cy="6.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.5" cy="17.5" r="1.1" fill="currentColor" stroke="none"/></g></symbol>
+    <symbol id="i-face-0" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 10.3v.01M15.5 10.3v.01"/><path d="M8.5 15.3c1-2 2.1-2.8 3.5-2.8s2.5.8 3.5 2.8"/></symbol>
+    <symbol id="i-face-1" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 10.3v.01M15.5 10.3v.01"/><path d="M9 15c1-1 2-1.3 3-1.3s2 .3 3 1.3"/></symbol>
+    <symbol id="i-face-2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 10.3v.01M15.5 10.3v.01"/><path d="M9 13.8c1 1 2 1.3 3 1.3s2-.3 3-1.3"/></symbol>
+    <symbol id="i-face-3" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 10.3v.01M15.5 10.3v.01"/><path d="M8 13c1.3 2.2 2.6 3 4 3s2.7-.8 4-3"/></symbol>
+</defs></svg>
+
 
 <div class="container" id="app">
     <header>
@@ -819,41 +865,41 @@
         <aside class="sidebar section-card" :class="{ 'sidebar-open': showSidebar }">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
                 <div class="sidebar-section-label" style="margin-bottom: 0;">{{ t('sidebar.relatedToolsLabel') }}</div>
-                <button class="sidebar-close-btn" @click="showSidebar = false">×</button>
+                <button class="sidebar-close-btn" @click="showSidebar = false"><svg class="inline-icon" width="14" height="14"><use href="#i-close"/></svg></button>
             </div>
             <nav>
                 <a href="https://taipak5000.github.io/tai-item/" class="sidebar-nav-link">
-                    {{ t('tools.item') }}
+                    <svg class="inline-icon" width="14" height="14"><use href="#i-folder"/></svg> {{ t('tools.item') }}
                 </a>
                 <a href="https://taipak5000.github.io/tai-emote/" class="sidebar-nav-link">
-                    {{ t('tools.emote') }}
+                    <svg class="inline-icon" width="14" height="14"><use href="#i-masks"/></svg> {{ t('tools.emote') }}
                 </a>
                 <a href="https://taipak5000.github.io/share/" class="sidebar-nav-link">
-                    {{ t('tools.share') }}
+                    <svg class="inline-icon" width="14" height="14"><use href="#i-pin"/></svg> {{ t('tools.share') }}
                 </a>
                 <a href="https://taipak5000.github.io/tai-nomacan/" class="sidebar-nav-link">
-                    {{ t('tools.taiNomacan') }}
+                    <svg class="inline-icon" width="14" height="14"><use href="#i-candle"/></svg> {{ t('tools.taiNomacan') }}
                 </a>
                 <a href="https://taipak5000.github.io/star-candle/" class="sidebar-nav-link">
-                    {{ t('tools.starCandle') }}
+                    <svg class="inline-icon" width="14" height="14"><use href="#i-candle"/></svg> {{ t('tools.starCandle') }}
                 </a>
                 <a href="https://taipak5000.github.io/companion/" class="sidebar-nav-link">
-                    {{ t('tools.companion') }}
+                    <svg class="inline-icon" width="14" height="14"><use href="#i-sparkle"/></svg> {{ t('tools.companion') }}
                 </a>
                 <a href="https://taipak5000.github.io/wings/" class="sidebar-nav-link">
-                    {{ t('tools.wings') }}
+                    <svg class="inline-icon" width="14" height="14"><use href="#i-wing"/></svg> {{ t('tools.wings') }}
                 </a>
                 <a href="https://taipak5000.github.io/tai-score/" class="sidebar-nav-link">
-                    <span class="tool-badge-test">test</span><span>{{ t('tools.taiScore') }}</span>
+                    <span class="tool-badge-test">test</span><span><svg class="inline-icon" width="14" height="14"><use href="#i-music-note"/></svg> {{ t('tools.taiScore') }}</span>
                 </a>
                 <a href="https://taipak5000.github.io/tai-transfer/" class="sidebar-nav-link">
-                    {{ t('tools.dataTransfer') }}
+                    <svg class="inline-icon" width="14" height="14"><use href="#i-sync"/></svg> {{ t('tools.dataTransfer') }}
                 </a>
                 <a href="https://taipak5000.github.io/tai-nomacan-pro/" class="sidebar-nav-link current-tool">
-                    {{ t('tools.taiNomacanPro') }}
+                    <svg class="inline-icon" width="14" height="14"><use href="#i-candle"/></svg> {{ t('tools.taiNomacanPro') }}
                 </a>
                 <a href="https://taipak5000.github.io/tai-info/" class="sidebar-nav-link">
-                    {{ t('tools.info') }}
+                    <svg class="inline-icon" width="14" height="14"><use href="#i-settings"/></svg> {{ t('tools.info') }}
                 </a>
             </nav>
         </aside>
@@ -1086,7 +1132,7 @@
                 </div>
                 <!-- 現在のレベル表示 -->
                 <div v-if="skillModal.lastLevel" style="display:flex;align-items:center;gap:12px;background:var(--bg-color);border-radius:12px;padding:12px 16px;margin-bottom:12px;border:1px solid var(--border-color);">
-                    <span style="font-size:32px;line-height:1;">{{ skillModal.lastLevel.emoji }}</span>
+                    <span style="font-size:32px;line-height:1;"><svg class="inline-icon" width="32" height="32" style="vertical-align:middle;"><use :href="'#' + skillModal.lastLevel.emoji"></use></svg></span>
                     <div style="min-width:0;">
                         <div style="font-size:15px;font-weight:bold;">{{ t(skillModal.lastLevel.labelKey) }}</div>
                         <div style="font-size:11px;color:var(--text-gray);margin-top:2px;">{{ t(skillModal.lastLevel.descKey) }}</div>
@@ -1100,6 +1146,7 @@
                 </div>
                 <button @click="openSkillModal()"
                     style="width:100%;padding:13px;background:var(--accent-purple);color:white;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;letter-spacing:0.03em;">
+                    <svg v-if="!skillModal.lastLevel" class="inline-icon match" width="12" height="12"><use href="#i-chevron-right"/></svg>
                     {{ skillModal.lastLevel ? t('skill.retryBtn') : t('skill.startBtn') }}
                 </button>
             </div>
@@ -1110,7 +1157,7 @@
                     {{ t('spell.transferGuideText') }}
                 </div>
                 <a href="https://taipak5000.github.io/tai-transfer/" class="btn btn-blue" style="text-decoration: none; font-size: 14px;">
-                    {{ t('tools.dataTransfer') }}
+                    <svg class="inline-icon" width="14" height="14" style="stroke:#fff;"><use href="#i-sync"/></svg> {{ t('tools.dataTransfer') }}
                 </a>
 
                 <div v-if="spellMessage" :class="['inline-alert', spellMessageType === 'success' ? 'inline-alert-success' : 'inline-alert-error']" style="width:100%; box-sizing:border-box; margin-top: 12px;">
@@ -1154,15 +1201,15 @@
                         <input type="text" v-model="route.name" :placeholder="t('route.namePlaceholder')" style="font-weight: bold; font-size: 15px; flex-grow: 1; min-width: 0; border: none; background: transparent; padding: 2px 0; text-align: left;">
 
                         <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; max-width: 100%;">
-                            <button class="btn-outline-blue" @click="moveRouteCard(rIdx, -1)" :disabled="rIdx === 0" style="padding: 4px 6px; font-size: 11px;">{{ t('route.moveUp') }}</button>
-                            <button class="btn-outline-blue" @click="moveRouteCard(rIdx, 1)" :disabled="rIdx === myRoutes.length - 1" style="padding: 4px 6px; font-size: 11px;">{{ t('route.moveDown') }}</button>
+                            <button class="btn-outline-blue" @click="moveRouteCard(rIdx, -1)" :disabled="rIdx === 0" style="padding: 4px 6px; font-size: 11px;"><svg class="inline-icon" width="11" height="11" style="transform:rotate(180deg)"><use href="#i-chevron-down"/></svg></button>
+                            <button class="btn-outline-blue" @click="moveRouteCard(rIdx, 1)" :disabled="rIdx === myRoutes.length - 1" style="padding: 4px 6px; font-size: 11px;"><svg class="inline-icon" width="11" height="11"><use href="#i-chevron-down"/></svg></button>
 
                             <button class="btn-outline-blue" @click="applyRoute(route)" style="padding: 4px 10px; font-size: 12px; background: var(--accent-blue); color: white; font-weight: bold; border: none; border-radius: 6px;">{{ t('route.apply') }}</button>
                             <button class="btn-outline-blue" @click="shareRoute(route)" style="padding: 4px 8px; font-size: 12px; background: var(--accent-purple); color: white; border: none; border-radius: 6px; font-weight: bold;">{{ t('route.share') }}</button>
                             <button class="btn-outline-blue" @click="exportRouteAsText(route)" style="padding: 4px 8px; font-size: 12px; font-weight: bold; white-space: nowrap;">{{ t('route.exportTextBtn') }}</button>
                             <button class="btn-outline-blue" @click="runRouteInTimer(route)" style="padding: 4px 8px; font-size: 12px; background: var(--accent-green); color: white; border: none; border-radius: 6px; font-weight: bold; white-space: nowrap;">{{ t('route.rtaBtn') }}</button>
                             <button class="expand-toggle-btn" @click="toggleRouteExpand(route)" style="padding: 4px 8px; font-size: 12px; border-radius: 6px; min-width: auto; height: auto; margin:0;">
-                                {{ route.isExpanded ? '▼' : '▶' }}
+                                <svg class="inline-icon" width="12" height="12" :style="{ transform: route.isExpanded ? 'rotate(90deg)' : 'none' }"><use href="#i-chevron-right"/></svg>
                             </button>
                         </div>
                     </div>
@@ -1201,7 +1248,7 @@
 
                             <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
                                 <button v-if="runningRouteId !== route.id" class="btn-outline-blue" @click="startTimer(route)" style="background: var(--accent-green); color: white; border: none; padding: 5px 12px; font-weight: bold;">
-                                    {{ t('route.startBtn') }}
+                                    <svg class="inline-icon match" width="12" height="12"><use href="#i-chevron-right"/></svg> {{ t('route.startBtn') }}
                                 </button>
                                 <button v-else class="btn-outline-blue" @click="pauseTimer(route)" style="background: var(--accent-orange); color: white; border: none; padding: 5px 12px; font-weight: bold;">
                                     {{ t('route.pauseBtn') }}
@@ -1236,12 +1283,12 @@
                                 <div v-for="(spotId, sIdx) in route.selectedSpotIds" :key="spotId" style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; background: var(--card-bg); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color); gap: 4px; flex-wrap: wrap;">
                                     <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 65%;">{{ getSpotNameById(spotId) }}</span>
                                     <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end;">
-                                        <span v-if="(route.splitTimes || {})[spotId] != null" style="font-family: monospace; font-size: 10px; color: var(--accent-green); font-weight: bold; white-space: nowrap;">🚩{{ formatSeconds(route.splitTimes[spotId]) }}</span>
+                                        <span v-if="(route.splitTimes || {})[spotId] != null" style="font-family: monospace; font-size: 10px; color: var(--accent-green); font-weight: bold; white-space: nowrap;"><svg class="inline-icon ok" width="10" height="10"><use href="#i-pin"/></svg>{{ formatSeconds(route.splitTimes[spotId]) }}</span>
                                         <button v-if="runningRouteId === route.id" class="btn-outline-blue" @click="recordRouteSplit(route, spotId)" style="padding: 2px 6px; font-size: 10px; background: var(--accent-green); color: white; border: none; white-space: nowrap;">{{ t('route.lapBtn') }}</button>
                                         <div class="btn-action-group" style="gap: 4px; flex-shrink: 0;">
-                                            <button class="btn-outline-blue" @click="moveRouteSpot(route, sIdx, -1)" :disabled="sIdx === 0" style="padding: 2px 6px; font-size: 10px;">↑</button>
-                                            <button class="btn-outline-blue" @click="moveRouteSpot(route, sIdx, 1)" :disabled="sIdx === route.selectedSpotIds.length - 1" style="padding: 2px 6px; font-size: 10px;">↓</button>
-                                            <button class="btn-outline-red" @click="removeSpotFromRoute(route, sIdx)" style="padding: 2px 5px; font-size: 10px; margin-left: 2px;">×</button>
+                                            <button class="btn-outline-blue" @click="moveRouteSpot(route, sIdx, -1)" :disabled="sIdx === 0" style="padding: 2px 6px; font-size: 10px;"><svg class="inline-icon" width="10" height="10" style="transform:rotate(180deg)"><use href="#i-chevron-down"/></svg></button>
+                                            <button class="btn-outline-blue" @click="moveRouteSpot(route, sIdx, 1)" :disabled="sIdx === route.selectedSpotIds.length - 1" style="padding: 2px 6px; font-size: 10px;"><svg class="inline-icon" width="10" height="10"><use href="#i-chevron-down"/></svg></button>
+                                            <button class="btn-outline-red" @click="removeSpotFromRoute(route, sIdx)" style="padding: 2px 5px; font-size: 10px; margin-left: 2px;"><svg class="inline-icon warn" width="10" height="10"><use href="#i-close"/></svg></button>
                                         </div>
                                     </div>
                                 </div>
@@ -1255,7 +1302,7 @@
                         <div style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; background: var(--bg-color); padding: 10px; border-radius: 6px;">
                             <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border-color); padding-bottom: 4px; margin-bottom: 4px; flex-wrap: wrap; gap: 4px;">
                                 <span>{{ t('route.idealTotal') }}</span>
-                                <span>🔥{{ getRouteStats(route).light }} / ⏱️{{ getRouteStats(route).timeStr }} / {{ t('route.efficiency') }} <b style="color:var(--accent-blue);">{{ getRouteStats(route).eff.toFixed(1) }}/s</b></span>
+                                <span><svg class="inline-icon" width="12" height="12"><use href="#i-flame"/></svg>{{ getRouteStats(route).light }} / <svg class="inline-icon" width="12" height="12"><use href="#i-clock"/></svg>{{ getRouteStats(route).timeStr }} / {{ t('route.efficiency') }} <b style="color:var(--accent-blue);">{{ getRouteStats(route).eff.toFixed(1) }}/s</b></span>
                             </div>
                             <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px;">
                                 <span>{{ t('route.actualStatus') }}</span>
@@ -1278,9 +1325,9 @@
                 <div class="section-header">{{ t('area.sectionHeader') }}</div>
 
                 <div class="view-toggle-row">
-                    <button type="button" class="view-toggle-btn" :class="{active: areaViewMode === 'list'}" @click="setAreaViewMode('list')">{{ t('area.viewList') }}</button>
-                    <button type="button" class="view-toggle-btn" :class="{active: areaViewMode === 'map'}" @click="setAreaViewMode('map')">{{ t('area.viewMap') }}</button>
-                    <button type="button" class="view-toggle-btn" :class="{active: areaViewMode === 'atlas'}" @click="setAreaViewMode('atlas')">{{ t('area.viewAtlas') }}</button>
+                    <button type="button" class="view-toggle-btn" :class="{active: areaViewMode === 'list'}" @click="setAreaViewMode('list')"><svg class="inline-icon match" width="13" height="13"><use href="#i-list"/></svg> {{ t('area.viewList') }}</button>
+                    <button type="button" class="view-toggle-btn" :class="{active: areaViewMode === 'map'}" @click="setAreaViewMode('map')"><svg class="inline-icon match" width="13" height="13"><use href="#i-map"/></svg> {{ t('area.viewMap') }}</button>
+                    <button type="button" class="view-toggle-btn" :class="{active: areaViewMode === 'atlas'}" @click="setAreaViewMode('atlas')"><svg class="inline-icon match" width="13" height="13"><use href="#i-compass"/></svg> {{ t('area.viewAtlas') }}</button>
                 </div>
 
                 <!-- ══════════════════ 🧭 精密マップビュー ══════════════════
@@ -1316,7 +1363,7 @@
                         <div class="atlas-zoom-controls">
                             <button type="button" class="atlas-zoom-btn" @click="atlasZoomBy(1.5)">＋</button>
                             <button type="button" class="atlas-zoom-btn" @click="atlasZoomBy(1/1.5)">−</button>
-                            <button type="button" class="atlas-zoom-btn" @click="atlasResetView()" style="font-size:13px;">⟳</button>
+                            <button type="button" class="atlas-zoom-btn" @click="atlasResetView()" style="font-size:13px;"><svg class="inline-icon match" width="13" height="13"><use href="#i-sync"/></svg></button>
                         </div>
                         <svg class="atlas-svg" :class="{dragging: atlasDrag.active}"
                              :view-box.camel="atlasViewBox"
@@ -1387,8 +1434,8 @@
                                     <input type="checkbox" :checked="isAllSubSelected(atlasActiveSub.sub)" @change="toggleSubArea(atlasActiveSub.sub)">
                                     {{ t('area.selectAll') }}
                                 </label>
-                                <span style="color:var(--text-gray); font-weight:600;">⏱️{{ atlasActiveSub.sub.time || 0 }}{{ t('area.secLabel') }} ⚡{{ getSubAreaStats(atlasActiveSub.sub).eff.toFixed(1) }}/s</span>
-                                <button type="button" class="modal-closeish" style="background:none;border:none;cursor:pointer;font-size:15px;color:var(--text-gray);" @click="atlasActiveSubKey = ''">✕</button>
+                                <span style="color:var(--text-gray); font-weight:600;"><svg class="inline-icon" width="12" height="12"><use href="#i-clock"/></svg>{{ atlasActiveSub.sub.time || 0 }}{{ t('area.secLabel') }} <svg class="inline-icon" width="12" height="12"><use href="#i-bolt"/></svg>{{ getSubAreaStats(atlasActiveSub.sub).eff.toFixed(1) }}/s</span>
+                                <button type="button" class="modal-closeish" style="background:none;border:none;cursor:pointer;font-size:15px;color:var(--text-gray);" @click="atlasActiveSubKey = ''"><svg class="inline-icon match" width="14" height="14"><use href="#i-close"/></svg></button>
                             </span>
                         </div>
                         <div class="atlas-chips">
@@ -1398,8 +1445,8 @@
                                  @click="toggleMapSpot(atlasActiveSub.mIdx, atlasActiveSub.sIdx, spIdx)"
                                  @keydown.enter="toggleMapSpot(atlasActiveSub.mIdx, atlasActiveSub.sIdx, spIdx)"
                                  @keydown.space.prevent="toggleMapSpot(atlasActiveSub.mIdx, atlasActiveSub.sIdx, spIdx)">
-                                <span>{{ spot.isSelected ? '✅' : '⬜' }} {{ displayAreaName(spot.name) }}</span>
-                                <span class="chip-light">🔥{{ spot.light }}</span>
+                                <span>{{ displayAreaName(spot.name) }}</span>
+                                <span class="chip-light"><svg class="inline-icon" width="11" height="11"><use href="#i-flame"/></svg>{{ spot.light }}</span>
                             </div>
                         </div>
                     </div>
@@ -1426,8 +1473,8 @@
                                 </span>
                             </div>
                             <div class="realm-map-stats">
-                                <span>🔥 <b>{{ getMainAreaStats(mainArea).light }}</b></span>
-                                <span>⚡ <b>{{ getMainAreaStats(mainArea).eff.toFixed(1) }}</b>/s</span>
+                                <span><svg class="inline-icon" width="12" height="12"><use href="#i-flame"/></svg> <b>{{ getMainAreaStats(mainArea).light }}</b></span>
+                                <span><svg class="inline-icon" width="12" height="12"><use href="#i-bolt"/></svg> <b>{{ getMainAreaStats(mainArea).eff.toFixed(1) }}</b>/s</span>
                             </div>
                         </div>
 
@@ -1440,7 +1487,7 @@
                                         <input type="checkbox" :checked="isAllSubSelected(mini.sub)" @change="toggleSubArea(mini.sub)">
                                         <b>{{ displayAreaName(mini.sub.name) }}</b>
                                     </label>
-                                    <span class="mini-map-stats">⏱️{{ mini.sub.time || 0 }}{{ t('area.secLabel') }} ⚡{{ getSubAreaStats(mini.sub).eff.toFixed(1) }}/s</span>
+                                    <span class="mini-map-stats"><svg class="inline-icon" width="11" height="11"><use href="#i-clock"/></svg>{{ mini.sub.time || 0 }}{{ t('area.secLabel') }} <svg class="inline-icon" width="11" height="11"><use href="#i-bolt"/></svg>{{ getSubAreaStats(mini.sub).eff.toFixed(1) }}/s</span>
                                 </div>
                                 <svg class="mini-map-svg" :view-box.camel="`0 0 340 ${mini.h}`">
                                     <!-- 背景と地形ブロブ -->
@@ -1488,7 +1535,7 @@
                                        @click="onMapMarkerClick(mIdx, m)"
                                        @keydown.enter="onMapMarkerClick(mIdx, m)"
                                        @keydown.space.prevent="onMapMarkerClick(mIdx, m)">
-                                        <title>{{ displayAreaName(m.name) }}（🔥{{ m.light }}）{{ m.isToday ? '・' + t('area.todayBadge') : '' }}</title>
+                                        <title>{{ displayAreaName(m.name) }}（{{ m.light }}）{{ m.isToday ? '・' + t('area.todayBadge') : '' }}</title>
                                         <circle :r="m.r"></circle>
                                         <circle v-if="m.isToday" class="map-marker-today-dot" :cx="m.r * 0.72" :cy="-(m.r * 0.72)" r="4.2"></circle>
                                         <text class="map-marker-num" :font-size="m.fs">{{ m.light }}</text>
@@ -1531,7 +1578,7 @@
                             </span>
                         </div>
                         <div class="expand-toggle-btn" @click="mainArea.isExpanded = !mainArea.isExpanded">
-                            <span style="color:var(--text-gray); font-size:13px;">{{ isMainAreaExpandedView(mainArea) ? '▼' : '▶' }}</span>
+                            <span style="color:var(--text-gray); font-size:13px;"><svg class="inline-icon" width="13" height="13" :style="{ transform: isMainAreaExpandedView(mainArea) ? 'rotate(90deg)' : 'none' }"><use href="#i-chevron-right"/></svg></span>
                         </div>
                     </div>
 
@@ -1542,11 +1589,11 @@
                             <span style="color:var(--text-color); font-size:12px;">{{ t('area.selectedLabel') }}</span>
                         </label>
                         <div class="flex-group">
-                            <span>🔥</span>
+                            <span><svg class="inline-icon" width="13" height="13"><use href="#i-flame"/></svg></span>
                             <input type="number" v-model.number="mainArea.light" min="0" style="width:58px; padding:3px 5px; font-size:13px;">
                         </div>
                         <div class="flex-group">
-                            <span>⏱️</span>
+                            <span><svg class="inline-icon" width="13" height="13"><use href="#i-clock"/></svg></span>
                             <input type="number" v-model.number="mainArea.time" min="0" style="width:58px; padding:3px 5px; font-size:13px;">
                             <span style="font-size:11px;">{{ t('area.secLabel') }}</span>
                         </div>
@@ -1558,7 +1605,7 @@
                     <!-- メインエリアの所要時間入力（サブエリアありだが全サブの所要時間が未入力のとき） -->
                     <div v-if="mainArea.subAreas.length > 0 && mainArea.subAreas.every(s => !(s.time > 0))" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:4px 0 2px 28px; font-size:12px; color:var(--text-gray);">
                         <div class="flex-group">
-                            <span>⏱️ {{ t('area.durationLabel') }}</span>
+                            <span><svg class="inline-icon" width="13" height="13"><use href="#i-clock"/></svg> {{ t('area.durationLabel') }}</span>
                             <input type="number" v-model.number="mainArea.time" min="0" style="width:58px; padding:2px 4px; font-size:12px;">
                             <span style="font-size:11px;">{{ t('area.secLabel') }}</span>
                         </div>
@@ -1590,7 +1637,7 @@
                                     <input type="text" v-model="subArea.name" style="font-weight:bold; font-size:13px; background:transparent; border:none; min-width:0; flex:1;">
                                 </div>
                                 <div class="expand-toggle-btn" @click="subArea.isExpanded = !subArea.isExpanded" style="padding:4px 8px; font-size:12px;">
-                                    <span style="color:var(--text-gray);">{{ isSubAreaExpandedView(subArea) ? '▼' : '▶' }}</span>
+                                    <span style="color:var(--text-gray);"><svg class="inline-icon" width="12" height="12" :style="{ transform: isSubAreaExpandedView(subArea) ? 'rotate(90deg)' : 'none' }"><use href="#i-chevron-right"/></svg></span>
                                 </div>
                             </div>
 
@@ -1601,11 +1648,11 @@
                                     <span style="color:var(--text-color); font-size:11px;">{{ t('area.selectedLabel') }}</span>
                                 </label>
                                 <div class="flex-group">
-                                    <span>🔥</span>
+                                    <span><svg class="inline-icon" width="13" height="13"><use href="#i-flame"/></svg></span>
                                     <input type="number" v-model.number="subArea.light" min="0" style="width:52px; padding:2px 4px; font-size:12px;">
                                 </div>
                                 <div class="flex-group">
-                                    <span>⏱️</span>
+                                    <span><svg class="inline-icon" width="13" height="13"><use href="#i-clock"/></svg></span>
                                     <input type="number" v-model.number="subArea.time" min="0" style="width:52px; padding:2px 4px; font-size:12px;">
                                     <span style="font-size:11px;">{{ t('area.secLabel') }}</span>
                                 </div>
@@ -1617,7 +1664,7 @@
                             <!-- サブエリアにスポットがある場合：サブエリアの秒数入力を折り畳み外に表示 -->
                             <div v-else style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:5px 0 3px 26px; font-size:12px; color:var(--text-gray);">
                                 <div class="flex-group">
-                                    <span>⏱️ {{ t('area.durationLabel') }}</span>
+                                    <span><svg class="inline-icon" width="13" height="13"><use href="#i-clock"/></svg> {{ t('area.durationLabel') }}</span>
                                     <input type="number" v-model.number="subArea.time" min="0" style="width:52px; padding:2px 4px; font-size:12px;">
                                     <span style="font-size:11px;">{{ t('area.secLabel') }}</span>
                                 </div>
@@ -1629,8 +1676,8 @@
                             <!-- 操作ボタン -->
                             <div class="subarea-title-row2" style="margin-top:4px;">
                                 <div class="btn-action-group">
-                                    <button class="btn-outline-blue" @click="moveSubArea(mIdx,sIdx,-1)" :disabled="sIdx===0" style="padding:2px 6px;font-size:11px;">↑</button>
-                                    <button class="btn-outline-blue" @click="moveSubArea(mIdx,sIdx,1)" :disabled="sIdx===mainArea.subAreas.length-1" style="padding:2px 6px;font-size:11px;">↓</button>
+                                    <button class="btn-outline-blue" @click="moveSubArea(mIdx,sIdx,-1)" :disabled="sIdx===0" style="padding:2px 6px;font-size:11px;"><svg class="inline-icon" width="11" height="11" style="transform:rotate(180deg)"><use href="#i-chevron-down"/></svg></button>
+                                    <button class="btn-outline-blue" @click="moveSubArea(mIdx,sIdx,1)" :disabled="sIdx===mainArea.subAreas.length-1" style="padding:2px 6px;font-size:11px;"><svg class="inline-icon" width="11" height="11"><use href="#i-chevron-down"/></svg></button>
                                 </div>
                                 <button class="btn-outline-red" @click="requestDeleteSubArea(mIdx,sIdx)" style="padding:2px 6px;font-size:11px;">{{ t('area.deleteSubArea') }}</button>
                             </div>
@@ -1649,14 +1696,14 @@
                                         <!-- 火種のみ（秒数欄なし） -->
                                         <div style="display:flex; align-items:center; gap:12px; padding-left:25px; font-size:12px; color:var(--text-gray); flex-wrap:wrap;">
                                             <div class="flex-group">
-                                                <span>{{ t('area.fireLabel') }}</span>
+                                                <span><svg class="inline-icon" width="12" height="12"><use href="#i-flame"/></svg> {{ t('area.fireLabel') }}</span>
                                                 <input type="number" v-model.number="spot.light" min="0" style="width:52px; padding:2px 4px; font-size:12px;">
                                             </div>
                                             <div class="flex-group">
                                                 <span>{{ t('area.groupLabel') }}</span>
                                                 <input type="text" v-model="spot.group" :placeholder="t('area.groupPlaceholder')" style="width:68px; padding:2px 4px; font-size:12px;">
                                             </div>
-                                            <span v-if="isWeekdayRotationSpot(spot) && isSpotActiveToday(spot)" class="today-spot-badge">📅 {{ t('area.todayBadge') }}</span>
+                                            <span v-if="isWeekdayRotationSpot(spot) && isSpotActiveToday(spot)" class="today-spot-badge"><svg class="inline-icon match" width="11" height="11"><use href="#i-calendar"/></svg> {{ t('area.todayBadge') }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1680,7 +1727,7 @@
 <div v-if="confirmModal.show" class="app-modal-overlay" @click.self="confirmModal.show = false">
         <div class="app-modal-content">
             <div style="font-size: 16px; font-weight: bold; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-                {{ t('confirmModal.title') }}
+                <svg class="inline-icon warn" width="16" height="16"><use href="#i-warning"/></svg> {{ t('confirmModal.title') }}
             </div>
             <p style="white-space: pre-wrap; font-size: 14px; line-height: 1.5; margin: 0 0 22px 0;">{{ confirmModal.message }}</p>
             <div style="display: flex; gap: 10px; justify-content: flex-end;">
@@ -1707,9 +1754,9 @@
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:var(--stat-box-bg); border:1px solid var(--border-color); border-radius:8px; padding:10px 12px;">
                     <span style="font-size:14px;">{{ t('settings.darkModeLabel') }}</span>
                     <button class="btn-outline-blue" @click="toggleTheme" style="padding:6px 12px; font-size:13px;" :aria-label="themeAriaLabel">
-                        <span v-if="themeMode === 'dark'">{{ t('themeDark') }}</span>
-                        <span v-else-if="themeMode === 'light'">{{ t('themeLight') }}</span>
-                        <span v-else>{{ t('themeSystem') }}</span>
+                        <span v-if="themeMode === 'dark'"><svg class="inline-icon" width="13" height="13"><use href="#i-moon"/></svg> {{ t('themeDark') }}</span>
+                        <span v-else-if="themeMode === 'light'"><svg class="inline-icon" width="13" height="13"><use href="#i-sun"/></svg> {{ t('themeLight') }}</span>
+                        <span v-else><svg class="inline-icon" width="13" height="13"><use href="#i-monitor"/></svg> {{ t('themeSystem') }}</span>
                     </button>
                 </div>
             </div>
@@ -1797,7 +1844,7 @@
                             @click="skillModal.answers[qi] = opt.v"
                             style="padding:10px 4px;border-radius:8px;border:2px solid var(--border-color);font-size:12px;cursor:pointer;transition:all 0.15s;line-height:1.3;background:var(--card-bg);color:var(--text-color);white-space:pre-line;"
                             :style="skillModal.answers[qi]===opt.v ? {background:'var(--accent-blue)',color:'white',borderColor:'var(--accent-blue)',fontWeight:'bold'} : {}"
-                        >{{ t(opt.iconKey) }}</button>
+                        ><svg class="inline-icon match" width="20" height="20" style="display:block; margin:0 auto 3px;"><use :href="'#' + opt.icon"></use></svg>{{ t(opt.iconKey) }}</button>
                     </div>
                 </div>
 
@@ -1817,7 +1864,7 @@
                     </div>
                     <!-- レベル表示 -->
                     <div v-if="skillModal.allAnswered" style="text-align:center;padding:6px;background:var(--card-bg);border-radius:10px;">
-                        <div style="font-size:22px;margin-bottom:2px;">{{ skillModal.resultEmoji }}</div>
+                        <div style="font-size:22px;margin-bottom:2px;"><svg class="inline-icon" width="22" height="22" style="vertical-align:middle;"><use :href="'#' + skillModal.resultEmoji"></use></svg></div>
                         <div style="font-size:12px;color:var(--text-gray);">{{ t('skill.resultTiming') }} <b style="color:var(--text-color);">{{ t(skillModal.resultLabelKey) }} {{ t(skillModal.resultDescKey) }}</b> {{ t('skill.resultSuffix') }}</div>
                     </div>
                     <div v-else style="text-align:center;font-size:12px;color:var(--text-gray);">{{ t('skill.resultNotReady') }}</div>
@@ -1843,15 +1890,15 @@
     <!-- ═══ 🧭 サイトドック（クイックメニュー） ═══ -->
     <nav class="site-dock" :aria-label="t('dock.ariaLabel')">
         <button type="button" @click="setAreaViewMode('map')">
-            <span class="site-dock-icon">🗺️</span>
+            <span class="site-dock-icon"><svg class="inline-icon" width="19" height="19"><use href="#i-map"/></svg></span>
             <span class="site-dock-label">{{ t('dock.areaView') }}</span>
         </button>
         <button type="button" @click="openToolsSidebar">
-            <span class="site-dock-icon">☰</span>
+            <span class="site-dock-icon"><svg class="inline-icon" width="19" height="19"><use href="#i-menu"/></svg></span>
             <span class="site-dock-label">{{ t('dock.otherTools') }}</span>
         </button>
         <button type="button" @click="showAppSettingsModal = true">
-            <span class="site-dock-icon">⚙️</span>
+            <span class="site-dock-icon"><svg class="inline-icon" width="19" height="19"><use href="#i-settings"/></svg></span>
             <span class="site-dock-label">{{ t('dock.preferences') }}</span>
         </button>
     </nav>
@@ -2477,11 +2524,11 @@ const plannedUsage = ref(0);
             // areas-data.js の time は「エキスパート（×1.0・倍率なし）」が基準
             // ────────────────────────────────────────────────────
             const SKILL_LEVELS = [
-                { key: "beginner",     emoji: "🌱", labelKey: "skill.levelBeginnerLabel",     descKey: "skill.levelBeginnerDesc",     mult: 2.5  },
-                { key: "novice",       emoji: "🌿", labelKey: "skill.levelNoviceLabel",       descKey: "skill.levelNoviceDesc",       mult: 2.0  },
-                { key: "intermediate", emoji: "⭐", labelKey: "skill.levelIntermediateLabel", descKey: "skill.levelIntermediateDesc", mult: 1.7  },
-                { key: "advanced",     emoji: "🌟", labelKey: "skill.levelAdvancedLabel",     descKey: "skill.levelAdvancedDesc",     mult: 1.3  },
-                { key: "expert",       emoji: "💫", labelKey: "skill.levelExpertLabel",       descKey: "skill.levelExpertDesc",       mult: 1.0  },
+                { key: "beginner",     emoji: "i-leaf",    labelKey: "skill.levelBeginnerLabel",     descKey: "skill.levelBeginnerDesc",     mult: 2.5  },
+                { key: "novice",       emoji: "i-leaf",    labelKey: "skill.levelNoviceLabel",       descKey: "skill.levelNoviceDesc",       mult: 2.0  },
+                { key: "intermediate", emoji: "i-star",    labelKey: "skill.levelIntermediateLabel", descKey: "skill.levelIntermediateDesc", mult: 1.7  },
+                { key: "advanced",     emoji: "i-star",    labelKey: "skill.levelAdvancedLabel",     descKey: "skill.levelAdvancedDesc",     mult: 1.3  },
+                { key: "expert",       emoji: "i-sparkle", labelKey: "skill.levelExpertLabel",       descKey: "skill.levelExpertDesc",       mult: 1.0  },
             ];
 
             // スコア（0〜12点）→ レベルインデックス
@@ -2496,10 +2543,10 @@ const plannedUsage = ref(0);
 
             // 4段階の選択肢（全問共通ラベル・アイコン）
             const SCALE_OPTS = [
-                { v: 0, iconKey: "skill.opt0" },
-                { v: 1, iconKey: "skill.opt1" },
-                { v: 2, iconKey: "skill.opt2" },
-                { v: 3, iconKey: "skill.opt3" },
+                { v: 0, iconKey: "skill.opt0", icon: "i-face-0" },
+                { v: 1, iconKey: "skill.opt1", icon: "i-face-1" },
+                { v: 2, iconKey: "skill.opt2", icon: "i-face-2" },
+                { v: 3, iconKey: "skill.opt3", icon: "i-face-3" },
             ];
 
             const skillModal = ref({
