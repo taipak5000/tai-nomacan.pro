@@ -268,7 +268,7 @@
             font-size: 13px;
             font-weight: bold;
             margin-top: 8px;
-            line-height: 1.4;
+            line-height: 1.6;
         }
         .inline-alert-success { background: rgba(52,199,89,0.15); color: var(--accent-green); border: 1px solid var(--accent-green); }
         .inline-alert-error { background: rgba(255,59,48,0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
@@ -598,7 +598,7 @@
         }
         footer a {
             color: var(--accent-blue);
-            text-decoration: none;
+            text-decoration: underline;
             font-weight: 500;
         }
         footer a:hover {
@@ -979,7 +979,7 @@
                                 {{ tm.label }}
                             </span>
                         </div>
-                        <div style="font-size:12px; color:var(--text-gray); margin-top:8px;">{{ t('refine.receiveOnceNote') }}</div>
+                        <div style="font-size:12px; color:var(--text-gray); margin-top:8px; line-height:1.5;">{{ t('refine.receiveOnceNote') }}</div>
 
                         <!-- 🔔 発生前の通知リマインダー（オプトイン） -->
                         <div style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--border-color);">
@@ -994,18 +994,18 @@
 
                 <div class="row">
                     <div>{{ t('refine.expectedCandles') }}</div>
-                    <div class="bold-text" style="color: var(--accent-orange);">{{ calculated.candles }} {{ t('refine.candlesUnit') }}</div>
+                    <div class="bold-text" style="color: var(--accent-orange);">{{ calculated.candles }} <span style="font-size:0.65em; font-weight:normal; color:var(--text-gray);">{{ t('refine.candlesUnit') }}</span></div>
                 </div>
                 <div class="row">
                     <div>{{ t('refine.totalLight') }}</div>
                     <div>{{ totalLight }}</div>
                 </div>
                 <div class="row">
-                    <div style="font-weight: bold;">{{ t('refine.totalEfficiency') }}</div>
+                    <div>{{ t('refine.totalEfficiency') }}</div>
                     <div class="bold-text" style="color: var(--accent-blue);">{{ totalEfficiency.toFixed(2) }} <span style="font-size:12px; font-weight:normal; color:var(--text-gray);">/s</span></div>
                 </div>
                 <div class="row">
-                    <div style="font-weight: bold;">{{ t('refine.totalTime') }}</div>
+                    <div>{{ t('refine.totalTime') }}</div>
                     <div class="bold-text" style="color: var(--accent-blue);">{{ formattedTotalTime }}</div>
                 </div>
                 <div class="row" v-if="calculated.candles < thresholds.length">
@@ -1079,8 +1079,8 @@
                     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                         <input type="number" v-model.number="heartsToSend" min="0" style="width:70px;">
                         <span v-if="heartsToSend > 0" style="font-size:12px; color:var(--text-gray); white-space:nowrap;">
-                            {{ t('candle.perDayCost') }} <b style="color:var(--accent-orange);">-{{ dailyHeartCost }} {{ t('refine.candlesUnit') }}</b>
-                            <span v-if="eventDays > 0">{{ t('candle.overDaysCost', { days: eventDays }) }} <b style="color:var(--accent-red);">-{{ dailyHeartCost * eventDays }} {{ t('refine.candlesUnit') }}</b></span>
+                            {{ t('candle.perDayCost') }} <b style="color:var(--accent-orange);">-{{ dailyHeartCost }} <span style="font-weight:normal; color:var(--text-gray);">{{ t('refine.candlesUnit') }}</span></b>
+                            <span v-if="eventDays > 0">{{ t('candle.overDaysCost', { days: eventDays }) }} <b style="color:var(--accent-red);">-{{ dailyHeartCost * eventDays }} <span style="font-weight:normal; color:var(--text-gray);">{{ t('refine.candlesUnit') }}</span></b></span>
                         </span>
                     </div>
                 </div>
@@ -1090,12 +1090,12 @@
                 </div>
                 <div class="row">
                     <div>{{ t('candle.remainingDays') }}</div>
-                    <div style="font-weight: bold;">{{ eventDays }} {{ t('candle.remainingDaysUnit') }}</div>
+                    <div style="font-weight: bold;">{{ eventDays }} <span style="font-weight:normal; font-size:0.8em; color:var(--text-gray);">{{ t('candle.remainingDaysUnit') }}</span></div>
                 </div>
                 <div class="row">
                     <div>{{ t('candle.projectedRemaining') }}</div>
                     <div class="bold-text" :style="{ color: projectedCandles >= 0 ? 'inherit' : 'var(--accent-red)' }">
-                        {{ projectedCandles }} {{ t('refine.candlesUnit') }}
+                        {{ projectedCandles }} <span style="font-size:0.65em; font-weight:normal; color:var(--text-gray);">{{ t('refine.candlesUnit') }}</span>
                     </div>
                 </div>
 
@@ -1113,13 +1113,13 @@
                                  style="display:flex; justify-content:space-between; align-items:center; padding:5px 10px; font-size:12.5px; border-bottom:1px solid var(--border-color);"
                                  :style="{ background: row.total < 0 ? 'rgba(255,59,48,0.08)' : 'transparent' }">
                                 <span style="color:var(--text-gray);">{{ t('candle.dailyBreakdownDayLabel', { n: row.day }) }} {{ row.dateLabel }}</span>
-                                <span style="font-weight:700;" :style="{ color: row.total < 0 ? 'var(--accent-red)' : 'inherit' }">
-                                    {{ row.total }} {{ t('refine.candlesUnit') }}
+                                <span style="font-weight:700; font-variant-numeric:tabular-nums;" :style="{ color: row.total < 0 ? 'var(--accent-red)' : 'inherit' }">
+                                    {{ row.total }} <span style="font-weight:400; color:var(--text-gray);">{{ t('refine.candlesUnit') }}</span>
                                 </span>
                             </div>
                         </div>
-                        <div style="font-size:11px; color:var(--text-gray); margin-top:8px;">{{ t('candle.dailyBreakdownAssumptionNote') }}</div>
-                        <div v-if="candleProjectionTruncated" style="font-size:11px; color:var(--text-gray); margin-top:2px;">{{ t('candle.dailyBreakdownTruncatedNote', { days: candleProjectionMaxDays }) }}</div>
+                        <div style="font-size:11px; color:var(--text-gray); margin-top:8px; line-height:1.5;">{{ t('candle.dailyBreakdownAssumptionNote') }}</div>
+                        <div v-if="candleProjectionTruncated" style="font-size:11px; color:var(--text-gray); margin-top:2px; line-height:1.5;">{{ t('candle.dailyBreakdownTruncatedNote', { days: candleProjectionMaxDays }) }}</div>
                     </div>
                 </div>
 
@@ -1196,7 +1196,7 @@
                         <input type="text" v-model="routeInputSpell" :placeholder="t('route.importPlaceholder')" style="flex-grow: 1; text-align: left; font-size: 12px; padding: 6px;">
                         <button class="btn-outline-blue" @click="applyRouteSpell" style="padding: 6px 12px; font-size: 12px; background: var(--accent-orange); color: white; border: none; font-weight: bold; white-space: nowrap;">{{ t('route.importBtn') }}</button>
                     </div>
-                    <div style="font-size: 11px; color: var(--text-gray); margin-top: 6px;">{{ t('route.spellNoBgImageNote') }}</div>
+                    <div style="font-size: 11px; color: var(--text-gray); margin-top: 6px; line-height: 1.5;">{{ t('route.spellNoBgImageNote') }}</div>
                     <div v-if="routeSpellMessage" :class="['inline-alert', routeSpellMessageType === 'success' ? 'inline-alert-success' : 'inline-alert-error']" style="margin-top: 6px; font-size: 12px; padding: 6px;">
                         {{ routeSpellMessage }}
                     </div>
@@ -1247,7 +1247,7 @@
 
                     <div v-if="!route.isExpanded && (route.actualSeconds || 0) === 0"
                          @click="toggleRouteExpand(route)"
-                         style="font-size:11px;color:var(--accent-orange);margin-top:6px;cursor:pointer;font-weight:500;">
+                         style="font-size:11px;color:var(--accent-orange);margin-top:6px;cursor:pointer;font-weight:500;line-height:1.5;">
                         {{ t('route.unmeasuredHint') }}
                     </div>
 
@@ -1279,7 +1279,7 @@
                                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
                                     <span style="color:var(--text-gray);">
                                         {{ t('route.historyBestLabel') }} <b style="color:var(--accent-green);">{{ formatSeconds(getRunHistoryStats(route).best) }}</b>
-                                        ／ {{ t('route.historyAvgLabel') }} <b>{{ formatSeconds(getRunHistoryStats(route).avg) }}</b>
+                                        ／ {{ t('route.historyAvgLabel') }} {{ formatSeconds(getRunHistoryStats(route).avg) }}
                                         <span>({{ t('route.historyCountLabel', { n: getRunHistoryStats(route).count }) }})</span>
                                     </span>
                                     <span @click="requestClearRunHistory(route)" style="color:var(--accent-red); cursor:pointer; white-space:nowrap; font-weight:600;">{{ t('route.historyClearBtn') }}</span>
@@ -1370,7 +1370,7 @@
                                 <input type="range" min="0.2" max="1" step="0.05" v-model.number="atlasBgOpacity" style="width:90px; margin:0;">
                             </label>
                         </template>
-                        <span style="color:var(--text-gray); font-size:11px;">
+                        <span style="color:var(--text-gray); font-size:11px; line-height:1.5;">
                             {{ t('area.bgNote') }}
                         </span>
                     </div>
@@ -1814,7 +1814,7 @@
 
     <footer>
         {{ t('footer.copyright') }}<br>
-        {{ t('footer.creditLabel') }} <a href="https://x.com/Skyzztai" target="_blank" rel="noopener noreferrer" style="color: var(--accent-blue); text-decoration: none; font-weight: bold;">@Skyzztai</a>
+        {{ t('footer.creditLabel') }} <a href="https://x.com/Skyzztai" target="_blank" rel="noopener noreferrer" style="color: var(--accent-blue); text-decoration: underline; font-weight: bold;">@Skyzztai</a>
         <span style="color: var(--text-gray); font-size: 12px; margin-top: 4px; display: inline-block;">
             {{ t('footer.referencesLabel') }}
             <a href="https://sky-children-of-the-light.fandom.com/wiki/Pieces_of_Light" target="_blank" rel="noopener noreferrer">Pieces of Light (Sky Wiki)</a> |
@@ -1835,7 +1835,7 @@
                     <div style="font-size:18px;font-weight:bold;">{{ t('skill.modalHeader') }}</div>
                     <button @click="skillModal.show=false" style="background:none;border:none;cursor:pointer;line-height:1;padding:0 4px;"><span class="icon-chip" style="width:22px; height:22px;"><svg width="16" height="16"><use href="#i-close"/></svg></span></button>
                 </div>
-                <div style="font-size:12px;color:var(--text-gray);margin-bottom:14px;">{{ t('skill.modalDesc') }}</div>
+                <div style="font-size:12px;color:var(--text-gray);margin-bottom:14px;line-height:1.5;">{{ t('skill.modalDesc') }}</div>
                 <hr style="border:none;border-top:1px solid var(--border-color);margin:0 -24px 0;">
             </div>
 
