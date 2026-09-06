@@ -2892,9 +2892,11 @@ plannedUsage.value = 0;
             };
 
             const load = () => {
+                let hadSavedData = false;
                 try {
                     const saved = localStorage.getItem('sky_tracker_storage_v3');
                     if (saved) {
+                        hadSavedData = true;
                         const decoded = JSON.parse(saved);
                         if (decoded && Array.isArray(decoded.areas)) {
                             // _baseTimeをSKY_DEFAULT_ARESから復元（再設定ボタンのために必要）
@@ -2992,7 +2994,14 @@ plannedUsage.value = 0;
                         }
                     }
                 } catch (e) { console.error("Storage load error:", e); }
-                
+
+                // 🩹 バグ修正: saved自体はあったのにdecoded.areasが配列でない/JSON.parseが
+                // 例外を投げた場合(保存データの破損)は、ここまで到達してもコンソールにしか
+                // 出さずにloadInitialData()で無言リセットしていた。保存済みデータが実在した
+                // ケースに限り、ユーザーに気づけるようトーストで知らせる（初回利用でsavedが
+                // 元々無いだけの場合は表示しない）。
+                if (hadSavedData) showToast(t('storage.loadFailedWarning'), 'error');
+
                 localStorage.removeItem('sky_tracker_storage_v3');
                 loadInitialData();
             };

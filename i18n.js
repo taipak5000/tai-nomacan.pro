@@ -289,6 +289,7 @@ window.SKY_TRANSLATIONS = {
         "area.loadErrorName": "データ読み込みエラー",
         "area.loadErrorHint": "areas-data.js が同じフォルダにあるか確認してください",
         "area.unknownSpot": "不明なスポット",
+        "storage.loadFailedWarning": "保存データの読み込みに失敗したため、初期状態から開始します（エリア構成・ルートなどの保存内容が失われた可能性があります）。",
 
         // ── 確認モーダル ──
         "confirmModal.title": "確認",
@@ -595,6 +596,7 @@ window.SKY_TRANSLATIONS = {
         "area.loadErrorName": "Data Load Error",
         "area.loadErrorHint": "Please check that areas-data.js is in the same folder",
         "area.unknownSpot": "Unknown Spot",
+        "storage.loadFailedWarning": "Your saved data could not be loaded, so this is starting fresh (your area layout, routes, and other saved content may have been lost).",
 
         "confirmModal.title": "Confirm",
         "confirmModal.cancel": "Cancel",
