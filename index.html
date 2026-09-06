@@ -4420,6 +4420,9 @@ plannedUsage.value = 0;
                 
                 refs.sort((a, b) => b.eff - a.eff);
                 let accumulated = 0;
+                // 🔗 handleSpotChange/setSpotsSelectedGroupAwareと同じ排他制約（同一subArea内で同じgroup値は1件まで）を
+                // 自動最適化にも適用するため、subAreaごとに選択済みgroup名を記録して重複選択を防ぐ。
+                const selectedGroupsBySub = new Map();
                 for (let ref of refs) {
                     if (accumulated >= targetLightNeeded) break;
                     if (ref.type === "main" && areas.value[ref.mIdx]) {
@@ -4429,11 +4432,20 @@ plannedUsage.value = 0;
                         areas.value[ref.mIdx].subAreas[ref.sIdx].isSelected = true;
                         accumulated += ref.light;
                     } else if (ref.type === "spot" && areas.value[ref.mIdx]?.subAreas[ref.sIdx]?.spots[ref.spIdx]) {
-                        areas.value[ref.mIdx].subAreas[ref.sIdx].spots[ref.spIdx].isSelected = true;
+                        const spot = areas.value[ref.mIdx].subAreas[ref.sIdx].spots[ref.spIdx];
+                        const g = spot.group && spot.group.trim();
+                        if (g) {
+                            const key = ref.mIdx + "|" + ref.sIdx;
+                            let groupSet = selectedGroupsBySub.get(key);
+                            if (!groupSet) { groupSet = new Set(); selectedGroupsBySub.set(key, groupSet); }
+                            if (groupSet.has(g)) continue; // 同一group内で既に1件選択済みのため除外
+                            groupSet.add(g);
+                        }
+                        spot.isSelected = true;
                         accumulated += ref.light;
                     }
                 }
-                save(); 
+                save();
             };
 
             const addMainArea = () => { areas.value.push({ id: uuid(), name: t('area.newMainArea'), isExpanded: false, light: 0, time: 0, isSelected: false, subAreas: [] }); };
