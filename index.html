@@ -4215,11 +4215,25 @@ plannedUsage.value = 0;
                         let foundSpotId = null;
                         
                         // 1. 現存するエリア内を「メイン名・サブ名・スポット名」の完全一致で走査
+                        // generateRouteSpell() 側が詰める3パターン（①サブエリアを持たないメインエリア丸ごと、
+                        // ②スポットを持たないサブエリア丸ごと、③通常のスポット）に対応して読み分ける
                         for (const area of areas.value) {
-                            if (area && area.name === spInfo.mainName && Array.isArray(area.subAreas)) {
+                            if (!area || area.name !== spInfo.mainName) continue;
+                            // ① メインエリア丸ごと選択されていたケース（mainName===subName===spotName）
+                            if (spInfo.subName === spInfo.mainName && spInfo.spotName === spInfo.mainName) {
+                                foundSpotId = area.id;
+                                break;
+                            }
+                            if (Array.isArray(area.subAreas)) {
                                 for (const sub of area.subAreas) {
-                                    if (sub && sub.name === spInfo.subName && Array.isArray(sub.spots)) {
-                                        const sp = sub.spots.find(s => s.name === spInfo.spotName);
+                                    if (!sub || sub.name !== spInfo.subName) continue;
+                                    // ② サブエリア丸ごと選択されていたケース（subName===spotName）
+                                    if (spInfo.spotName === spInfo.subName) {
+                                        foundSpotId = sub.id;
+                                        break;
+                                    }
+                                    if (Array.isArray(sub.spots)) {
+                                        const sp = sub.spots.find(s => s && s.name === spInfo.spotName);
                                         if (sp) { foundSpotId = sp.id; break; }
                                     }
                                 }
