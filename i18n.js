@@ -123,6 +123,7 @@ window.SKY_TRANSLATIONS = {
         "optimize.sectionHeader": "効率自動最適化",
         "optimize.targetLabel": "目標本数:",
         "optimize.autoSelectBtn": "高効率エリアを自動選択",
+        "optimize.diagnosisWarning": "⚠️ まだプレイスタイル診断をしていないため、所要時間の初期値が未設定で効率順位が正しく出ません。タップして先に診断してください。",
 
         // ── プレイスタイル診断カード ──
         "skill.cardHeader": "プレイスタイル診断",
@@ -228,6 +229,7 @@ window.SKY_TRANSLATIONS = {
         "route.shareCopyFailedHint": "クリップボードへの自動コピーに失敗しました。下の欄からコピーしてください。",
         "route.rtaGenFailed": "呪文の生成に失敗したため、RTAタイマーに渡せませんでした。",
         "route.rtaCopiedHint": "ルートが大きいため呪文をコピーしました。開いたRTAタイマーの「計算機のルートを読込」欄に貼り付けてください。",
+        "route.rtaNotPublishedHint": "RTAタイマーは現在準備中でまだ公開されていません。ルート呪文はクリップボードにコピーしましたので、公開までお待ちいただくか、他の方法でご利用ください。",
         "route.defaultNamePrefix": "マイルート",
         "route.importedNamePrefix": "[読込]",
         "route.sharedAreaName": "📥 共有された外部エリア",
@@ -431,6 +433,7 @@ window.SKY_TRANSLATIONS = {
         "optimize.sectionHeader": "Auto-Optimize Efficiency",
         "optimize.targetLabel": "Target Amount:",
         "optimize.autoSelectBtn": "Auto-Select High-Efficiency Areas",
+        "optimize.diagnosisWarning": "⚠️ You haven't taken the Playstyle Diagnosis yet, so time values aren't set and efficiency ranking won't be accurate. Tap here to take it first.",
 
         "skill.cardHeader": "Playstyle Diagnosis",
         "skill.cardDesc": "Automatically sets the <b>initial time-required values</b> for each area to match your playstyle.",
@@ -533,6 +536,7 @@ window.SKY_TRANSLATIONS = {
         "route.shareCopyFailedHint": "Couldn't copy automatically. Please copy it from the box below.",
         "route.rtaGenFailed": "Failed to generate the spell, so it couldn't be passed to the RTA Timer.",
         "route.rtaCopiedHint": 'This route is large, so the spell was copied instead. Paste it into the "Load Calculator Route" field on the RTA Timer that opened.',
+        "route.rtaNotPublishedHint": "The RTA Timer isn't published yet. The route spell has been copied to your clipboard, so please hold onto it until it's available, or use it another way.",
         "route.defaultNamePrefix": "My Route",
         "route.importedNamePrefix": "[Loaded]",
         "route.sharedAreaName": "📥 Shared External Area",

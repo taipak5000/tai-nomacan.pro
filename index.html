@@ -1131,6 +1131,9 @@
 
             <div v-if="visibleSections.optimization" class="section-card">
                 <div class="section-header">{{ t('optimize.sectionHeader') }}</div>
+                <div v-if="!skillModal.lastLevel" class="inline-alert inline-alert-error" style="margin-top:0; margin-bottom:12px; cursor:pointer;" @click="openSkillModal()">
+                    {{ t('optimize.diagnosisWarning') }}
+                </div>
                 <div class="row">
                     <div>{{ t('optimize.targetLabel') }}</div>
                     <input type="number" v-model.number="targetCandlesForOptimization">
@@ -2998,6 +3001,7 @@ plannedUsage.value = 0;
             const eventDays = computed(() => {
                 const today = new Date(); today.setHours(0,0,0,0);
                 const target = new Date(targetDate.value); target.setHours(0,0,0,0);
+                if (isNaN(target.getTime())) return 0; // 日付未入力/削除時はInvalid Dateになりうるためガード
                 const diffTime = target - today;
                 return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
             });
@@ -4102,10 +4106,39 @@ plannedUsage.value = 0;
                     const packedSpots = [];
                     if (Array.isArray(route.selectedSpotIds)) {
                         route.selectedSpotIds.forEach(id => {
+                            let found = false;
                             for (const area of areas.value) {
-                                if (area && Array.isArray(area.subAreas)) {
+                                if (!area) continue;
+                                // メインエリア丸ごと選択（カスタムメインエリア等、サブエリアを持たないモード）
+                                if (area.id === id) {
+                                    packedSpots.push({
+                                        mainName: area.name,
+                                        subName: area.name,
+                                        spotName: area.name,
+                                        light: area.light,
+                                        time: area.time,
+                                        group: area.group || ""
+                                    });
+                                    found = true;
+                                    break;
+                                }
+                                if (Array.isArray(area.subAreas)) {
                                     for (const sub of area.subAreas) {
-                                        if (sub && Array.isArray(sub.spots)) {
+                                        if (!sub) continue;
+                                        // サブエリア丸ごと選択（カスタムサブエリア等、スポットを持たないモード）
+                                        if (sub.id === id) {
+                                            packedSpots.push({
+                                                mainName: area.name,
+                                                subName: sub.name,
+                                                spotName: sub.name,
+                                                light: sub.light,
+                                                time: sub.time,
+                                                group: sub.group || ""
+                                            });
+                                            found = true;
+                                            break;
+                                        }
+                                        if (Array.isArray(sub.spots)) {
                                             const sp = sub.spots.find(s => s.id === id);
                                             if (sp) {
                                                 packedSpots.push({
@@ -4116,11 +4149,13 @@ plannedUsage.value = 0;
                                                     time: sp.time,
                                                     group: sp.group || ""
                                                 });
+                                                found = true;
                                                 break;
                                             }
                                         }
                                     }
                                 }
+                                if (found) break;
                             }
                         });
                     }
@@ -4254,6 +4289,9 @@ plannedUsage.value = 0;
             // ⏱️ このルートをRTAタイマーに渡して実測を開始する
             // 既存の「ルート呪文」と全く同じ形式で渡すので、RTAタイマー側は
             // 手貼り付けでも、このURL経由の自動読込でもどちらでも受け取れる
+            // 🚧 RTAタイマーは別サイトとしてまだ未公開（RTA_TIMER_URLは404）のため、
+            // 現時点では遷移させず呪文をコピーするだけに留め、正直に案内する。
+            // 公開でき次第 RTA_TIMER_URL を実際のURLに書き換えてこのガードを外すこと。
             const runRouteInTimer = (route) => {
                 generateRouteSpell(route); // route.generatedSpell を最新化
                 if (!route.generatedSpell) {
@@ -4263,20 +4301,12 @@ plannedUsage.value = 0;
                 }
                 save();
                 const spell = route.generatedSpell;
-                // スポット数が多いルートはURLが長くなりすぎる可能性があるため、
-                // その場合はクリップボードにコピーして貼り付け読込に切り替える
-                if (spell.length > 6000) {
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                        navigator.clipboard.writeText(spell).catch(() => {});
-                    }
-                    routeSpellMessage.value = t('route.rtaCopiedHint');
-                    routeSpellMessageType.value = "success";
-                    setTimeout(() => { routeSpellMessage.value = ""; }, 6000);
-                    window.open(RTA_TIMER_URL, "_blank", "noopener");
-                    return;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(spell).catch(() => {});
                 }
-                const url = `${RTA_TIMER_URL}?spell=${encodeURIComponent(spell)}`;
-                window.open(url, "_blank", "noopener");
+                routeSpellMessage.value = t('route.rtaNotPublishedHint');
+                routeSpellMessageType.value = "error";
+                setTimeout(() => { routeSpellMessage.value = ""; }, 6000);
             };
 
             const showInlineMessage = (msg, type) => {
@@ -4443,6 +4473,12 @@ plannedUsage.value = 0;
                 const savedMult = localStorage.getItem('sky_current_time_mult');
                 if (savedMult !== null && !isNaN(parseFloat(savedMult))) {
                     currentTimeMult.value = parseFloat(savedMult);
+                }
+                // 🩹 診断済みの係数が既にある場合、load()がloadInitialData()に落ちて
+                // エリアがtime=0の初期値で読み込まれていても、ここで正しいtimeに復元する
+                // （カスタムエリア等_baseTimeを持たないものはapplyTimeMult内でスキップされ無害）
+                if (savedLevelKey || savedMult !== null) {
+                    applyTimeMult(currentTimeMult.value);
                 }
                 // 🌋 闇の破片(黒)を本日分まだ自動判定していなければ予測値を反映
                 syncDailyShardWithPrediction(false);
