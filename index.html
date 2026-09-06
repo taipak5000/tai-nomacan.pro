@@ -1717,7 +1717,7 @@
                                             </div>
                                             <div class="flex-group">
                                                 <span>{{ t('area.groupLabel') }}</span>
-                                                <input type="text" v-model="spot.group" :placeholder="t('area.groupPlaceholder')" style="width:68px; padding:2px 4px; font-size:12px;">
+                                                <input type="text" v-model="spot.group" @change="handleSpotChange(mIdx,sIdx,spIdx)" :placeholder="t('area.groupPlaceholder')" style="width:68px; padding:2px 4px; font-size:12px;">
                                             </div>
                                             <span v-if="isWeekdayRotationSpot(spot) && isSpotActiveToday(spot)" class="today-spot-badge"><svg class="inline-icon match" width="11" height="11"><use href="#i-calendar"/></svg> {{ t('area.todayBadge') }}</span>
                                         </div>
@@ -3196,6 +3196,20 @@ plannedUsage.value = 0;
                     else { s.isSelected = true; selectedGroups.add(g); }
                 });
             };
+            // 🔗 handleSpotChange/setSpotsSelectedGroupAwareと同じ排他制約（同一subArea内で同じgroup値は1件まで）を
+            // ルート適用（applyRoute）にも適用するためのヘルパー。既にisSelected=trueが設定された配列に対して、
+            // 同一group値を持つスポットが複数選択されていれば先頭の1件だけを残し、残りをisSelected=falseにする。
+            const enforceSpotGroupExclusivity = (spots) => {
+                if (!Array.isArray(spots)) return;
+                const seenGroups = new Set();
+                spots.forEach(s => {
+                    if (!s || !s.isSelected) return;
+                    const g = s.group && s.group.trim();
+                    if (!g) return;
+                    if (seenGroups.has(g)) { s.isSelected = false; }
+                    else { seenGroups.add(g); }
+                });
+            };
             // groupを考慮した「これ以上選択できない（実質すべて選択済み）」判定。
             // 排他groupは1件でも選択されていれば充足とみなす。
             const isSpotsGroupAwareFullySelected = (spots) => {
@@ -3863,6 +3877,7 @@ plannedUsage.value = 0;
                                 sub.spots.forEach(s => {
                                     if (s) s.isSelected = route.selectedSpotIds.includes(s.id);
                                 });
+                                enforceSpotGroupExclusivity(sub.spots);
                             }
                         });
                     }
