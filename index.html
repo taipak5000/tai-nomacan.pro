@@ -2585,7 +2585,6 @@ const plannedUsage = ref(0);
                 get resultLabelKey() { return SKILL_LEVELS[this._levelIdx]?.labelKey ?? ''; },
                 get resultDescKey()  { return SKILL_LEVELS[this._levelIdx]?.descKey  ?? ''; },
                 get resultEmoji()    { return SKILL_LEVELS[this._levelIdx]?.emoji    ?? ''; },
-                get lastLevel()  { return this.allAnswered ? SKILL_LEVELS[this._levelIdx] : null; },
             });
 
             // questionsにoptsを追加（リアクティブ外で定数として持つ）
@@ -4352,7 +4351,7 @@ plannedUsage.value = 0;
             };
 
             const optimize = () => {
-                const target = Math.max(1, Math.min(targetCandlesForOptimization.value, thresholds.length));
+                const target = Math.max(1, Math.min(Math.round(targetCandlesForOptimization.value), thresholds.length));
                 let dailyBonusLight = (Number(dailyBonusArea.value) || 0) * 50;  // 個数×50火種
                 if (dailyShard.value === "black") dailyBonusLight += 200;         // 黒い破片+200火種
                 const targetLightNeeded = thresholds[target - 1] - carryOverLight.value - dailyBonusLight;
