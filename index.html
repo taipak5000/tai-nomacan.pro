@@ -1095,7 +1095,7 @@
                 <div class="row">
                     <div>{{ t('candle.projectedRemaining') }}</div>
                     <div class="bold-text" :style="{ color: projectedCandles >= 0 ? 'inherit' : 'var(--accent-red)' }">
-                        {{ projectedCandles }} <span style="font-size:0.65em; font-weight:normal; color:var(--text-gray);">{{ t('refine.candlesUnit') }}</span>
+                        {{ fmtCandles(projectedCandles) }} <span style="font-size:0.65em; font-weight:normal; color:var(--text-gray);">{{ t('refine.candlesUnit') }}</span>
                     </div>
                 </div>
 
@@ -1114,7 +1114,7 @@
                                  :style="{ background: row.total < 0 ? 'rgba(255,59,48,0.08)' : 'transparent' }">
                                 <span style="color:var(--text-gray);">{{ t('candle.dailyBreakdownDayLabel', { n: row.day }) }} {{ row.dateLabel }}</span>
                                 <span style="font-weight:700; font-variant-numeric:tabular-nums;" :style="{ color: row.total < 0 ? 'var(--accent-red)' : 'inherit' }">
-                                    {{ row.total }} <span style="font-weight:400; color:var(--text-gray);">{{ t('refine.candlesUnit') }}</span>
+                                    {{ fmtCandles(row.total) }} <span style="font-weight:400; color:var(--text-gray);">{{ t('refine.candlesUnit') }}</span>
                                 </span>
                             </div>
                         </div>
@@ -3150,6 +3150,16 @@ plannedUsage.value = 0;
                 - (dailyHeartCost.value * eventDays.value)
             );
 
+            // 🔢 所持数などユーザー入力に由来する数値の表示用フォーマッタ。
+            // 桁数の大きい値（例: 所持キャンドル数に極端な数値を入力した場合）を
+            // そのままテンプレートに埋め込むと "1e+21" のような指数表記になってしまうため、
+            // 表示直前に必ずこれを通して桁区切り付きの文字列に変換する。
+            const fmtCandles = (n) => {
+                const num = Number(n);
+                if (!Number.isFinite(num)) return String(n);
+                return num.toLocaleString(lang.value === 'en' ? 'en-US' : 'ja-JP', { maximumFractionDigits: 2 });
+            };
+
             // ────────────────────────────────────────────────────
             // 📊 キャンドル残高予測の日別内訳
             // ・projectedCandles と同じ前提（今選択中のスポット構成を毎日そのまま周回し、
@@ -4581,7 +4591,7 @@ plannedUsage.value = 0;
                 dailyBonusArea, dailyShard, shardPrediction, syncDailyShardWithPrediction,
                 shardNotifyEnabled, shardNotifyStatus, onToggleShardNotify,
                 dailyResetNotifyEnabled, dailyResetNotifyStatus, onToggleDailyResetNotify,
-                totalLight, calculated, projectedCandles, totalEfficiency, formattedTotalTime, dailyReset, optimize,
+                totalLight, calculated, projectedCandles, fmtCandles, totalEfficiency, formattedTotalTime, dailyReset, optimize,
                 candleProjectionDaily, candleProjectionTruncated, candleProjectionFirstNegative, candleProjectionMaxDays, showCandleProjectionDetail, toggleCandleProjectionDetail,
                 heartsToSend, dailyHeartCost,
                 isAllMainSelected, toggleMainArea, isAllSubSelected, toggleSubArea, getSubAreaStats, getMainAreaStats, getMainAreaSelectedCount, moveMainArea, moveSubArea,
