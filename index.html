@@ -863,13 +863,13 @@
         </button>
 
         <div class="header-actions">
-            <button class="sidebar-toggle-btn" @click="showSidebar = !showSidebar">
+            <button class="sidebar-toggle-btn" @click="toggleSidebar">
                 {{ t('sidebar.hamburgerToggle') }}
             </button>
             <button class="btn-outline-blue" @click="showSettings = !showSettings">
                 {{ t('settings.displaySettingsBtn') }}
             </button>
-            <button class="btn-outline-blue" @click="showAppSettingsModal = true">
+            <button class="btn-outline-blue" @click="openAppSettingsModal">
                 {{ t('settings.appSettingsBtn') }}
             </button>
         </div>
@@ -881,7 +881,7 @@
     <div class="app-layout">
 
         <!-- ═══ サイドバー ═══ -->
-        <aside class="sidebar section-card" :class="{ 'sidebar-open': showSidebar }">
+        <aside class="sidebar section-card" :class="{ 'sidebar-open': showSidebar }" ref="sidebarEl">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
                 <div class="sidebar-section-label" style="margin-bottom: 0;">{{ t('sidebar.relatedToolsLabel') }}</div>
                 <button class="sidebar-close-btn" @click="showSidebar = false"><span class="icon-chip" style="width:22px; height:22px;"><svg width="16" height="16"><use href="#i-close"/></svg></span></button>
@@ -1747,7 +1747,7 @@
     </div> <!-- /.app-layout -->
 
 <div v-if="confirmModal.show" class="app-modal-overlay" @click.self="confirmModal.show = false">
-        <div class="app-modal-content">
+        <div class="app-modal-content" ref="confirmModalCardEl">
             <div style="font-size: 16px; font-weight: bold; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
                 <svg class="inline-icon warn" width="16" height="16"><use href="#i-warning"/></svg> {{ t('confirmModal.title') }}
             </div>
@@ -1765,7 +1765,7 @@
 
     <!-- ═══ ⚙️ 環境設定モーダル（ダークモード・キーボードショートカット） ═══ -->
     <div v-if="showAppSettingsModal" class="app-modal-overlay" @click.self="showAppSettingsModal = false">
-        <div class="app-modal-content" style="max-width: 420px;">
+        <div class="app-modal-content" style="max-width: 420px;" ref="settingsModalCardEl">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
                 <div style="font-size: 16px; font-weight: bold;">{{ t('settings.appSettingsBtn') }}</div>
                 <button @click="showAppSettingsModal = false" style="background:none;border:none;cursor:pointer;line-height:1;padding:0 4px;"><span class="icon-chip" style="width:22px; height:22px;"><svg width="16" height="16"><use href="#i-close"/></svg></span></button>
@@ -1833,7 +1833,7 @@
 
     <!-- ════ 習熟度アンケートモーダル ════ -->
     <div v-if="skillModal.show" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;" @click.self="skillModal.show=false">
-        <div style="background:var(--card-bg);border-radius:16px;padding:0;max-width:460px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.35);max-height:92vh;overflow-y:auto;display:flex;flex-direction:column;">
+        <div ref="skillModalCardEl" style="background:var(--card-bg);border-radius:16px;padding:0;max-width:460px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.35);max-height:92vh;overflow-y:auto;display:flex;flex-direction:column;">
 
             <!-- ヘッダー -->
             <div style="padding:20px 24px 0;position:sticky;top:0;background:var(--card-bg);z-index:1;border-radius:16px 16px 0 0;">
@@ -1919,7 +1919,7 @@
             <span class="site-dock-icon"><span class="icon-chip" style="width:28px; height:28px;"><svg width="22" height="22"><use href="#i-menu"/></svg></span></span>
             <span class="site-dock-label">{{ t('dock.otherTools') }}</span>
         </button>
-        <button type="button" @click="showAppSettingsModal = true">
+        <button type="button" @click="openAppSettingsModal">
             <span class="site-dock-icon"><span class="icon-chip" style="width:28px; height:28px;"><svg width="22" height="22"><use href="#i-settings"/></svg></span></span>
             <span class="site-dock-label">{{ t('dock.preferences') }}</span>
         </button>
@@ -1945,7 +1945,7 @@
     }
 </script>
 <script>
-    const { createApp, ref, computed, onMounted, watch } = Vue;
+    const { createApp, ref, computed, onMounted, watch, nextTick } = Vue;
 
     // 🌓 sky_app_theme（'light' | 'dark' | 'system' | 未設定）から、実際に適用すべき
     // テーマ（'dark' | 'light'）を解決する共有ヘルパー。トグル関数・cross-tab storageリスナー・
@@ -1998,6 +1998,83 @@
                 try { localStorage.setItem('sky_shortcuts_enabled', val ? '1' : '0'); } catch (e) { /* noop */ }
             });
 
+            // ♿ モーダル共通のフォーカストラップ（wings のtrapPush/trapPopと同じ、開いた順に
+            // 積むスタック方式）。開いたときにフォーカスをモーダル内へ移し、Tab/Shift+Tabで
+            // モーダルの外（背景に隠れて見えなくなっている要素）へ出られないようにする。
+            // 閉じたらモーダルを開く直前にフォーカスしていた要素（トリガー）へフォーカスを戻す。
+            // スタック最上段（＝一番手前のモーダル）だけをトラップ対象にするので、ネスト
+            // （例: 他モーダルが開いたまま別のモーダルが上に重なるケース）にも自動的に対応する。
+            const FT_FOCUSABLE_SELECTOR = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+            const ftStack = [];
+            let ftListenerAttached = false;
+            const ftGetFocusable = (container) => Array.from(container.querySelectorAll(FT_FOCUSABLE_SELECTOR))
+                .filter(el => el.offsetParent !== null); // 非表示要素（v-if等）は対象外にする
+            const ftHandleKeydown = (e) => {
+                if (e.key !== 'Tab' || !ftStack.length) return;
+                const container = ftStack[ftStack.length - 1].container; // 常にスタック最上段のみをトラップする
+                const focusables = ftGetFocusable(container);
+                if (focusables.length === 0) { e.preventDefault(); container.focus(); return; }
+                const first = focusables[0];
+                const last = focusables[focusables.length - 1];
+                const activeInside = container.contains(document.activeElement);
+                if (e.shiftKey) {
+                    if (!activeInside || document.activeElement === first) { e.preventDefault(); last.focus(); }
+                } else {
+                    if (!activeInside || document.activeElement === last) { e.preventDefault(); first.focus(); }
+                }
+            };
+            const ftOpen = (key, containerEl) => {
+                if (!containerEl || ftStack.some(s => s.key === key)) return; // 多重呼び出し時にトリガー参照を上書きしない
+                ftStack.push({ key, container: containerEl, prevFocusEl: document.activeElement });
+                if (!ftListenerAttached) {
+                    document.addEventListener('keydown', ftHandleKeydown);
+                    ftListenerAttached = true;
+                }
+                nextTick(() => {
+                    // 待っている間にこのモーダルがスタック最上段でなくなっていたら（既に閉じられた等）何もしない
+                    if (!ftStack.length || ftStack[ftStack.length - 1].key !== key) return;
+                    const focusables = ftGetFocusable(containerEl);
+                    (focusables[0] || containerEl).focus();
+                });
+            };
+            const ftClose = (key) => {
+                const idx = ftStack.findIndex(s => s.key === key);
+                if (idx === -1) return;
+                const [entry] = ftStack.splice(idx, 1);
+                if (!ftStack.length && ftListenerAttached) {
+                    document.removeEventListener('keydown', ftHandleKeydown);
+                    ftListenerAttached = false;
+                }
+                if (entry.prevFocusEl && typeof entry.prevFocusEl.focus === 'function' && document.contains(entry.prevFocusEl)) {
+                    entry.prevFocusEl.focus();
+                }
+            };
+            // isOpenGetter（表示状態を返す関数、または真偽値ref）とcontainerRef（モーダル本体の
+            // template ref）を紐付ける。containerRef自体をスタックのkeyとして使う。
+            // 🩹 このアプリのモーダルはサイドバー(aside)と違い v-if で開閉時にDOM自体が
+            // 生成/破棄される（常時display:noneで残るaside以外は全部）ため、Vueのwatch既定の
+            // flush:'pre'（DOM更新前に実行）のままだとopen直後はcontainerRef.valueがまだnullで
+            // ftOpenが即bailしてしまう。flush:'post'でDOM更新後に実行させることで解消する。
+            const useModalFocusTrap = (isOpenGetter, containerRef) => {
+                watch(isOpenGetter, (isOpen) => {
+                    if (isOpen) ftOpen(containerRef, containerRef.value);
+                    else ftClose(containerRef);
+                }, { flush: 'post' });
+            };
+
+            // 🚪 オーバーレイの排他制御（mutual exclusion）: 環境設定／習熟度アンケート／
+            // カスタム確認ダイアログ／サイドバー（「他のツール」ドロワー）は、いずれもヘッダー・
+            // ドックのボタンや「?」ショートカットからいつでも独立して開けるため、他のどれかが
+            // 開いたままもう1つを開くとオーバーレイ同士が重なって見えてしまう（例: サイドバーを
+            // 開いたまま「?」で環境設定を開くと2枚重なる）。開く前に、開こうとしているもの以外を
+            // 閉じておく（このアプリでは意図的なネスト表示は現状ないため、単純に他を全部閉じる）。
+            const closeOtherTopLevelOverlays = (except) => {
+                if (except !== 'settings' && showAppSettingsModal.value) showAppSettingsModal.value = false;
+                if (except !== 'skill' && skillModal.value.show) skillModal.value.show = false;
+                if (except !== 'confirm' && confirmModal.value.show) confirmModal.value.show = false;
+                if (except !== 'sidebar' && showSidebar.value) showSidebar.value = false;
+            };
+
             // Escで閉じるべき「現在開いている中で最前面のモーダル」を閉じる。
             // このアプリのモーダルが同時に複数開くことは通常ないが、念のため優先順位をつけて判定する。
             const closeTopmostOpenModal = () => {
@@ -2005,6 +2082,14 @@
                 if (showAppSettingsModal.value) { showAppSettingsModal.value = false; return; }
                 if (skillModal.value.show) { skillModal.value.show = false; return; }
                 if (showSidebar.value) { showSidebar.value = false; return; }
+            };
+
+            // ⚙️ 環境設定モーダルを開く（ヘッダー／ドックのボタン・「?」ショートカットの
+            // 3経路すべてがこの関数を経由するようにし、排他制御を確実に効かせる）
+            const openAppSettingsModal = () => {
+                if (showAppSettingsModal.value) return; // 既に開いている場合は何もしない（トリガー参照の上書き防止）
+                closeOtherTopLevelOverlays('settings');
+                showAppSettingsModal.value = true;
             };
 
             // ⌨️ グローバルショートカット: ? = 環境設定を開く／D = テーマ切替（ライト→ダーク→システム）／Esc = 開いているモーダルを閉じる
@@ -2024,7 +2109,7 @@
                 if (isTyping) return; // '?' と 'd' はすべてのテキスト入力欄で通常通り入力できるようにする
                 if (!shortcutsEnabled.value) return;
 
-                if (e.key === '?') { e.preventDefault(); showAppSettingsModal.value = true; return; }
+                if (e.key === '?') { e.preventDefault(); openAppSettingsModal(); return; }
                 if (e.key === 'd' || e.key === 'D') { e.preventDefault(); toggleTheme(); return; }
             };
 
@@ -2151,6 +2236,7 @@
             });
 
             const openCustomConfirm = (message, action) => {
+                closeOtherTopLevelOverlays('confirm');
                 confirmModal.value.message = message;
                 confirmModal.value.onConfirm = action;
                 confirmModal.value.show = true;
@@ -2176,6 +2262,15 @@ const plannedUsage = ref(0);
             // 🧭ドックの「他のツール」ボタン用。幅を問わず常にオーバーレイ（ドロワー）で
             // 関連ツール一覧を開く（常時表示のサイドバー列は廃止済み）。
             const openToolsSidebar = () => {
+                if (showSidebar.value) return; // 既に開いている場合は何もしない（トリガー参照の上書き防止）
+                closeOtherTopLevelOverlays('sidebar');
+                showSidebar.value = true;
+            };
+
+            // ヘッダーの「☰」ボタン用。こちらは開閉トグル（ドックのボタンは常に開くだけ）。
+            const toggleSidebar = () => {
+                if (showSidebar.value) { showSidebar.value = false; return; }
+                closeOtherTopLevelOverlays('sidebar');
                 showSidebar.value = true;
             };
 
@@ -2597,6 +2692,7 @@ const plannedUsage = ref(0);
             skillModal.value.questions = skillModal.value.questions.map(q => ({ ...q, opts: SCALE_OPTS }));
 
             const openSkillModal = () => {
+                closeOtherTopLevelOverlays('skill');
                 skillModal.value.answers = [null, null, null, null];
                 skillModal.value.show = true;
             };
@@ -4504,6 +4600,16 @@ plannedUsage.value = 0;
                 }
             };
 
+            // ♿ 各モーダル／サイドバー本体を指すtemplate ref（フォーカストラップの対象コンテナ）
+            const confirmModalCardEl = ref(null);
+            const settingsModalCardEl = ref(null);
+            const skillModalCardEl = ref(null);
+            const sidebarEl = ref(null);
+            useModalFocusTrap(() => confirmModal.value.show, confirmModalCardEl);
+            useModalFocusTrap(showAppSettingsModal, settingsModalCardEl);
+            useModalFocusTrap(() => skillModal.value.show, skillModalCardEl);
+            useModalFocusTrap(showSidebar, sidebarEl); // ♿「他のツール」ドロワーも他モーダルと同じくフォーカストラップの対象にする
+
             onMounted(() => {
                 const savedTheme = localStorage.getItem('sky_app_theme');
                 themeMode.value = (savedTheme === 'light' || savedTheme === 'dark' || savedTheme === 'system') ? savedTheme : 'system';
@@ -4585,7 +4691,8 @@ plannedUsage.value = 0;
 
             return {
                 themeMode, toggleTheme, themeAriaLabel,
-                showAppSettingsModal, shortcutsEnabled,
+                showAppSettingsModal, openAppSettingsModal, shortcutsEnabled,
+                confirmModalCardEl, settingsModalCardEl, skillModalCardEl, sidebarEl,
                 lang, toggleLang, setLang, t, displayAreaName,
                 areas, carryOverPercent, targetDate, eventDays, currentCandles, plannedUsage, targetCandlesForOptimization, isWideScreen, thresholds, candleMemo,
                 isDraggingCarryGauge, startCarryDrag, moveCarryDrag, endCarryDrag, handleCarryGaugeKeydown, carryFillPercent,
@@ -4593,7 +4700,7 @@ plannedUsage.value = 0;
                 routeInputSpell, routeSpellMessage, routeSpellMessageType,
                 toasts,
                 confirmModal, executeConfirm,
-                showSettings, showSidebar, openToolsSidebar, myRoutes, visibleSections, routeError, routeHintMessage,
+                showSettings, showSidebar, openToolsSidebar, toggleSidebar, myRoutes, visibleSections, routeError, routeHintMessage,
                 dailyBonusArea, dailyShard, shardPrediction, syncDailyShardWithPrediction,
                 shardNotifyEnabled, shardNotifyStatus, onToggleShardNotify,
                 dailyResetNotifyEnabled, dailyResetNotifyStatus, onToggleDailyResetNotify,
