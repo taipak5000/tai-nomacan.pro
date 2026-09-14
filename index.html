@@ -2029,9 +2029,25 @@
                     if (!activeInside || document.activeElement === last) { e.preventDefault(); first.focus(); }
                 }
             };
+            // 🩹 排他制御で「他のオーバーレイを閉じてから自分を開く」場合、closeOtherTopLevelOverlays内の
+            // showXxx.value=false と showYyy.value=true は同じ同期処理内で連続して起こるが、実際の
+            // ftClose/ftOpen 呼び出しはどちらも watch(flush:'post') 経由で非同期に走る。この2つの
+            // postFlushコールバックの実行順はマウント順（ソースコード上のuseModalFocusTrap呼び出し順）
+            // で決まり、「閉じる方」が「開く方」より先に走るケースがあると、ftCloseが閉じたオーバーレイの
+            // 旧トリガーへ.focus()で戻した直後にftOpenのdocument.activeElement読み取りが行われてしまい、
+            // 新しく開いたオーバーレイのprevFocusElが「本当のトリガー（ユーザーが実際にクリック/操作した
+            // 要素）」ではなく「閉じられた側の旧トリガー」に化けてしまう（オーバーレイA→Bの連鎖で、Bを
+            // 閉じてもAの旧トリガーにフォーカスが戻る不具合）。これを避けるため、開く関数側で
+            // closeOtherTopLevelOverlaysを呼ぶ「前」に本当のトリガーをftCaptureTrigger()で同期的に
+            // キャプチャしておき、ftOpenはpostFlush時点のdocument.activeElement（既に汚染されている
+            // 可能性がある）より、このキャプチャ値を優先して使う。
+            let ftPendingTrigger = null;
+            const ftCaptureTrigger = () => { ftPendingTrigger = document.activeElement; };
             const ftOpen = (key, containerEl) => {
                 if (!containerEl || ftStack.some(s => s.key === key)) return; // 多重呼び出し時にトリガー参照を上書きしない
-                ftStack.push({ key, container: containerEl, prevFocusEl: document.activeElement });
+                const prevFocusEl = ftPendingTrigger || document.activeElement;
+                ftPendingTrigger = null;
+                ftStack.push({ key, container: containerEl, prevFocusEl });
                 if (!ftListenerAttached) {
                     document.addEventListener('keydown', ftHandleKeydown);
                     ftListenerAttached = true;
@@ -2094,6 +2110,7 @@
             // 3経路すべてがこの関数を経由するようにし、排他制御を確実に効かせる）
             const openAppSettingsModal = () => {
                 if (showAppSettingsModal.value) return; // 既に開いている場合は何もしない（トリガー参照の上書き防止）
+                ftCaptureTrigger(); // closeOtherTopLevelOverlaysで他が閉じてフォーカスが動く前に、本当のトリガーを確保
                 closeOtherTopLevelOverlays('settings');
                 showAppSettingsModal.value = true;
             };
@@ -2249,6 +2266,7 @@
             });
 
             const openCustomConfirm = (message, action) => {
+                ftCaptureTrigger(); // closeOtherTopLevelOverlaysで他が閉じてフォーカスが動く前に、本当のトリガーを確保
                 closeOtherTopLevelOverlays('confirm');
                 confirmModal.value.message = message;
                 confirmModal.value.onConfirm = action;
@@ -2276,6 +2294,7 @@ const plannedUsage = ref(0);
             // 関連ツール一覧を開く（常時表示のサイドバー列は廃止済み）。
             const openToolsSidebar = () => {
                 if (showSidebar.value) return; // 既に開いている場合は何もしない（トリガー参照の上書き防止）
+                ftCaptureTrigger(); // closeOtherTopLevelOverlaysで他が閉じてフォーカスが動く前に、本当のトリガーを確保
                 closeOtherTopLevelOverlays('sidebar');
                 showSidebar.value = true;
             };
@@ -2283,6 +2302,7 @@ const plannedUsage = ref(0);
             // ヘッダーの「☰」ボタン用。こちらは開閉トグル（ドックのボタンは常に開くだけ）。
             const toggleSidebar = () => {
                 if (showSidebar.value) { showSidebar.value = false; return; }
+                ftCaptureTrigger(); // closeOtherTopLevelOverlaysで他が閉じてフォーカスが動く前に、本当のトリガーを確保
                 closeOtherTopLevelOverlays('sidebar');
                 showSidebar.value = true;
             };
@@ -2705,6 +2725,7 @@ const plannedUsage = ref(0);
             skillModal.value.questions = skillModal.value.questions.map(q => ({ ...q, opts: SCALE_OPTS }));
 
             const openSkillModal = () => {
+                ftCaptureTrigger(); // closeOtherTopLevelOverlaysで他が閉じてフォーカスが動く前に、本当のトリガーを確保
                 closeOtherTopLevelOverlays('skill');
                 skillModal.value.answers = [null, null, null, null];
                 skillModal.value.show = true;
