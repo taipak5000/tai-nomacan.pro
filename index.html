@@ -2059,6 +2059,13 @@
                     (focusables[0] || containerEl).focus();
                 });
             };
+            // 🩹 ftCaptureTrigger()で「本当のトリガー」を早期キャプチャしても、そのトリガー自身が
+            // 別のオーバーレイ（例: サイドバー＝aside、display:noneでのトグルでDOMからは消えない）の
+            // 内側にあり、かつそのオーバーレイが排他制御で閉じられていた場合、閉じる時点では
+            // document.contains()はtrueのままでも実際には非表示でフォーカス不可能（.focus()が
+            // 黙って何もしない）になっている。document.containsだけでなくoffsetParentで実際に
+            // 描画されているかも確認し、フォーカスが宙に浮く（document.bodyのまま等）のを防ぐ。
+            const ftIsFocusable = (el) => !!el && typeof el.focus === 'function' && document.contains(el) && el.offsetParent !== null;
             const ftClose = (key) => {
                 const idx = ftStack.findIndex(s => s.key === key);
                 if (idx === -1) return;
@@ -2067,8 +2074,14 @@
                     document.removeEventListener('keydown', ftHandleKeydown);
                     ftListenerAttached = false;
                 }
-                if (entry.prevFocusEl && typeof entry.prevFocusEl.focus === 'function' && document.contains(entry.prevFocusEl)) {
+                if (ftIsFocusable(entry.prevFocusEl)) {
                     entry.prevFocusEl.focus();
+                } else {
+                    // 🩹 キャプチャしたトリガーがもはやフォーカスできない場合のフォールバック。
+                    // サイトドックは全オーバーレイより上のz-indexで常時表示・常時フォーカス可能な
+                    // 唯一の要素なので、その先頭ボタンへ逃がしてフォーカスが宙に浮くのを防ぐ。
+                    const fallback = document.querySelector('.site-dock button');
+                    if (fallback) fallback.focus();
                 }
             };
             // isOpenGetter（表示状態を返す関数、または真偽値ref）とcontainerRef（モーダル本体の
