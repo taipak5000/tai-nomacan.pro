@@ -1143,7 +1143,7 @@
 
             <div v-if="visibleSections.optimization" class="section-card">
                 <div class="section-header">{{ t('optimize.sectionHeader') }}</div>
-                <div v-if="!skillModal.lastLevel" class="inline-alert inline-alert-error" style="margin-top:0; margin-bottom:12px; cursor:pointer;" @click="openSkillModal()">
+                <div v-if="!skillModal.lastLevel" class="inline-alert inline-alert-error" style="margin-top:0; margin-bottom:12px; cursor:pointer;" role="button" tabindex="0" @click="openSkillModal()" @keydown.enter="openSkillModal()" @keydown.space.prevent="openSkillModal()">
                     {{ t('optimize.diagnosisWarning') }}
                 </div>
                 <div class="row">
@@ -3511,6 +3511,7 @@ plannedUsage.value = 0;
                整列＋ゆらぎの自動配置になるため、ユーザー追加のエリアもそのまま表示される。 */
             const areaViewMode = ref(localStorage.getItem('sky_area_view_mode') || 'list');
             const setAreaViewMode = (mode) => {
+                closeOtherTopLevelOverlays();
                 areaViewMode.value = mode;
                 localStorage.setItem('sky_area_view_mode', mode);
             };
