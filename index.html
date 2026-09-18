@@ -1842,7 +1842,9 @@
 
     <!-- ════ 習熟度アンケートモーダル ════ -->
     <div v-if="skillModal.show" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;" @click.self="skillModal.show=false">
-        <div ref="skillModalCardEl" style="background:var(--card-bg);border-radius:16px;padding:0;max-width:460px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.35);max-height:92vh;overflow-y:auto;display:flex;flex-direction:column;">
+        <!-- 🩹 .site-dock（画面下部固定、z-index:1001でこのカードより常に手前）にフッターの
+             適用ボタンが隠れないよう、下端にドック分の余白(bodyと同じ76px)を確保する。 -->
+        <div ref="skillModalCardEl" style="background:var(--card-bg);border-radius:16px;padding:0;padding-bottom:calc(76px + env(safe-area-inset-bottom));max-width:460px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.35);max-height:92vh;overflow-y:auto;display:flex;flex-direction:column;">
 
             <!-- ヘッダー -->
             <div style="padding:20px 24px 0;position:sticky;top:0;background:var(--card-bg);z-index:1;border-radius:16px 16px 0 0;">
