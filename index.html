@@ -376,9 +376,31 @@
         .area-pct-row {
             padding: 8px 0;
             border-bottom: 1px solid var(--border-color);
+            transition: opacity 0.15s;
         }
         .area-pct-row:last-of-type {
             border-bottom: none;
+        }
+        .area-pct-row input[type="range"]:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* 🎚️ がさつ向け一括プリセット（チェック中の全エリアへまとめて%を適用） */
+        .area-preset-row {
+            display: flex; gap: 6px; margin-bottom: 4px;
+        }
+        .area-preset-btn {
+            flex: 1; min-width: 0; padding: 8px 2px; border-radius: 8px;
+            border: 1px solid var(--border-color); background: var(--stat-box-bg);
+            color: var(--text-color); font-size: 11px; line-height: 1.5; text-align: center;
+            cursor: pointer;
+        }
+        .area-preset-btn:active {
+            background: var(--accent-blue); color: #fff; border-color: var(--accent-blue);
+        }
+        .area-preset-btn:disabled {
+            opacity: 0.4; cursor: not-allowed;
         }
 
         .route-path-box {
@@ -1185,10 +1207,22 @@
             <div class="section-card">
                 <div class="section-header">{{ t('area.sectionHeader') }}</div>
 
-                <div v-for="(mainArea, mIdx) in areas" :key="mainArea.id" class="area-pct-row">
+                <!-- 🎚️ がさつ向け一括設定：チェック中のエリアすべてに目安%をまとめて適用する -->
+                <div class="area-preset-row">
+                    <button type="button" class="area-preset-btn" :disabled="!areas.some(a => a.isSelected)" @click="applyPresetToChecked(15)">{{ t('area.presetLittle') }}<br><b>15%</b></button>
+                    <button type="button" class="area-preset-btn" :disabled="!areas.some(a => a.isSelected)" @click="applyPresetToChecked(60)">{{ t('area.presetSome') }}<br><b>60%</b></button>
+                    <button type="button" class="area-preset-btn" :disabled="!areas.some(a => a.isSelected)" @click="applyPresetToChecked(80)">{{ t('area.presetMost') }}<br><b>80%</b></button>
+                    <button type="button" class="area-preset-btn" :disabled="!areas.some(a => a.isSelected)" @click="applyPresetToChecked(100)">{{ t('area.presetAll') }}<br><b>100%</b></button>
+                </div>
+                <div v-if="!areas.some(a => a.isSelected)" style="font-size:11px; color:var(--text-gray); margin:-4px 0 10px;">{{ t('area.presetHint') }}</div>
+
+                <div v-for="(mainArea, mIdx) in areas" :key="mainArea.id" class="area-pct-row" :style="{ opacity: mainArea.isSelected ? 1 : 0.55 }">
                     <div class="row" style="border-bottom:none; padding-bottom:2px;">
-                        <span style="font-weight:600; font-size:14px;">{{ displayAreaName(mainArea.name) }}</span>
-                        <span style="font-size:13px; color:var(--text-gray); display:flex; align-items:center; gap:4px;">
+                        <label style="display:flex; align-items:center; gap:8px; font-weight:600; font-size:14px; cursor:pointer; min-width:0;">
+                            <input type="checkbox" v-model="mainArea.isSelected" style="flex-shrink:0;">
+                            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ displayAreaName(mainArea.name) }}</span>
+                        </label>
+                        <span style="font-size:13px; color:var(--text-gray); display:flex; align-items:center; gap:4px; flex-shrink:0;">
                             {{ getMainAreaStats(mainArea).light }} / {{ getMainAreaTotalLight(mainArea) }}
                             <svg class="inline-icon match" width="12" height="12"><use href="#i-flame"/></svg>
                             <b style="color:var(--text-color); margin-left:2px;">{{ getMainAreaPercent(mainArea) }}%</b>
@@ -1197,6 +1231,7 @@
                     <input type="range" min="0" max="100" step="1"
                            :value="getMainAreaPercent(mainArea)"
                            @input="applyAreaPercent(mainArea, $event.target.valueAsNumber)"
+                           :disabled="!mainArea.isSelected"
                            :aria-label="t('area.pctSliderAria', { name: displayAreaName(mainArea.name) })">
                 </div>
 
@@ -3080,6 +3115,16 @@ plannedUsage.value = 0;
                 save();
             };
 
+            // 🎚️ がさつ向け一括プリセット：チェック済み（mainArea.isSelected）の全エリアに
+            // 同じ目安%をまとめて適用する。エリアが「sub」モード（全出荷データがこれ）の場合、
+            // mainArea.isSelectedはここまで計算エンジンから一切参照されない専有フィールドの
+            // ため、「このエリアを今日集める予定に入れたか」のチェック状態として流用している。
+            const applyPresetToChecked = (pct) => {
+                areas.value.forEach(mainArea => {
+                    if (mainArea && mainArea.isSelected) applyAreaPercent(mainArea, pct);
+                });
+            };
+
             // 🔍 詳細設定（旧リストビュー）の開閉。旧areaViewMode(文字列enum)は使い回さず、
             // 単純な真偽値にした（表示モードが「%スライダー」と「詳細設定」の2つだけになったため）。
             const showDetailedAreaSettings = ref(localStorage.getItem('sky_area_detail_open') === '1');
@@ -3905,7 +3950,7 @@ plannedUsage.value = 0;
                 runningRouteId, runningSeconds, formatSeconds, startTimer, pauseTimer, resetTimer, toggleRouteExpand, currentTimeMult, recordRouteSplit,
                 getRunHistoryStats, requestClearRunHistory,
                 getAreaMode, getSubMode,
-                getMainAreaTotalLight, getMainAreaPercent, applyAreaPercent,
+                getMainAreaTotalLight, getMainAreaPercent, applyAreaPercent, applyPresetToChecked,
                 showDetailedAreaSettings, openAreaDetailSettings,
 
             };
