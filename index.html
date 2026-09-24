@@ -359,7 +359,7 @@
             white-space: nowrap;
         }
 
-        /* ═══ 🗺️ 地図で選ぶビュー（オリジナル模式図） ═══ */
+        /* ═══ 2択トグル（言語切替・詳細設定切替など） ═══ */
         .view-toggle-row {
             display: flex; gap: 8px; margin-bottom: 14px;
         }
@@ -372,158 +372,13 @@
             background: var(--accent-blue); border-color: var(--accent-blue); color: #fff;
         }
 
-        .realm-map-card {
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 14px;
-            background: var(--stat-box-bg);
+        /* ═══ 🎚️ エリア%スライダー ═══ */
+        .area-pct-row {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
         }
-        .realm-map-header {
-            display: flex; align-items: center; justify-content: space-between;
-            gap: 8px; flex-wrap: wrap; margin-bottom: 6px;
-        }
-        .realm-map-title {
-            font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 6px;
-        }
-        .realm-map-stats {
-            font-size: 12.5px; color: var(--text-gray); display: flex; gap: 10px; flex-wrap: wrap;
-        }
-        .realm-map-stats b { color: var(--accent-orange); }
-
-        /* ── サブエリア別ミニマップ ── */
-        .mini-map-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 10px;
-            margin-top: 8px;
-        }
-        .mini-map-card {
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            background: var(--card-bg);
-            padding: 8px 8px 4px;
-        }
-        .mini-map-head {
-            display: flex; align-items: center; justify-content: space-between;
-            gap: 6px; flex-wrap: wrap; margin-bottom: 6px;
-        }
-        .mini-map-name {
-            display: flex; align-items: center; gap: 6px; font-size: 12.5px;
-            cursor: pointer; min-width: 0;
-        }
-        .mini-map-name input { width: 16px; height: 16px; flex-shrink: 0; }
-        .mini-map-name b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .mini-map-stats { font-size: 10.5px; color: var(--text-gray); flex-shrink: 0; }
-        .mini-map-svg { display: block; width: 100%; height: auto; border-radius: 10px; }
-
-        /* 地形ブロブ */
-        .map-region-blob { stroke-width: 2.5; }
-
-        /* 🔴 火種スポットマーカー（赤丸＋赤数字。選択すると塗りつぶし） */
-        .map-marker { cursor: pointer; }
-        .map-marker circle {
-            fill: #fff; stroke: #D93025; stroke-width: 2.6;
-            transition: transform 0.1s ease;
-            transform-origin: center; transform-box: fill-box;
-        }
-        .map-marker:hover circle { transform: scale(1.12); }
-        .map-marker text { text-anchor: middle; pointer-events: none; }
-        .map-marker text.map-marker-num {
-            fill: #D93025; font-weight: 800; dominant-baseline: central;
-        }
-        .map-marker.sel circle { fill: #D93025; }
-        .map-marker.sel text.map-marker-num { fill: #fff; }
-        /* スポット名（fillはテーマ色をSVG属性で指定するため、ここでは指定しない） */
-        .map-marker text.map-marker-name {
-            font-size: 10px; font-weight: 700;
-            paint-order: stroke; stroke-width: 3px; stroke-linejoin: round;
-        }
-
-        /* ── 🧭 精密マップ（実座標アトラス） ── */
-        .atlas-tab-row {
-            display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;
-        }
-        .atlas-tab {
-            padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 700;
-            border: 1px solid var(--border-color); background: var(--stat-box-bg);
-            color: var(--text-gray); cursor: pointer;
-        }
-        .atlas-tab.active { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
-        .atlas-frame {
-            position: relative;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            overflow: hidden;
-            background: var(--stat-box-bg);
-            touch-action: none;
-        }
-        .atlas-svg { display: block; width: 100%; height: auto; cursor: grab; user-select: none; }
-        .atlas-svg.dragging { cursor: grabbing; }
-        .atlas-zoom-controls {
-            position: absolute; right: 10px; top: 10px;
-            display: flex; flex-direction: column; gap: 6px; z-index: 5;
-        }
-        .atlas-zoom-btn {
-            width: 34px; height: 34px; border-radius: 9px; font-size: 17px; font-weight: 800;
-            background: var(--card-bg); color: var(--text-color);
-            border: 1px solid var(--border-color); cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-        }
-        .atlas-area-label {
-            font-size: 34px; font-weight: 800; text-anchor: middle;
-            paint-order: stroke; stroke-width: 9px; stroke-linejoin: round;
-            pointer-events: none; opacity: 0.85;
-        }
-        .atlas-marker { cursor: pointer; }
-        .atlas-marker text {
-            font-weight: 800; text-anchor: middle; dominant-baseline: central;
-            pointer-events: none;
-        }
-        .atlas-sub-panel {
-            margin-top: 10px;
-            border: 1px dashed var(--border-color);
-            border-radius: 10px;
-            padding: 10px;
-            background: var(--card-bg);
-            animation: fadeIn 0.15s ease-out;
-        }
-        .atlas-sub-panel-title {
-            font-size: 12.5px; font-weight: 800; margin-bottom: 8px;
-            display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
-        }
-        .atlas-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-        .atlas-chip {
-            display: flex; align-items: center; gap: 5px;
-            padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 600;
-            border: 1.5px solid var(--border-color); background: var(--stat-box-bg); color: var(--text-color);
-            cursor: pointer; user-select: none;
-        }
-        .atlas-chip.selected { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
-        .atlas-chip .chip-light { opacity: 0.85; font-weight: 700; }
-        .atlas-legend {
-            font-size: 11px; color: var(--text-gray); margin-top: 8px;
-            display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-        }
-        .atlas-legend span { display: inline-flex; align-items: center; gap: 4px; }
-        .atlas-dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; box-sizing: border-box; }
-
-        .map-legend {
-            font-size: 11px; color: var(--text-gray); margin-top: 8px;
-            display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-        }
-        .map-legend-dot {
-            display: inline-block; width: 13px; height: 13px; border-radius: 50%;
-            border: 2.5px solid #D93025; background: #fff; box-sizing: border-box;
-        }
-        .map-legend-dot.sel { background: #D93025; }
-        .map-legend-dot.today { background: var(--accent-green); border-color: var(--accent-green); }
-
-        /* 📅 曜日限定スポットの「本日該当」マーカー用ドット */
-        .map-marker-today-dot { fill: var(--accent-green); stroke: #fff; stroke-width: 1.2px; }
-
-        .realm-map-empty {
-            font-size: 12px; color: var(--text-gray); text-align: center; padding: 18px 0;
+        .area-pct-row:last-of-type {
+            border-bottom: none;
         }
 
         .route-path-box {
@@ -745,7 +600,7 @@
             display: flex;
             position: fixed;
             left: 0; right: 0; bottom: 0;
-            /* 🩹 z-index: オーバーレイ背景（.app-modal-overlay/skillModal: 1000、
+            /* 🩹 z-index: オーバーレイ背景（.app-modal-overlay: 1000、
                .sidebar-overlay: 499）より低いままだと、オーバーレイが開いている間
                ドックがクリックを奪われ、別のドックアイコンをタップしても「現在の
                オーバーレイを閉じるだけ」になり、意図したオーバーレイへの一発切り替えが
@@ -1150,40 +1005,11 @@
 
             <div v-if="visibleSections.optimization" class="section-card">
                 <div class="section-header">{{ t('optimize.sectionHeader') }}</div>
-                <div v-if="!skillModal.lastLevel" class="inline-alert inline-alert-error" style="margin-top:0; margin-bottom:12px; cursor:pointer;" role="button" tabindex="0" @click="openSkillModal()" @keydown.enter="openSkillModal()" @keydown.space.prevent="openSkillModal()">
-                    {{ t('optimize.diagnosisWarning') }}
-                </div>
                 <div class="row">
                     <div>{{ t('optimize.targetLabel') }}</div>
                     <input type="number" v-model.number="targetCandlesForOptimization">
                 </div>
                 <button class="btn btn-orange" @click="optimize">{{ t('optimize.autoSelectBtn') }}</button>
-            </div>
-
-            <!-- ══ プレイスタイル診断カード ══ -->
-            <div class="section-card" style="border:2px solid var(--accent-purple);background:linear-gradient(135deg,rgba(147,51,234,0.06) 0%,var(--card-bg) 60%);">
-                <div class="section-header" style="color:var(--accent-purple);">{{ t('skill.cardHeader') }}</div>
-                <div style="font-size:12px;color:var(--text-gray);margin-bottom:12px;line-height:1.6;" v-html="t('skill.cardDesc')">
-                </div>
-                <!-- 現在のレベル表示 -->
-                <div v-if="skillModal.lastLevel" style="display:flex;align-items:center;gap:12px;background:var(--bg-color);border-radius:12px;padding:12px 16px;margin-bottom:12px;border:1px solid var(--border-color);">
-                    <span style="font-size:32px;line-height:1;"><svg class="inline-icon" width="32" height="32" style="vertical-align:middle;"><use :href="'#' + skillModal.lastLevel.emoji"></use></svg></span>
-                    <div style="min-width:0;">
-                        <div style="font-size:15px;font-weight:bold;">{{ t(skillModal.lastLevel.labelKey) }}</div>
-                        <div style="font-size:11px;color:var(--text-gray);margin-top:2px;">{{ t(skillModal.lastLevel.descKey) }}</div>
-                        <div v-if="Math.abs(currentTimeMult - skillModal.lastLevel.mult) > 0.02" style="font-size:11px;color:var(--accent-green);margin-top:4px;font-weight:bold;">
-                            {{ t('skill.autoCorrected', { mult: currentTimeMult.toFixed(2) }) }}
-                        </div>
-                    </div>
-                </div>
-                <div v-else style="background:var(--bg-color);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--text-gray);text-align:center;border:1px dashed var(--border-color);">
-                    {{ t('skill.notYet') }}
-                </div>
-                <button @click="openSkillModal()"
-                    style="width:100%;padding:13px;background:var(--accent-purple);color:white;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;letter-spacing:0.03em;">
-                    <svg v-if="!skillModal.lastLevel" class="inline-icon match" width="12" height="12"><use href="#i-chevron-right"/></svg>
-                    {{ skillModal.lastLevel ? t('skill.retryBtn') : t('skill.startBtn') }}
-                </button>
             </div>
 
             <div v-if="visibleSections.spellShare" class="section-card">
@@ -1359,232 +1185,29 @@
             <div class="section-card">
                 <div class="section-header">{{ t('area.sectionHeader') }}</div>
 
-                <div class="view-toggle-row">
-                    <button type="button" class="view-toggle-btn" :class="{active: areaViewMode === 'list'}" @click="setAreaViewMode('list')"><svg class="inline-icon match" width="13" height="13"><use href="#i-list"/></svg> {{ t('area.viewList') }}</button>
-                    <button type="button" class="view-toggle-btn" :class="{active: areaViewMode === 'map'}" @click="setAreaViewMode('map')"><svg class="inline-icon match" width="13" height="13"><use href="#i-map"/></svg> {{ t('area.viewMap') }}</button>
-                    <button type="button" class="view-toggle-btn" :class="{active: areaViewMode === 'atlas'}" @click="setAreaViewMode('atlas')"><svg class="inline-icon match" width="13" height="13"><use href="#i-compass"/></svg> {{ t('area.viewAtlas') }}</button>
-                </div>
-
-                <!-- ══════════════════ 🧭 精密マップビュー ══════════════════
-                     Fandom Interactive Maps のマーカー座標データ(CC-BY-SA)に基づく、火種の実位置マップ。
-                     地図の描画自体はオリジナル（地図画像は使用していない）。
-                     マーカーをタップすると、その場所が属するサブエリアの選択パネルが開く。 -->
-                <div v-if="areaViewMode === 'atlas'">
-                    <div class="atlas-tab-row">
-                        <button v-for="name in atlasMapNames" :key="'at_'+name" type="button"
-                                class="atlas-tab" :class="{active: atlasMapName === name}"
-                                @click="setAtlasMap(name)">{{ displayAreaName(name) }}</button>
-                    </div>
-
-                    <!-- 🖼️ 背景画像（この端末にのみ保存。サイトへは公開されない） -->
-                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px; font-size:12px;">
-                        <label class="btn-outline-blue" style="cursor:pointer;">
-                            {{ t('area.bgSetBtn') }}
-                            <input type="file" accept="image/*" style="display:none;" @change="onAtlasBgSelected($event)">
-                        </label>
-                        <template v-if="atlasBgUrl">
-                            <button type="button" class="btn-outline-red" @click="clearAtlasBg()">{{ t('area.bgRemoveBtn') }}</button>
-                            <label style="display:flex; align-items:center; gap:6px; color:var(--text-gray);">
-                                {{ t('area.bgOpacity') }}
-                                <input type="range" min="0.2" max="1" step="0.05" v-model.number="atlasBgOpacity" style="width:90px; margin:0;">
-                            </label>
-                        </template>
-                        <span style="color:var(--text-gray); font-size:11px; line-height:1.5;">
-                            {{ t('area.bgNote') }}
+                <div v-for="(mainArea, mIdx) in areas" :key="mainArea.id" class="area-pct-row">
+                    <div class="row" style="border-bottom:none; padding-bottom:2px;">
+                        <span style="font-weight:600; font-size:14px;">{{ displayAreaName(mainArea.name) }}</span>
+                        <span style="font-size:13px; color:var(--text-gray); display:flex; align-items:center; gap:4px;">
+                            {{ getMainAreaStats(mainArea).light }} / {{ getMainAreaTotalLight(mainArea) }}
+                            <svg class="inline-icon match" width="12" height="12"><use href="#i-flame"/></svg>
+                            <b style="color:var(--text-color); margin-left:2px;">{{ getMainAreaPercent(mainArea) }}%</b>
                         </span>
                     </div>
-
-                    <div class="atlas-frame">
-                        <div class="atlas-zoom-controls">
-                            <button type="button" class="atlas-zoom-btn" @click="atlasZoomBy(1.5)">＋</button>
-                            <button type="button" class="atlas-zoom-btn" @click="atlasZoomBy(1/1.5)">−</button>
-                            <button type="button" class="atlas-zoom-btn" @click="atlasResetView()" style="font-size:13px;"><svg class="inline-icon match" width="13" height="13"><use href="#i-sync"/></svg></button>
-                        </div>
-                        <svg class="atlas-svg" :class="{dragging: atlasDrag.active}"
-                             :view-box.camel="atlasViewBox"
-                             preserveAspectRatio="xMidYMid meet"
-                             style="aspect-ratio: 2480 / 3508; height: auto; max-height: 78vh;"
-                             @pointerdown="atlasPointerDown($event)"
-                             @pointermove="atlasPointerMove($event)"
-                             @pointerup="atlasPointerUp($event)"
-                             @pointercancel="atlasPointerUp($event)"
-                             @wheel.prevent="atlasWheel($event)">
-                            <!-- 背景（紙面） -->
-                            <rect x="0" y="0" width="2480" height="3508" :fill="atlasTheme.sky"></rect>
-                            <!-- 🖼️ ローカル読み込みの背景画像（端末内のみ・非公開） -->
-                            <image v-if="atlasBgUrl" :href="atlasBgUrl" x="0" y="0" width="2480" height="3508"
-                                   :opacity="atlasBgOpacity" preserveAspectRatio="xMidYMid slice"></image>
-                            <!-- サブエリア区画（タップでも選択パネルを開ける）。背景画像があるときは控えめに表示 -->
-                            <g v-for="(rg, ri) in atlasModel.regions" :key="'rg'+ri" style="cursor:pointer;"
-                               role="button" tabindex="0" :aria-label="displayAreaName(rg.name)"
-                               @click="onAtlasRegionClick(rg)"
-                               @keydown.enter="onAtlasRegionClick(rg)"
-                               @keydown.space.prevent="onAtlasRegionClick(rg)">
-                                <rect v-for="(rc, rci) in rg.rects" :key="'rc'+rci"
-                                      :x="rc[0]" :y="rc[1]" :width="rc[2]-rc[0]" :height="rc[3]-rc[1]"
-                                      rx="26" :fill="atlasBgUrl ? 'transparent' : atlasTheme.blob"
-                                      :opacity="atlasBgUrl ? 1 : 0.5" pointer-events="all"
-                                      :stroke="atlasTheme.blobLine" :stroke-opacity="atlasBgUrl ? 0.35 : 1"
-                                      stroke-width="4" stroke-dasharray="16 12"></rect>
-                                <text v-if="!atlasBgUrl" class="atlas-area-label" :x="rg.labelX" :y="rg.labelY"
-                                      style="font-size:46px;"
-                                      :fill="atlasTheme.label" :stroke="atlasTheme.halo">{{ displayAreaName(rg.name) }}</text>
-                            </g>
-                            <!-- 通路・ポイント名ラベル（背景画像があるときは画像側の表記に任せて非表示） -->
-                            <template v-if="!atlasBgUrl">
-                                <text v-for="(lb, li) in atlasModel.labels" :key="'lb'+li"
-                                      class="atlas-area-label" :x="lb.x" :y="lb.y"
-                                      :fill="atlasTheme.label" :stroke="atlasTheme.halo">{{ lb.name }}</text>
-                            </template>
-                            <!-- 🔴 火種マーカー（実座標） -->
-                            <g v-for="(m, mi) in atlasModel.markers" :key="'am'+mi"
-                               class="atlas-marker"
-                               :transform="`translate(${m.x},${m.y})`"
-                               role="button" tabindex="0" :aria-label="m.tip"
-                               @click="onAtlasMarkerClick(m)"
-                               @keydown.enter="onAtlasMarkerClick(m)"
-                               @keydown.space.prevent="onAtlasMarkerClick(m)">
-                                <title>{{ m.tip }}</title>
-                                <circle :r="m.r" :fill="m.fill" :stroke="m.stroke" :stroke-width="m.r * 0.18" :stroke-dasharray="m.dash"></circle>
-                                <text v-if="m.text" :font-size="m.fs" :fill="m.textFill">{{ m.text }}</text>
-                            </g>
-                        </svg>
-                    </div>
-
-                    <div class="atlas-legend">
-                        <span><span class="atlas-dot" style="background:#fff; border:2.5px solid #D93025;"></span>{{ t('area.legendCandle') }}</span>
-                        <span><span class="atlas-dot" style="background:#F6C445; border:2.5px solid #B8860B;"></span>{{ t('area.legendTreasure') }}</span>
-                        <span><span class="atlas-dot" style="background:#E6D9F7; border:2.5px solid #7B4FC9;"></span>{{ t('area.legendDark') }}</span>
-                        <span><span class="atlas-dot" style="background:#fff; border:2.5px dashed #7B4FC9;"></span>{{ t('area.legendDarkWeekday') }}</span>
-                        <span><span class="atlas-dot" style="background:#FFE2B0; border:2.5px solid #E08A00;"></span>{{ t('area.legendSocial') }}</span>
-                        <span style="opacity:0.8;">{{ t('area.legendControls') }}</span>
-                    </div>
-
-                    <!-- 選択パネル: タップしたマーカーが属するサブエリアのスポットを選択できる -->
-                    <div v-if="atlasActiveSub" class="atlas-sub-panel">
-                        <div class="atlas-sub-panel-title">
-                            <span>{{ displayAreaName(atlasActiveSub.area.name) }} ／ {{ displayAreaName(atlasActiveSub.sub.name) }}</span>
-                            <span style="display:flex; align-items:center; gap:10px;">
-                                <label style="display:flex; align-items:center; gap:5px; cursor:pointer; font-weight:600;">
-                                    <input type="checkbox" :checked="isAllSubSelected(atlasActiveSub.sub)" @change="toggleSubArea(atlasActiveSub.sub)">
-                                    {{ t('area.selectAll') }}
-                                </label>
-                                <span style="color:var(--text-gray); font-weight:600;"><svg class="inline-icon" width="12" height="12"><use href="#i-clock"/></svg>{{ atlasActiveSub.sub.time || 0 }}{{ t('area.secLabel') }} <svg class="inline-icon" width="12" height="12"><use href="#i-bolt"/></svg>{{ getSubAreaStats(atlasActiveSub.sub).eff.toFixed(1) }}/s</span>
-                                <button type="button" class="modal-closeish" style="background:none;border:none;cursor:pointer;font-size:15px;color:var(--text-gray);" @click="atlasActiveSubKey = ''"><svg class="inline-icon match" width="14" height="14"><use href="#i-close"/></svg></button>
-                            </span>
-                        </div>
-                        <div class="atlas-chips">
-                            <div v-for="(spot, spIdx) in atlasActiveSub.sub.spots" :key="spot.id"
-                                 class="atlas-chip" :class="{selected: spot.isSelected}"
-                                 role="checkbox" :aria-checked="spot.isSelected" tabindex="0"
-                                 @click="toggleMapSpot(atlasActiveSub.mIdx, atlasActiveSub.sIdx, spIdx)"
-                                 @keydown.enter="toggleMapSpot(atlasActiveSub.mIdx, atlasActiveSub.sIdx, spIdx)"
-                                 @keydown.space.prevent="toggleMapSpot(atlasActiveSub.mIdx, atlasActiveSub.sIdx, spIdx)">
-                                <span>{{ displayAreaName(spot.name) }}</span>
-                                <span class="chip-light"><svg class="inline-icon" width="11" height="11"><use href="#i-flame"/></svg>{{ spot.light }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-else class="realm-map-empty" style="margin-top:8px;">{{ t('area.tapHint') }}</div>
+                    <input type="range" min="0" max="100" step="1"
+                           :value="getMainAreaPercent(mainArea)"
+                           @input="applyAreaPercent(mainArea, $event.target.valueAsNumber)"
+                           :aria-label="t('area.pctSliderAria', { name: displayAreaName(mainArea.name) })">
                 </div>
 
-                <!-- ══════════════════ 🗺️ 地図ビュー ══════════════════
-                     サブエリアごとの「デフォルメした個別ミニマップ」。1枚に詰め込まず、
-                     スポット名をマップ上に直接表示して見やすさを優先（描画は完全オリジナル）。
-                     赤丸＋赤数字＝火種スポット。タップで選択トグル。 -->
-                <div v-if="areaViewMode === 'map'">
-                    <div class="map-legend" style="margin:0 0 10px;">
-                        <span class="map-legend-dot"></span><span>{{ t('area.mapLegendSpot') }}</span>
-                        <span class="map-legend-dot sel"></span><span>{{ t('area.mapLegendSelected') }}</span>
-                        <span class="map-legend-dot today"></span><span>{{ t('area.mapLegendToday') }}</span>
-                        <span style="opacity:0.8;">{{ t('area.mapLegendControls') }}</span>
-                    </div>
-                    <div v-for="(mainArea, mIdx) in areas" :key="'map_'+mainArea.id" class="realm-map-card">
-                        <div class="realm-map-header">
-                            <div class="realm-map-title">
-                                <span>{{ displayAreaName(mainArea.name) }}</span>
-                                <span v-if="getMainAreaSelectedCount(mainArea) > 0" style="background:var(--accent-blue); color:#fff; font-size:11px; font-weight:bold; padding:2px 7px; border-radius:10px;">
-                                    {{ t('area.selectedCount', { n: getMainAreaSelectedCount(mainArea) }) }}
-                                </span>
-                            </div>
-                            <div class="realm-map-stats">
-                                <span><svg class="inline-icon" width="12" height="12"><use href="#i-flame"/></svg> <b>{{ getMainAreaStats(mainArea).light }}</b></span>
-                                <span><svg class="inline-icon" width="12" height="12"><use href="#i-bolt"/></svg> <b>{{ getMainAreaStats(mainArea).eff.toFixed(1) }}</b>/s</span>
-                            </div>
-                        </div>
+                <button type="button" class="btn-outline-blue" style="width:100%; margin-top:6px;" @click="showDetailedAreaSettings = !showDetailedAreaSettings">
+                    <svg class="inline-icon match" width="13" height="13"><use href="#i-list"/></svg>
+                    {{ showDetailedAreaSettings ? t('area.hideDetail') : t('area.showDetail') }}
+                </button>
 
-                        <div v-if="!mainArea.subAreas || mainArea.subAreas.length === 0" class="realm-map-empty">{{ t('area.noSubAreas') }}</div>
 
-                        <div v-else class="mini-map-grid">
-                            <div v-for="mini in getMiniMaps(mainArea)" :key="'mini_'+mini.sub.id" class="mini-map-card">
-                                <div class="mini-map-head">
-                                    <label class="mini-map-name">
-                                        <input type="checkbox" :checked="isAllSubSelected(mini.sub)" @change="toggleSubArea(mini.sub)">
-                                        <b>{{ displayAreaName(mini.sub.name) }}</b>
-                                    </label>
-                                    <span class="mini-map-stats"><svg class="inline-icon" width="11" height="11"><use href="#i-clock"/></svg>{{ mini.sub.time || 0 }}{{ t('area.secLabel') }} <svg class="inline-icon" width="11" height="11"><use href="#i-bolt"/></svg>{{ getSubAreaStats(mini.sub).eff.toFixed(1) }}/s</span>
-                                </div>
-                                <svg class="mini-map-svg" :view-box.camel="`0 0 340 ${mini.h}`">
-                                    <!-- 背景と地形ブロブ -->
-                                    <rect x="0" y="0" width="340" :height="mini.h" rx="12" :fill="mini.theme.sky"></rect>
-                                    <path class="map-region-blob" :d="mini.path" :fill="mini.theme.blob" :stroke="mini.theme.blobLine"></path>
-                                    <path :d="mini.innerPath" fill="#ffffff" opacity="0.25" style="pointer-events:none;"></path>
-
-                                    <!-- テーマごとのささやかな飾り（隅に1つだけ） -->
-                                    <g :transform="`translate(314,30)`" style="pointer-events:none;" opacity="0.9">
-                                        <template v-if="mini.theme.deco === 'tree'">
-                                            <rect x="-1.6" y="2" width="3.2" height="9" rx="1" fill="#8a6d4b"></rect>
-                                            <circle cx="0" cy="-3" r="7" fill="#7CAF6E"></circle>
-                                            <circle cx="-5" cy="1" r="4.6" fill="#8DBB7C"></circle>
-                                            <circle cx="5" cy="1" r="4.6" fill="#8DBB7C"></circle>
-                                        </template>
-                                        <template v-else-if="mini.theme.deco === 'wave'">
-                                            <path d="M-12 0 Q -6 -5 0 0 T 12 0" fill="none" stroke="#7FB4D8" stroke-width="2" stroke-linecap="round"></path>
-                                            <path d="M-8 6 Q -2 1 4 6 T 16 6" fill="none" stroke="#9FC8E4" stroke-width="1.6" stroke-linecap="round"></path>
-                                        </template>
-                                        <template v-else-if="mini.theme.deco === 'rain'">
-                                            <path d="M-6 -4 L-9 4 M0 -4 L-3 4 M6 -4 L3 4" stroke="#7FB4D8" stroke-width="1.6" stroke-linecap="round"></path>
-                                        </template>
-                                        <template v-else-if="mini.theme.deco === 'mtn'">
-                                            <path d="M-14 9 L0 -11 L14 9 Z" fill="#A8B6C6"></path>
-                                            <path d="M-4 4 L0 -11 L4 4 L1.6 1.6 L0 4 L-1.6 1.6 Z" fill="#E8EEF4"></path>
-                                        </template>
-                                        <template v-else-if="mini.theme.deco === 'book'">
-                                            <rect x="-9" y="0" width="18" height="4" rx="1" fill="#B08FD8"></rect>
-                                            <rect x="-7" y="-4.6" width="15" height="4" rx="1" fill="#9C86CC"></rect>
-                                            <rect x="-8" y="-9.2" width="16" height="4" rx="1" fill="#C4A9E8"></rect>
-                                        </template>
-                                        <template v-else-if="mini.theme.deco === 'moon'">
-                                            <path d="M4 -8 A 9 9 0 1 0 4 8 A 7 7 0 1 1 4 -8 Z" fill="#F6E58D"></path>
-                                        </template>
-                                        <template v-else>
-                                            <path d="M0 -6 L1.6 -1.6 L6 0 L1.6 1.6 L0 6 L-1.6 1.6 L-6 0 L-1.6 -1.6 Z" fill="#F2C14E" opacity="0.9"></path>
-                                        </template>
-                                    </g>
-
-                                    <!-- 🔴 火種マーカー＋スポット名 -->
-                                    <g v-for="m in mini.markers" :key="mini.sub.id + '_mk' + m.spIdx"
-                                       class="map-marker" :class="{sel: m.selected}"
-                                       :transform="`translate(${m.x},${m.y})`"
-                                       role="checkbox" :aria-checked="m.selected" :aria-label="displayAreaName(m.name)" tabindex="0"
-                                       @click="onMapMarkerClick(mIdx, m)"
-                                       @keydown.enter="onMapMarkerClick(mIdx, m)"
-                                       @keydown.space.prevent="onMapMarkerClick(mIdx, m)">
-                                        <title>{{ displayAreaName(m.name) }}（{{ m.light }}）{{ m.isToday ? '・' + t('area.todayBadge') : '' }}</title>
-                                        <circle :r="m.r"></circle>
-                                        <circle v-if="m.isToday" class="map-marker-today-dot" :cx="m.r * 0.72" :cy="-(m.r * 0.72)" r="4.2"></circle>
-                                        <text class="map-marker-num" :font-size="m.fs">{{ m.light }}</text>
-                                        <text class="map-marker-name" :y="m.r + 13"
-                                              :fill="mini.theme.label" :stroke="mini.theme.halo">{{ m.short }}</text>
-                                    </g>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ══════════════════ 📋 リストビュー（従来のアコーディオン） ══════════════════ -->
-                <template v-if="areaViewMode === 'list'">
+                <!-- ══════════════════ 📋 詳細設定（従来のリストビュー・アコーディオン） ══════════════════ -->
+                <template v-if="showDetailedAreaSettings">
 
                 <!-- 🔍 エリア・サブエリア・スポット名での絞り込み検索 -->
                 <div style="margin-bottom: 10px;">
@@ -1844,89 +1467,9 @@
         </span>
     </footer>
 
-    <!-- ════ 習熟度アンケートモーダル ════ -->
-    <div v-if="skillModal.show" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;" @click.self="skillModal.show=false">
-        <!-- 🩹 .site-dock（画面下部固定、z-index:1001でこのカードより常に手前）にフッターの
-             適用ボタンが隠れないよう、下端にドック分の余白(bodyと同じ76px)を確保する。 -->
-        <div ref="skillModalCardEl" style="background:var(--card-bg);border-radius:16px;padding:0;padding-bottom:calc(76px + env(safe-area-inset-bottom));max-width:460px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.35);max-height:92vh;overflow-y:auto;display:flex;flex-direction:column;">
-
-            <!-- ヘッダー -->
-            <div style="padding:20px 24px 0;position:sticky;top:0;background:var(--card-bg);z-index:1;border-radius:16px 16px 0 0;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-                    <div style="font-size:18px;font-weight:bold;">{{ t('skill.modalHeader') }}</div>
-                    <button @click="skillModal.show=false" style="background:none;border:none;cursor:pointer;line-height:1;padding:0 4px;"><span class="icon-chip" style="width:22px; height:22px;"><svg width="16" height="16"><use href="#i-close"/></svg></span></button>
-                </div>
-                <div style="font-size:12px;color:var(--text-gray);margin-bottom:14px;line-height:1.5;">{{ t('skill.modalDesc') }}</div>
-                <hr style="border:none;border-top:1px solid var(--border-color);margin:0 -24px 0;">
-            </div>
-
-            <!-- 質問エリア -->
-            <div style="padding:16px 24px;display:flex;flex-direction:column;gap:20px;">
-
-                <!-- 共通ラベル説明 -->
-                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;text-align:center;font-size:10px;color:var(--text-gray);padding:0 0 0 0;">
-                    <div v-html="t('skill.scale0')"></div>
-                    <div v-html="t('skill.scale1')"></div>
-                    <div v-html="t('skill.scale2')"></div>
-                    <div v-html="t('skill.scale3')"></div>
-                </div>
-
-                <!-- Q1〜Q4 共通テンプレート -->
-                <div v-for="(q, qi) in skillModal.questions" :key="qi" style="background:var(--bg-color);border-radius:12px;padding:14px 16px;">
-                    <div style="font-size:13px;font-weight:bold;margin-bottom:12px;line-height:1.4;">
-                        <span style="color:var(--accent-blue);margin-right:6px;">Q{{ qi+1 }}</span>{{ t(q.labelKey) }}
-                    </div>
-                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
-                        <button v-for="opt in q.opts" :key="opt.v"
-                            @click="skillModal.answers[qi] = opt.v"
-                            style="padding:10px 4px;border-radius:8px;border:2px solid var(--border-color);font-size:12px;cursor:pointer;transition:all 0.15s;line-height:1.3;background:var(--card-bg);color:var(--text-color);white-space:pre-line;"
-                            :style="skillModal.answers[qi]===opt.v ? {background:'var(--accent-blue)',color:'white',borderColor:'var(--accent-blue)',fontWeight:'bold'} : {}"
-                        ><svg class="inline-icon match" width="20" height="20" style="display:block; margin:0 auto 3px;"><use :href="'#' + opt.icon"></use></svg>{{ t(opt.iconKey) }}</button>
-                    </div>
-                </div>
-
-                <!-- スコアバー & 結果プレビュー -->
-                <div style="background:var(--bg-color);border-radius:12px;padding:14px 16px;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                        <span style="font-size:12px;color:var(--text-gray);">{{ t('skill.scoreLabel') }}</span>
-                        <span style="font-size:13px;font-weight:bold;">{{ t('skill.scoreOutOf', { n: skillModal.totalScore }) }}</span>
-                    </div>
-                    <!-- バー（4点以上で中級者ライン、視覚的に区切り） -->
-                    <div style="position:relative;background:var(--border-color);border-radius:99px;height:12px;margin-bottom:6px;overflow:hidden;">
-                        <div :style="{width:(skillModal.totalScore/12*100)+'%',background:'var(--accent-blue)',height:'100%',borderRadius:'99px',transition:'width 0.3s'}"></div>
-                    </div>
-                    <!-- ラベル目盛り -->
-                    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-gray);margin-bottom:12px;">
-                        <span>{{ t('skill.scaleTick0') }}</span><span>{{ t('skill.scaleTick3') }}</span><span>{{ t('skill.scaleTick6') }}</span><span>{{ t('skill.scaleTick9') }}</span><span v-html="t('skill.scaleTick10')"></span>
-                    </div>
-                    <!-- レベル表示 -->
-                    <div v-if="skillModal.allAnswered" style="text-align:center;padding:6px;background:var(--card-bg);border-radius:10px;">
-                        <div style="font-size:22px;margin-bottom:2px;"><svg class="inline-icon" width="22" height="22" style="vertical-align:middle;"><use :href="'#' + skillModal.resultEmoji"></use></svg></div>
-                        <div style="font-size:12px;color:var(--text-gray);">{{ t('skill.resultTiming') }} <b style="color:var(--text-color);">{{ t(skillModal.resultLabelKey) }} {{ t(skillModal.resultDescKey) }}</b> {{ t('skill.resultSuffix') }}</div>
-                    </div>
-                    <div v-else style="text-align:center;font-size:12px;color:var(--text-gray);">{{ t('skill.resultNotReady') }}</div>
-                </div>
-            </div>
-
-            <!-- フッターボタン -->
-            <div style="padding:0 24px 20px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
-                <button @click="skillModal.show=false"
-                    style="background:var(--tab-bg);color:var(--text-color);border:none;padding:10px 18px;border-radius:8px;font-size:13px;cursor:pointer;">
-                    {{ t('skill.cancelBtn') }}
-                </button>
-                <button @click="applySkillLevel"
-                    :disabled="!skillModal.allAnswered"
-                    :style="skillModal.allAnswered ? {background:'var(--accent-blue)',opacity:'1',cursor:'pointer'} : {background:'var(--accent-blue)',opacity:'0.35',cursor:'not-allowed'}"
-                    style="color:white;border:none;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:bold;">
-                    {{ t('skill.applyBtn') }}
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- ═══ 🧭 サイトドック（クイックメニュー） ═══ -->
     <nav class="site-dock" :aria-label="t('dock.ariaLabel')">
-        <button type="button" @click="setAreaViewMode('map')">
+        <button type="button" @click="openAreaDetailSettings">
             <span class="site-dock-icon"><span class="icon-chip" style="width:28px; height:28px;"><svg width="22" height="22"><use href="#i-map"/></svg></span></span>
             <span class="site-dock-label">{{ t('dock.areaView') }}</span>
         </button>
@@ -1950,8 +1493,6 @@
 </div>
 
 <script src="areas-data.js"></script>
-<script src="maps-data.js"></script>
-<script src="atlas-data.js"></script>
 <script src="i18n.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
 <script>
@@ -2114,7 +1655,6 @@
             // 閉じておく（このアプリでは意図的なネスト表示は現状ないため、単純に他を全部閉じる）。
             const closeOtherTopLevelOverlays = (except) => {
                 if (except !== 'settings' && showAppSettingsModal.value) showAppSettingsModal.value = false;
-                if (except !== 'skill' && skillModal.value.show) skillModal.value.show = false;
                 if (except !== 'confirm' && confirmModal.value.show) confirmModal.value.show = false;
                 if (except !== 'sidebar' && showSidebar.value) showSidebar.value = false;
             };
@@ -2124,7 +1664,6 @@
             const closeTopmostOpenModal = () => {
                 if (confirmModal.value.show) { confirmModal.value.show = false; return; }
                 if (showAppSettingsModal.value) { showAppSettingsModal.value = false; return; }
-                if (skillModal.value.show) { skillModal.value.show = false; return; }
                 if (showSidebar.value) { showSidebar.value = false; return; }
             };
 
@@ -2199,7 +1738,7 @@
             }));
 
             // エリア／サブエリア／スポット名（areas-data.js由来の日本語名）の表示専用英訳。
-            // 保存データ・maps-data.js/atlas-data.js の照合キーは日本語名のまま変更しない。
+            // 保存データの照合キーは日本語名のまま変更しない。
             const displayAreaName = (jaName) => (typeof skyDisplayAreaName === 'function') ? skyDisplayAreaName(lang.value, jaName) : jaName;
 
             const applyLangToDOM = () => {
@@ -2687,71 +2226,8 @@ const plannedUsage = ref(0);
             const uuid = () => crypto.randomUUID();
 
             // ════════════════════════════════════════════════════
-            // 🌟 プレイスタイル診断 & 所要時間初期値設定
+            // 🕐 所要時間の係数（マイルートの実測タイマーで自動補正される）
             // ════════════════════════════════════════════════════
-
-            // ────────────────────────────────────────────────────
-            // 🌟 プレイスタイル診断
-            // スコア 0〜12点：高いほど熟練 → 倍率なし〜低い（速い）
-            // areas-data.js の time は「エキスパート（×1.0・倍率なし）」が基準
-            // ────────────────────────────────────────────────────
-            const SKILL_LEVELS = [
-                { key: "beginner",     emoji: "i-leaf",    labelKey: "skill.levelBeginnerLabel",     descKey: "skill.levelBeginnerDesc",     mult: 2.5  },
-                { key: "novice",       emoji: "i-leaf",    labelKey: "skill.levelNoviceLabel",       descKey: "skill.levelNoviceDesc",       mult: 2.0  },
-                { key: "intermediate", emoji: "i-star",    labelKey: "skill.levelIntermediateLabel", descKey: "skill.levelIntermediateDesc", mult: 1.7  },
-                { key: "advanced",     emoji: "i-star",    labelKey: "skill.levelAdvancedLabel",     descKey: "skill.levelAdvancedDesc",     mult: 1.3  },
-                { key: "expert",       emoji: "i-sparkle", labelKey: "skill.levelExpertLabel",       descKey: "skill.levelExpertDesc",       mult: 1.0  },
-            ];
-
-            // スコア（0〜12点）→ レベルインデックス
-            // 高得点ほど熟練 → mult が小さい（所要時間が短い）
-            const scoreToLevel = (score) => {
-                if (score >= 10) return 4; // 💫 エキスパート
-                if (score >= 7)  return 3; // 🌟 上級者
-                if (score >= 4)  return 2; // ⭐ 中級者（倍率なし）
-                if (score >= 2)  return 1; // 🌿 なれてきた
-                return 0;                  // 🌱 はじめたて
-            };
-
-            // 4段階の選択肢（全問共通ラベル・アイコン）
-            const SCALE_OPTS = [
-                { v: 0, iconKey: "skill.opt0", icon: "i-face-0" },
-                { v: 1, iconKey: "skill.opt1", icon: "i-face-1" },
-                { v: 2, iconKey: "skill.opt2", icon: "i-face-2" },
-                { v: 3, iconKey: "skill.opt3", icon: "i-face-3" },
-            ];
-
-            const skillModal = ref({
-                show: false,
-                lastLevel: null,
-                answers: [null, null, null, null],
-                questions: [
-                    { labelKey: "skill.q1" },
-                    { labelKey: "skill.q2" },
-                    { labelKey: "skill.q3" },
-                    { labelKey: "skill.q4" },
-                ],
-                get totalScore() {
-                    return this.answers.reduce((s, v) => s + (v ?? 0), 0);
-                },
-                get allAnswered() {
-                    return this.answers.every(v => v !== null);
-                },
-                get _levelIdx() { return scoreToLevel(this.totalScore); },
-                get resultLabelKey() { return SKILL_LEVELS[this._levelIdx]?.labelKey ?? ''; },
-                get resultDescKey()  { return SKILL_LEVELS[this._levelIdx]?.descKey  ?? ''; },
-                get resultEmoji()    { return SKILL_LEVELS[this._levelIdx]?.emoji    ?? ''; },
-            });
-
-            // questionsにoptsを追加（リアクティブ外で定数として持つ）
-            skillModal.value.questions = skillModal.value.questions.map(q => ({ ...q, opts: SCALE_OPTS }));
-
-            const openSkillModal = () => {
-                ftCaptureTrigger(); // closeOtherTopLevelOverlaysで他が閉じてフォーカスが動く前に、本当のトリガーを確保
-                closeOtherTopLevelOverlays('skill');
-                skillModal.value.answers = [null, null, null, null];
-                skillModal.value.show = true;
-            };
 
             // 係数を適用してエリアの time を書き換える
             const applyTimeMult = (mult) => {
@@ -2776,23 +2252,6 @@ const plannedUsage = ref(0);
                         }
                     });
                 });
-            };
-
-            const applySkillLevel = () => {
-                if (!skillModal.value.allAnswered) return;
-                const score = skillModal.value.totalScore;
-                const levelIdx = scoreToLevel(score);
-                const level = SKILL_LEVELS[levelIdx];
-                localStorage.setItem('sky_skill_answered', '1');
-                localStorage.setItem('sky_skill_level_key', level.key);
-                currentTimeMult.value = level.mult;
-                localStorage.setItem('sky_current_time_mult', String(level.mult));
-                applyTimeMult(currentTimeMult.value);
-                skillModal.value.lastLevel = level;
-                save();
-                skillModal.value.show = false;
-                const multStr = level.mult === 1.0 ? t('skill.multNone') : t('skill.multTemplate', { mult: level.mult });
-                showInlineMessage(t('skill.appliedMsg', { label: t(level.labelKey), multStr }), 'success');
             };
 
             const showRouteHint = (msg) => {
@@ -3547,412 +3006,90 @@ plannedUsage.value = 0;
                 return { light, eff: time > 0 ? (light / time) : 0.0 };
             };
 
-            /* ═══ 🗺️ 地図で選ぶビュー ═══
-               サブエリアごとの「デフォルメした個別ミニマップ」を並べて表示する方式。
-               1枚に全部を詰め込まず、スポット名をマップ上に直接書くことで見やすさを優先。
-               手作業レイアウト（maps-data.js の SKY_DETAIL_LAYOUTS）が無いサブエリアは
-               整列＋ゆらぎの自動配置になるため、ユーザー追加のエリアもそのまま表示される。 */
-            const areaViewMode = ref(localStorage.getItem('sky_area_view_mode') || 'list');
-            const setAreaViewMode = (mode) => {
-                closeOtherTopLevelOverlays();
-                areaViewMode.value = mode;
-                localStorage.setItem('sky_area_view_mode', mode);
+            // 🔥 エリア%スライダーの分母：isSelectedに関係なく、メインエリア配下の火種を無条件合計する
+            // （getMainAreaStatsは選択済みの分しか数えないため、別ヘルパーとして持つ）。
+            // 曜日限定スポット等、今日は対象外の枠も含めて合計する（Wikiのエリア全体の基準数に合わせるため）。
+            const getMainAreaTotalLight = (mainArea) => {
+                let light = 0;
+                const aMode = getAreaMode(mainArea);
+                if (aMode === "main") {
+                    light = mainArea?.light || 0;
+                } else if (mainArea && Array.isArray(mainArea.subAreas)) {
+                    mainArea.subAreas.forEach(sub => {
+                        if (!sub) return;
+                        const sMode = getSubMode(sub);
+                        if (sMode === "sub") { light += sub.light || 0; }
+                        else if (Array.isArray(sub.spots)) { sub.spots.forEach(s => { if (s) light += (s.light || 0); }); }
+                    });
+                }
+                return light;
             };
 
-            const DEFAULT_MAP_THEME = { sky: '#EAF2F8', blob: '#EDF4E4', blobLine: '#95AF7E', label: '#4a5c3a', halo: 'rgba(250,253,246,0.9)', deco: 'tree' };
-            const MINI_W = 340;      // ミニマップの論理幅
-            const MINI_ROW_H = 88;   // 自動配置の行間
+            // 📊 エリア%スライダーの表示値：選択済み火種 ÷ エリア全体の火種
+            const getMainAreaPercent = (mainArea) => {
+                const total = getMainAreaTotalLight(mainArea);
+                if (total <= 0) return 0;
+                return Math.round(getMainAreaStats(mainArea).light / total * 100);
+            };
 
-            // メインエリア1つ分の「サブエリア別ミニマップ」モデル一覧を組み立てる
-            const getMiniMaps = (mainArea) => {
-                const geo = window.SkyMapGeo;
-                const theme = (window.SKY_MAP_THEMES || {})[mainArea.name] || DEFAULT_MAP_THEME;
-                const details = ((window.SKY_DETAIL_LAYOUTS || {})[mainArea.name]) || {};
-                const subs = Array.isArray(mainArea.subAreas) ? mainArea.subAreas : [];
+            // 🎚️ エリア%スライダー：目標%に一番近づくよう、そのエリア内のサブエリア/スポットを
+            // データ記載順（自然な順序）で貪欲に選択し直す。group（曜日ローテーション等）の
+            // 同時選択は許さない。optimize()と同じ「リセット→貪欲加算」の型を、対象を1エリア内・
+            // 順序を効率順でなくデータ順にして流用している。
+            const applyAreaPercent = (mainArea, pct) => {
+                if (!mainArea) return;
+                const clampedPct = Math.max(0, Math.min(100, Number(pct) || 0));
+                const targetLight = Math.round(getMainAreaTotalLight(mainArea) * clampedPct / 100);
+                const aMode = getAreaMode(mainArea);
 
-                return subs.map((sub, sIdx) => {
-                    if (!sub) return null;
+                if (aMode === "main") {
+                    mainArea.isSelected = targetLight > 0 && targetLight >= (mainArea.light || 0);
+                    save();
+                    return;
+                }
+                if (!Array.isArray(mainArea.subAreas)) return;
+
+                // フラットな候補リストを構築（データ記載順）
+                const units = [];
+                mainArea.subAreas.forEach(sub => {
+                    if (!sub) return;
                     const sMode = getSubMode(sub);
-                    const spots = sMode === 'spot' ? sub.spots : [];
-                    const def = details[sub.name];
-
-                    // ── マーカー配置 ──
-                    const markers = [];
-                    let h;
-                    if (sMode === 'sub') {
-                        // サブエリア自体に火種値がある場合は1マーカーで表す
-                        h = 170;
-                        markers.push({ x: MINI_W / 2, y: 86, light: sub.light || 0, selected: !!sub.isSelected, name: sub.name, label: t('area.wholeAreaLabel'), kind: 'sub', sIdx, spIdx: -1 });
-                    } else if (def) {
-                        // 手作業レイアウト
-                        h = def.h;
-                        spots.forEach((spot, spIdx) => {
-                            const pos = def.spots[spot.name];
-                            const x = pos ? pos[0] : MINI_W / 2;
-                            const y = pos ? pos[1] : h / 2;
-                            markers.push({ x, y, light: spot.light || 0, selected: !!spot.isSelected, name: spot.name, label: displayAreaName(spot.name), kind: 'spot', sIdx, spIdx, isToday: isWeekdayRotationSpot(spot) && isSpotActiveToday(spot) });
-                        });
-                    } else if (spots.length === 1) {
-                        h = 170;
-                        markers.push({ x: MINI_W / 2, y: 86, light: spots[0].light || 0, selected: !!spots[0].isSelected, name: spots[0].name, label: displayAreaName(spots[0].name), kind: 'spot', sIdx, spIdx: 0, isToday: isWeekdayRotationSpot(spots[0]) && isSpotActiveToday(spots[0]) });
-                    } else {
-                        // 自動配置: 2〜4個は2列、それ以外は3列で、列ごとに少し上下をずらして地図らしく
-                        const n = spots.length;
-                        const cols = (n === 2 || n === 4) ? 2 : 3;
-                        const rows = Math.ceil(n / cols);
-                        h = 70 + rows * MINI_ROW_H + 40;
-                        const cellW = (MINI_W - 40) / cols;
-                        spots.forEach((spot, spIdx) => {
-                            const col = spIdx % cols, row = Math.floor(spIdx / cols);
-                            const x = 20 + cellW * (col + 0.5);
-                            const y = 96 + row * MINI_ROW_H + (cols > 1 ? (col % 2) * 10 : 0);
-                            markers.push({ x, y, light: spot.light || 0, selected: !!spot.isSelected, name: spot.name, label: displayAreaName(spot.name), kind: 'spot', sIdx, spIdx, isToday: isWeekdayRotationSpot(spot) && isSpotActiveToday(spot) });
+                    if (sMode === "sub") {
+                        units.push({ ref: sub, light: sub.light || 0, group: null });
+                    } else if (Array.isArray(sub.spots)) {
+                        sub.spots.forEach(spot => {
+                            if (!spot) return;
+                            units.push({ ref: spot, light: spot.light || 0, group: spot.group && spot.group.trim() ? `${sub.id}::${spot.group.trim()}` : null });
                         });
                     }
+                });
 
-                    // マーカー半径・数字フォント（桁数に応じて拡大）と、名前ラベルの省略
-                    const cols = markers.length >= 5 ? 3 : 2;
-                    const maxChars = def ? 12 : (cols === 3 ? 10 : 14);
-                    markers.forEach(m => {
-                        const num = Math.round(m.light);
-                        if (num >= 1000)     { m.r = 17; m.fs = 8.5; }
-                        else if (num >= 100) { m.r = 15; m.fs = 9.5; }
-                        else                 { m.r = 13; m.fs = 11;  }
-                        m.short = m.label.length > maxChars ? m.label.slice(0, maxChars - 1) + '…' : m.label;
-                    });
-
-                    // ── 地形ブロブ ──
-                    const seed = geo.hashStr(mainArea.name + '/' + sub.name);
-                    const cy = h / 2 + 6, ry = Math.max(40, h / 2 - 34);
-                    const path = geo.blobPath(MINI_W / 2, cy, 150, ry, seed);
-                    const innerPath = geo.blobPath(MINI_W / 2, cy + ry * 0.08, 102, ry * 0.62, seed + 7);
-
-                    const selCount = markers.filter(m => m.selected).length;
-                    return { sub, sIdx, h, theme, path, innerPath, markers, selCount, totalCount: markers.length };
-                }).filter(Boolean);
-            };
-
-            const toggleMapSpot = (mIdx, sIdx, spIdx) => {
-                const spot = areas.value[mIdx]?.subAreas[sIdx]?.spots[spIdx];
-                if (!spot) return;
-                spot.isSelected = !spot.isSelected;
-                handleSpotChange(mIdx, sIdx, spIdx);
+                // まず全部リセットしてから、順に貪欲加算する（前回のドラッグの残骸を残さない）
+                units.forEach(u => { u.ref.isSelected = false; });
+                const usedGroups = new Set();
+                let acc = 0;
+                for (const u of units) {
+                    if (acc >= targetLight) break;
+                    if (u.group) {
+                        if (usedGroups.has(u.group)) continue; // 同一グループは1つだけ
+                        usedGroups.add(u.group);
+                    }
+                    u.ref.isSelected = true;
+                    acc += u.light;
+                }
                 save();
             };
-            // マーカーをタップ: スポットなら個別トグル、サブエリア型ならサブエリアごとトグル
-            const onMapMarkerClick = (mIdx, marker) => {
-                if (marker.kind === 'sub') {
-                    const sub = areas.value[mIdx]?.subAreas[marker.sIdx];
-                    if (sub) { sub.isSelected = !sub.isSelected; save(); }
-                } else {
-                    toggleMapSpot(mIdx, marker.sIdx, marker.spIdx);
-                }
-            };
 
-            /* ═══ 🧭 精密マップ（実座標アトラス）ビュー ═══
-               atlas-data.js（Fandom Interactive Maps 由来のマーカー座標・CC-BY-SA）を
-               2480x3508 の実座標のまま描画する。ズーム/パン対応。
-               マーカーをタップすると、その位置が属するサブエリアの選択パネルを開く。 */
-
-            // マップ名 → このツールのメインエリア名
-            const ATLAS_MAP_REALM = {
-                '孤島': '孤島', '草原': '草原', '雨林': '雨林', '峡谷': '峡谷',
-                '捨て地': '捨て地', '書庫': '書庫',
-                '花鳥郷': 'ホーム', 'アリスカフェ': 'ホーム', '三日月オアシス': 'コラボルーム'
-            };
-
-            // マーカー座標 → サブエリア判定用の区画（上から順に最初に当たった矩形を採用）。
-            // 座標はソルとシュガ様の各シート構図(2480x3508)に対応。fallback は区画外のときの帰属先。
-            const ATLAS_REGIONS = {
-                '孤島': {
-                    fallback: '孤島台地',
-                    list: [
-                        { sub: '孤島の見晴らし台', rects: [[1800, 300, 2480, 1350]] },
-                        { sub: '孤島の神殿',       rects: [[850, 250, 1800, 1050]] },
-                        { sub: '預言者の石窟',     rects: [[0, 2650, 2480, 3508]] },
-                        { sub: '孤島台地',         rects: [[0, 1050, 2480, 2650]] }
-                    ]
-                },
-                '草原': {
-                    fallback: 'ロビー・蝶々の住処',
-                    list: [
-                        { sub: '草原の神殿',         rects: [[600, 200, 1950, 780]] },
-                        { sub: '楽園',               rects: [[1300, 780, 2480, 2250]] },
-                        { sub: '草原の村',           rects: [[0, 780, 1300, 1450]] },
-                        { sub: '草原の洞窟',         rects: [[0, 1450, 1300, 2450]] },
-                        { sub: '鳥の巣',             rects: [[1300, 2250, 2480, 3000]] },
-                        { sub: 'ロビー・蝶々の住処', rects: [[0, 2450, 2480, 3508]] }
-                    ]
-                },
-                '雨林': {
-                    fallback: '小川',
-                    list: [
-                        { sub: '雨林の神殿',         rects: [[1250, 200, 2010, 760]] },
-                        { sub: '墓場（神殿前）',     rects: [[1050, 760, 2480, 1800]] },
-                        { sub: '小川',               rects: [[0, 200, 1050, 1350]] },
-                        { sub: '高台広場（晴れ間）', rects: [[0, 1350, 650, 2100]] },
-                        { sub: 'ツリーハウス',       rects: [[650, 1350, 1500, 2200]] },
-                        { sub: '大空洞',             rects: [[1500, 1800, 2480, 2600]] },
-                        { sub: '風の街道',           rects: [[650, 2200, 1500, 3050], [1500, 2600, 2480, 3508]] },
-                        { sub: '前庭',               rects: [[0, 2100, 650, 3508]] }
-                    ]
-                },
-                '峡谷': {
-                    fallback: 'ロビー',
-                    list: [
-                        { sub: '空通り（空レ）',           rects: [[0, 200, 1450, 850]] },
-                        { sub: '峡谷の神殿',               rects: [[1450, 200, 2480, 750]] },
-                        { sub: '城塞都市',                 rects: [[0, 850, 1250, 1550]] },
-                        { sub: '円形劇場',                 rects: [[1450, 750, 2480, 1350]] },
-                        { sub: '凍った湖（アイスリンク）', rects: [[0, 1550, 1100, 2400]] },
-                        { sub: '陸通り（陸レ）',           rects: [[1100, 1500, 1550, 2700]] },
-                        { sub: '隠者の峠',                 rects: [[1450, 1350, 2480, 2100]] },
-                        { sub: '夢見の町',                 rects: [[1350, 2100, 2480, 3508]] },
-                        { sub: 'ロビー',                   rects: [[0, 2400, 1350, 3508]] }
-                    ]
-                },
-                '捨て地': {
-                    fallback: '外郭（倒壊した祠）',
-                    list: [
-                        { sub: '捨て地神殿',         rects: [[900, 200, 1500, 800], [1600, 200, 2480, 560]] },
-                        { sub: '戦場',               rects: [[1500, 560, 2480, 1300]] },
-                        { sub: '墓所',               rects: [[0, 800, 1500, 1900]] },
-                        { sub: '蟹の沼地（座礁船）', rects: [[1500, 1300, 2480, 2100]] },
-                        { sub: '墓所の入り口',       rects: [[0, 1900, 900, 2500]] },
-                        { sub: '忘れられた方舟',     rects: [[1200, 2100, 2480, 3100]] },
-                        { sub: '秘宝の岩礁',         rects: [[1500, 3100, 2480, 3508]] },
-                        { sub: '外郭（倒壊した祠）', rects: [[0, 2500, 1500, 3508]] }
-                    ]
-                },
-                '書庫': {
-                    fallback: '4階',
-                    list: [
-                        { sub: '書庫の神殿',   rects: [[700, 200, 1700, 600]] },
-                        { sub: '4階',          rects: [[0, 600, 1500, 1900]] },
-                        { sub: '秘密のエリア', rects: [[1950, 2350, 2480, 3050]] },
-                        { sub: '3階',          rects: [[1300, 1500, 2480, 1950]] },
-                        { sub: '2階',          rects: [[1300, 1950, 2480, 2500]] },
-                        { sub: '1階',          rects: [[1300, 2500, 1950, 3050]] },
-                        { sub: '星月夜の砂漠', rects: [[0, 1900, 1300, 3200]] },
-                        { sub: 'ロビー',       rects: [[1300, 3050, 2480, 3508]] }
-                    ]
-                },
-                '花鳥郷':       { fallback: '花鳥郷',         list: [] },
-                'アリスカフェ': { fallback: 'アリスカフェ',   list: [] },
-                '三日月オアシス': { fallback: '三日月オアシス', list: [] }
-            };
-
-            // エリア名ラベルの日本語対訳（未定義はそのまま英語表示）
-            const ATLAS_LABEL_JA = {
-                'Wind Paths': '風の街道', 'The Wind Paths': '風の街道',
-                'Cave of Prophecies': '預言者の石窟', 'The Cave of Prophecies ': '預言者の石窟',
-                'The Trial of Water': '水の試練', 'The Trial of Earth': '地の試練',
-                'The Trial of Air': '風の試練', 'The Trial of Fire': '火の試練',
-                'Butterfly Fields': '蝶々の住処', 'Bird Nest': '鳥の巣', 'Prairie Temple': '草原の神殿',
-                '8-Player Puzzle Area': '8人パズル', 'Villages': '草原の村', 'Caves': '草原の洞窟',
-                'Sanctuary Island': '楽園', 'Prairie Peaks Entrance': '草原高地入口',
-                'The Treehouse': 'ツリーハウス', 'Valley of Triumph': '峡谷へ',
-                'Village Theater': '夢見の劇場', 'Village of Dreams': '夢見の町', 'Harmony Hall': '奏の音楽堂',
-                'Coliseum': '円形劇場', 'Hermit Valley': '隠者の峠', 'Sliding Race': '陸通り（陸レ）',
-                'Citadel': '城塞都市', 'Flying Race': '空通り（空レ）', 'Frozen Lake': '凍った湖',
-                'The Treasure Reef': '秘宝の岩礁', 'Forgotten Ark': '忘れられた方舟', 'Crab Fields': '蟹の沼地',
-                'Battlefield': '戦場', 'Wasteland Temple': '捨て地神殿', 'Graveyard': '墓所', 'Broken Temple': '外郭（倒壊した祠）',
-                'First Floor': '1階', 'Second Floor': '2階', 'Third Floor': '3階', 'Fourth Floor': '4階',
-                'Fifth Floor': '5階', 'The Summit': '書庫の神殿', 'The Archives': '資料庫',
-                'Starlight Desert': '星月夜の砂漠', 'Secret Area': '秘密のエリア',
-                'Repository of Refuge': '君憶う保存庫', 'Fractured Lantern Storage': '壊れし燈の保管庫',
-                'Wandering Carnival': 'カーニバル', 'Tranquil Garden': '静かの庭', 'Concert Hall': 'コンサートホール',
-                'Home': 'ホーム', 'Nests': '巣', 'Aviary Village Cafe': 'カフェ', 'Crescent Oasis': '三日月オアシス'
-            };
-            const ATLAS_DAYS_JA = { 'M/W/F/Sun': '月水金日', 'T/T/Sat': '火木土', 'T/T/Sat/Sun': '火木土日', 'Everyday': '毎日' };
-
-            const atlasMapNames = Object.keys(ATLAS_MAP_REALM).filter(n => (window.SKY_ATLAS_RAW || {})[n] && (window.SKY_ATLAS_RAW[n].markers || []).length > 0);
-            const atlasMapName = ref(atlasMapNames[0] || '孤島');
-            const atlasActiveSubKey = ref('');
-            const atlasView = ref({ x: 0, y: 0, w: 2480, h: 3508 });
-            const atlasDrag = ref({ active: false, moved: false, px: 0, py: 0 });
-
-            const setAtlasMap = (name) => {
-                atlasMapName.value = name;
-                atlasActiveSubKey.value = '';
-                atlasResetView();
-            };
-            const atlasResetView = () => { atlasView.value = { x: 0, y: 0, w: 2480, h: 3508 }; };
-            const atlasViewBox = computed(() => `${atlasView.value.x} ${atlasView.value.y} ${atlasView.value.w} ${atlasView.value.h}`);
-            const atlasTheme = computed(() => (window.SKY_MAP_THEMES || {})[ATLAS_MAP_REALM[atlasMapName.value]] || { sky: '#EAF2F8', label: '#4a5c3a', halo: 'rgba(250,253,246,0.9)' });
-
-            const atlasClampView = () => {
-                const v = atlasView.value;
-                v.w = Math.max(310, Math.min(2480, v.w));
-                v.h = v.w * (3508 / 2480);
-                v.x = Math.max(0, Math.min(2480 - v.w, v.x));
-                v.y = Math.max(0, Math.min(3508 - v.h, v.y));
-            };
-            const atlasZoomBy = (factor, cx, cy) => {
-                const v = atlasView.value;
-                const centerX = cx != null ? cx : v.x + v.w / 2;
-                const centerY = cy != null ? cy : v.y + v.h / 2;
-                const nw = v.w / factor;
-                v.x = centerX - (centerX - v.x) / factor;
-                v.y = centerY - (centerY - v.y) / factor;
-                v.w = nw;
-                atlasClampView();
-            };
-            const atlasWheel = (e) => {
-                const svg = e.currentTarget;
-                const rect = svg.getBoundingClientRect();
-                const v = atlasView.value;
-                const cx = v.x + (e.clientX - rect.left) / rect.width * v.w;
-                const cy = v.y + (e.clientY - rect.top) / rect.height * v.h;
-                atlasZoomBy(e.deltaY < 0 ? 1.25 : 1 / 1.25, cx, cy);
-            };
-            const atlasPointerDown = (e) => {
-                atlasDrag.value = { active: true, moved: false, px: e.clientX, py: e.clientY };
-                try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* noop */ }
-            };
-            const atlasPointerMove = (e) => {
-                const d = atlasDrag.value;
-                if (!d.active) return;
-                const dx = e.clientX - d.px, dy = e.clientY - d.py;
-                if (!d.moved && Math.abs(dx) + Math.abs(dy) < 6) return;
-                d.moved = true;
-                const svg = e.currentTarget;
-                const rect = svg.getBoundingClientRect();
-                const v = atlasView.value;
-                v.x -= dx * (v.w / rect.width);
-                v.y -= dy * (v.h / rect.height);
-                d.px = e.clientX; d.py = e.clientY;
-                atlasClampView();
-            };
-            const atlasPointerUp = () => {
-                // moved フラグはクリック抑止判定に使うため、少し残してから倒す
-                const d = atlasDrag.value;
-                d.active = false;
-                setTimeout(() => { d.moved = false; }, 50);
-            };
-
-            // マーカーがどのサブエリアに属するかを区画定義から判定
-            const atlasSubForPoint = (mapName, x, y) => {
-                const def = ATLAS_REGIONS[mapName];
-                if (!def) return null;
-                for (const region of def.list) {
-                    for (const r of region.rects) {
-                        if (x >= r[0] && y >= r[1] && x <= r[2] && y <= r[3]) return region.sub;
-                    }
-                }
-                return def.fallback;
-            };
-
-            // 描画用モデル: マーカーの表示値・色・所属サブエリア、日本語ラベル
-            const atlasModel = computed(() => {
-                const raw = (window.SKY_ATLAS_RAW || {})[atlasMapName.value];
-                if (!raw) return { markers: [], labels: [] };
-                const isCafe = atlasMapName.value === 'アリスカフェ';
-                const markers = (raw.markers || []).map(mk => {
-                    let value = mk.n, fill = '#fff', stroke = '#D93025', textFill = '#D93025', dash = '', kind = t('atlas.kindCandle');
-                    if (mk.t === 't') {
-                        value = (mk.n / 50 || 1) * 50;
-                        fill = '#F6C445'; stroke = '#B8860B'; textFill = '#6b4a00'; kind = t('atlas.kindTreasure');
-                    } else if (mk.t === 'd') {
-                        fill = '#E6D9F7'; stroke = '#7B4FC9'; textFill = '#5b3a99'; kind = t('atlas.kindDark');
-                        if (mk.days && mk.days !== 'Everyday') { fill = '#fff'; dash = '7 5'; }
-                    } else if (mk.t === 's') {
-                        fill = '#FFE2B0'; stroke = '#E08A00'; textFill = '#8a5500'; kind = t('atlas.kindSocial');
-                    } else if (isCafe) {
-                        value = mk.n * 5; // アリスカフェの大キャンドルは1本=火種5
-                    }
-                    // 英語UIでは atlas-data.js の英語表記（M/W/F/Sun 等）をそのまま使い、日本語UIのみ和訳する
-                    const daysLabel = mk.days ? (lang.value === 'en' ? mk.days : (ATLAS_DAYS_JA[mk.days] || mk.days)) : '';
-                    const r = value >= 100 ? 48 : 40;
-                    return {
-                        x: mk.x, y: mk.y, r, fs: r * 0.78, fill, stroke, textFill, dash,
-                        text: value > 0 ? String(value) : '',
-                        sub: atlasSubForPoint(atlasMapName.value, mk.x, mk.y),
-                        tip: `${kind}${value > 0 ? ' ' + t('atlas.fireLabel') + ' ' + value : ''}${daysLabel ? '（' + daysLabel + '）' : ''}`
-                    };
-                });
-                // 英語UIでは atlas-data.js のラベル（英語）をそのまま使う。日本語UIのみ和訳マップを適用する
-                const labels = (raw.areaLabels || []).map(lb => ({ x: lb.x, y: lb.y, name: lang.value === 'en' ? lb.name : (ATLAS_LABEL_JA[lb.name] || lb.name) }));
-                // サブエリア区画（塗り＋名前）。ラベルは最初の矩形の中心に置く
-                const regionDefs = (ATLAS_REGIONS[atlasMapName.value] || { list: [] }).list;
-                const regions = regionDefs.map(rg => {
-                    const r0 = rg.rects[0];
-                    return { name: rg.sub, rects: rg.rects, labelX: (r0[0] + r0[2]) / 2, labelY: r0[1] + 64 };
-                });
-                return { markers, labels, regions };
+            // 🔍 詳細設定（旧リストビュー）の開閉。旧areaViewMode(文字列enum)は使い回さず、
+            // 単純な真偽値にした（表示モードが「%スライダー」と「詳細設定」の2つだけになったため）。
+            const showDetailedAreaSettings = ref(localStorage.getItem('sky_area_detail_open') === '1');
+            watch(showDetailedAreaSettings, (v) => {
+                localStorage.setItem('sky_area_detail_open', v ? '1' : '0');
             });
-
-            // 区画タップ → そのサブエリアの選択パネルを開く
-            const onAtlasRegionClick = (rg) => {
-                if (atlasDrag.value.moved) return;
-                atlasActiveSubKey.value = ATLAS_MAP_REALM[atlasMapName.value] + '/' + rg.name;
+            const openAreaDetailSettings = () => {
+                closeOtherTopLevelOverlays();
+                showDetailedAreaSettings.value = true;
             };
-
-            // マーカータップ → 属するサブエリアの選択パネルを開く
-            const onAtlasMarkerClick = (m) => {
-                if (atlasDrag.value.moved) return; // ドラッグ直後の誤タップを無視
-                if (!m.sub) return;
-                atlasActiveSubKey.value = ATLAS_MAP_REALM[atlasMapName.value] + '/' + m.sub;
-            };
-            const atlasActiveSub = computed(() => {
-                if (!atlasActiveSubKey.value) return null;
-                const [areaName, subName] = atlasActiveSubKey.value.split('/');
-                const mIdx = areas.value.findIndex(a => a && a.name === areaName);
-                if (mIdx < 0) return null;
-                const sIdx = (areas.value[mIdx].subAreas || []).findIndex(s => s && s.name === subName);
-                if (sIdx < 0) return null;
-                return { area: areas.value[mIdx], sub: areas.value[mIdx].subAreas[sIdx], mIdx, sIdx };
-            });
-
-            /* ── 🖼️ 精密マップの背景画像（ローカル読み込み） ──
-               ユーザーが自分の端末に保存した地図画像（例: ソルとシュガ様が公開されている地図）を
-               ブラウザの IndexedDB に保存して背景表示する。画像は端末内にのみ保存され、
-               サイトへのアップロード・公開は一切行わない（権利保護のため同梱もしない）。
-               マーカー座標は同じ 2480x3508 基準のため、読み込むだけで位置が一致する。 */
-            const atlasBgUrl = ref('');
-            const atlasBgOpacity = ref(parseFloat(localStorage.getItem('sky_atlas_bg_opacity')) || 0.9);
-            watch(atlasBgOpacity, v => { try { localStorage.setItem('sky_atlas_bg_opacity', String(v)); } catch (e) { /* noop */ } });
-
-            const atlasBgDb = () => new Promise((resolve, reject) => {
-                const req = indexedDB.open('sky_atlas_bg', 1);
-                req.onupgradeneeded = () => { req.result.createObjectStore('images'); };
-                req.onsuccess = () => resolve(req.result);
-                req.onerror = () => reject(req.error);
-            });
-            const atlasBgStore = async (mode, key, value) => {
-                const db = await atlasBgDb();
-                return new Promise((resolve, reject) => {
-                    const tx = db.transaction('images', mode === 'get' ? 'readonly' : 'readwrite');
-                    const st = tx.objectStore('images');
-                    const req = mode === 'get' ? st.get(key) : (mode === 'put' ? st.put(value, key) : st.delete(key));
-                    req.onsuccess = () => resolve(req.result);
-                    req.onerror = () => reject(req.error);
-                });
-            };
-            const loadAtlasBg = async () => {
-                try {
-                    if (atlasBgUrl.value) { URL.revokeObjectURL(atlasBgUrl.value); atlasBgUrl.value = ''; }
-                    const blob = await atlasBgStore('get', atlasMapName.value);
-                    if (blob) atlasBgUrl.value = URL.createObjectURL(blob);
-                } catch (e) { console.error(e); }
-            };
-            const onAtlasBgSelected = async (event) => {
-                const file = event.target.files && event.target.files[0];
-                event.target.value = '';
-                if (!file) return;
-                try {
-                    await atlasBgStore('put', atlasMapName.value, file);
-                    await loadAtlasBg();
-                } catch (e) { console.error(e); }
-            };
-            const clearAtlasBg = async () => {
-                try {
-                    await atlasBgStore('delete', atlasMapName.value);
-                    if (atlasBgUrl.value) { URL.revokeObjectURL(atlasBgUrl.value); }
-                    atlasBgUrl.value = '';
-                } catch (e) { console.error(e); }
-            };
-            watch(atlasMapName, loadAtlasBg, { immediate: true });
 
             const moveMainArea = (index, direction) => {
                 const targetIndex = index + direction;
@@ -4660,11 +3797,9 @@ plannedUsage.value = 0;
             // ♿ 各モーダル／サイドバー本体を指すtemplate ref（フォーカストラップの対象コンテナ）
             const confirmModalCardEl = ref(null);
             const settingsModalCardEl = ref(null);
-            const skillModalCardEl = ref(null);
             const sidebarEl = ref(null);
             useModalFocusTrap(() => confirmModal.value.show, confirmModalCardEl);
             useModalFocusTrap(showAppSettingsModal, settingsModalCardEl);
-            useModalFocusTrap(() => skillModal.value.show, skillModalCardEl);
             useModalFocusTrap(showSidebar, sidebarEl); // ♿「他のツール」ドロワーも他モーダルと同じくフォーカストラップの対象にする
 
             onMounted(() => {
@@ -4691,21 +3826,15 @@ plannedUsage.value = 0;
                 shortcutsEnabled.value = (savedShortcutsEnabled === null) ? true : (savedShortcutsEnabled === '1');
                 applyLangToDOM();
                 load();
-                // 前回の診断結果を復元
-                const savedLevelKey = localStorage.getItem('sky_skill_level_key');
-                if (savedLevelKey) {
-                    skillModal.value.lastLevel = SKILL_LEVELS.find(l => l.key === savedLevelKey) || null;
-                    currentTimeMult.value = skillModal.value.lastLevel ? skillModal.value.lastLevel.mult : 1.7;
-                }
-                // 🎯 実測による補正済みの係数があれば、アンケート由来の初期値より優先して復元
+                // 🎯 マイルートの実測タイマーによる補正済みの係数があれば復元
                 const savedMult = localStorage.getItem('sky_current_time_mult');
                 if (savedMult !== null && !isNaN(parseFloat(savedMult))) {
                     currentTimeMult.value = parseFloat(savedMult);
                 }
-                // 🩹 診断済みの係数が既にある場合、load()がloadInitialData()に落ちて
+                // 🩹 補正済みの係数が既にある場合、load()がloadInitialData()に落ちて
                 // エリアがtime=0の初期値で読み込まれていても、ここで正しいtimeに復元する
                 // （カスタムエリア等_baseTimeを持たないものはapplyTimeMult内でスキップされ無害）
-                if (savedLevelKey || savedMult !== null) {
+                if (savedMult !== null) {
                     applyTimeMult(currentTimeMult.value);
                 }
                 // 🌋 闇の破片(黒)を本日分まだ自動判定していなければ予測値を反映
@@ -4749,7 +3878,7 @@ plannedUsage.value = 0;
             return {
                 themeMode, toggleTheme, themeAriaLabel,
                 showAppSettingsModal, openAppSettingsModal, shortcutsEnabled,
-                confirmModalCardEl, settingsModalCardEl, skillModalCardEl, sidebarEl,
+                confirmModalCardEl, settingsModalCardEl, sidebarEl,
                 lang, toggleLang, setLang, t, displayAreaName,
                 areas, carryOverPercent, targetDate, eventDays, currentCandles, plannedUsage, targetCandlesForOptimization, isWideScreen, thresholds, candleMemo,
                 isDraggingCarryGauge, startCarryDrag, moveCarryDrag, endCarryDrag, handleCarryGaugeKeydown, carryFillPercent,
@@ -4767,7 +3896,6 @@ plannedUsage.value = 0;
                 isAllMainSelected, toggleMainArea, isAllSubSelected, toggleSubArea, getSubAreaStats, getMainAreaStats, getMainAreaSelectedCount, moveMainArea, moveSubArea,
                 areaSearchQuery, mainAreaMatchesAreaSearch, subAreaMatchesAreaSearch, spotMatchesAreaSearch, isMainAreaExpandedView, isSubAreaExpandedView, hasAreaSearchResults,
                 isWeekdayRotationSpot, isSpotActiveToday, showTodayOnlyFilter, toggleTodayOnlyFilter,
-                skillModal, openSkillModal, applySkillLevel,
                 generateRouteSpell, shareRoute, applyRouteSpell, runRouteInTimer, RTA_TIMER_URL,
                 exportRouteAsText,
                 addMainArea, addSubArea, addSpot, requestDeleteMainArea, requestDeleteSubArea, requestDeleteSpot,
@@ -4777,11 +3905,8 @@ plannedUsage.value = 0;
                 runningRouteId, runningSeconds, formatSeconds, startTimer, pauseTimer, resetTimer, toggleRouteExpand, currentTimeMult, recordRouteSplit,
                 getRunHistoryStats, requestClearRunHistory,
                 getAreaMode, getSubMode,
-                areaViewMode, setAreaViewMode, getMiniMaps, toggleMapSpot, onMapMarkerClick,
-                atlasMapNames, atlasMapName, setAtlasMap, atlasViewBox, atlasTheme, atlasModel,
-                atlasZoomBy, atlasResetView, atlasWheel, atlasPointerDown, atlasPointerMove, atlasPointerUp,
-                atlasDrag, onAtlasMarkerClick, onAtlasRegionClick, atlasActiveSub, atlasActiveSubKey,
-                atlasBgUrl, atlasBgOpacity, onAtlasBgSelected, clearAtlasBg,
+                getMainAreaTotalLight, getMainAreaPercent, applyAreaPercent,
+                showDetailedAreaSettings, openAreaDetailSettings,
 
             };
         }
