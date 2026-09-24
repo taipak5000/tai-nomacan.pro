@@ -87,6 +87,26 @@
             overflow-x: hidden;
         }
 
+        /* 🩹 Vueがマウントされる前は、#app内の{{ }}・v-if等の生のテンプレート構文が
+           そのまま一瞬表示されてしまう（Vueをvue.global.prod.jsのCDN読み込み
+           完了後に初めてmount()するため、パース〜マウントの間に隙間ができる）。
+           v-cloakを付けたルート要素を、Vueがマウント完了時に自動で外れる
+           [v-cloak]属性で非表示にしておくことで、生のテンプレートが見える
+           瞬間自体を無くす。代わりに#preMountSpinnerを表示し、マウント直後に
+           script側で除去する（tai-hub側の.rt-loadingスピナーと同じ考え方）。 */
+        [v-cloak] { display: none !important; }
+        #preMountSpinner {
+            position: fixed; inset: 0; z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--bg-color);
+        }
+        .pre-mount-spinner-circle {
+            width: 28px; height: 28px; border-radius: 50%;
+            border: 3px solid var(--border-color); border-top-color: var(--accent-blue);
+            animation: preMountSpin 0.7s linear infinite;
+        }
+        @keyframes preMountSpin { to { transform: rotate(360deg); } }
+
         .container {
             max-width: 720px;
             margin: 0 auto;
@@ -738,7 +758,8 @@
 </defs></svg>
 
 
-<div class="container" id="app">
+<div id="preMountSpinner"><div class="pre-mount-spinner-circle"></div></div>
+<div class="container" id="app" v-cloak>
     <header>
         <h1 v-if="isWideScreen">{{ t('pageTitleWide') }}</h1>
         <h1 v-else>{{ t('pageTitle') }}</h1>
@@ -3956,6 +3977,9 @@ plannedUsage.value = 0;
             };
         }
     }).mount('#app');
+    // 🩹 マウント直後、Vueがv-cloakを外して#appを表示するのと同じタイミングで
+    // #preMountSpinnerを取り除く（生テンプレート露出防止の対になる後始末）。
+    document.getElementById('preMountSpinner')?.remove();
 </script>
 </body>
 </html>
