@@ -423,6 +423,24 @@
             opacity: 0.4; cursor: not-allowed;
         }
 
+        /* 🎨 エリアアイコンバッジ：地図を出さずに「場所を選んでいる感」を出すための
+           色付きの丸バッジ（getAreaVisual()のcolorキーと対応、既存の--accent-*を流用） */
+        .area-icon-badge {
+            width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .area-icon-badge svg { width: 14px; height: 14px; stroke-width: 2.4; }
+        .area-icon-badge.c-blue   { background: rgba(0,122,255,0.14); }
+        .area-icon-badge.c-orange { background: rgba(255,149,0,0.14); }
+        .area-icon-badge.c-green  { background: rgba(52,199,89,0.14); }
+        .area-icon-badge.c-purple { background: rgba(175,82,222,0.14); }
+        .area-icon-badge.c-red    { background: rgba(255,59,48,0.14); }
+        .area-icon-badge.c-blue svg   { stroke: var(--accent-blue); color: var(--accent-blue); }
+        .area-icon-badge.c-orange svg { stroke: var(--accent-orange); color: var(--accent-orange); }
+        .area-icon-badge.c-green svg  { stroke: var(--accent-green); color: var(--accent-green); }
+        .area-icon-badge.c-purple svg { stroke: var(--accent-purple); color: var(--accent-purple); }
+        .area-icon-badge.c-red svg    { stroke: var(--accent-red); color: var(--accent-red); }
+
         .route-path-box {
             font-size: 11px;
             color: var(--text-gray);
@@ -1071,7 +1089,7 @@
         </div>
           
         <div>
-            <div v-if="visibleSections.myRoutes" class="section-card" style="margin-bottom: 20px;">
+            <div v-if="visibleSections.myRoutes" id="myRoutesSection" class="section-card" style="margin-bottom: 20px; scroll-margin-top: 12px;">
                 <div class="section-header">{{ t('route.sectionHeader') }}</div>
 
                 <button class="btn btn-blue" @click="saveCurrentRoute" style="margin-top: 0; margin-bottom: 4px; font-size: 14px; padding: 10px;">
@@ -1241,6 +1259,7 @@
                     <div class="row" style="border-bottom:none; padding-bottom:2px;">
                         <label style="display:flex; align-items:center; gap:8px; font-weight:600; font-size:14px; cursor:pointer; min-width:0;">
                             <input type="checkbox" v-model="mainArea.isSelected" style="flex-shrink:0;">
+                            <span class="area-icon-badge" :class="'c-' + getAreaVisual(mainArea).color"><svg class="inline-icon match"><use :href="'#' + getAreaVisual(mainArea).icon"/></svg></span>
                             <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ displayAreaName(mainArea.name) }}</span>
                         </label>
                         <span style="font-size:13px; color:var(--text-gray); display:flex; align-items:center; gap:4px; flex-shrink:0;">
@@ -1255,6 +1274,13 @@
                            :disabled="!mainArea.isSelected"
                            :aria-label="t('area.pctSliderAria', { name: displayAreaName(mainArea.name) })">
                 </div>
+
+                <!-- 🧭 選択→ルート化の導線ショートカット。マイルートセクションまでスクロールせず、
+                     ここでの選択をそのままルートにできるようにする。 -->
+                <button type="button" class="btn btn-blue" style="width:100%; margin-top:10px;" @click="createRouteFromAreaSelection">
+                    <svg class="inline-icon match" width="14" height="14"><use href="#i-pin"/></svg>
+                    {{ t('area.createRouteBtn') }}
+                </button>
 
                 <button type="button" class="btn-outline-blue" style="width:100%; margin-top:6px;" @click="showDetailedAreaSettings = !showDetailedAreaSettings">
                     <svg class="inline-icon match" width="13" height="13"><use href="#i-list"/></svg>
@@ -3062,6 +3088,23 @@ plannedUsage.value = 0;
                 return { light, eff: time > 0 ? (light / time) : 0.0 };
             };
 
+            // 🎨 エリアごとのアイコン・アクセントカラー。地図ビューを復活させずに「場所を選んで
+            // いる感」を強めるための視覚的な目印（出荷データ10エリアの名前をキーにした固定表。
+            // ユーザーが追加したカスタムメインエリアは汎用フォールバックになる）。
+            const AREA_VISUAL_MAP = {
+                'ホーム': { icon: 'i-folder', color: 'blue' },
+                '孤島': { icon: 'i-sun', color: 'orange' },
+                '草原': { icon: 'i-leaf', color: 'green' },
+                '雨林': { icon: 'i-tree', color: 'blue' },
+                '峡谷': { icon: 'i-crown', color: 'purple' },
+                '捨て地': { icon: 'i-moon', color: 'orange' },
+                '書庫': { icon: 'i-star', color: 'purple' },
+                'コラボルーム': { icon: 'i-gift', color: 'red' },
+                'ソーシャルライト': { icon: 'i-heart', color: 'green' },
+                'ランダムの火種': { icon: 'i-sparkle', color: 'blue' },
+            };
+            const getAreaVisual = (mainArea) => AREA_VISUAL_MAP[mainArea && mainArea.name] || { icon: 'i-pin', color: 'blue' };
+
             // 🔥 エリア%スライダーの分母：isSelectedに関係なく、メインエリア配下の火種を無条件合計する
             // （getMainAreaStatsは選択済みの分しか数えないため、別ヘルパーとして持つ）。
             // 曜日限定スポット等、今日は対象外の枠も含めて合計する（Wikiのエリア全体の基準数に合わせるため）。
@@ -3174,7 +3217,10 @@ plannedUsage.value = 0;
                 }
             };
 
-            const saveCurrentRoute = () => {
+            // 現在の選択からルートオブジェクトを作る共通ロジック（選択が空ならnullを返す）。
+            // マイルートセクション既存の保存ボタンと、エリア管理カードの「この選択で
+            // ルートを作る」ショートカットの両方から呼ばれる。
+            const buildRouteFromCurrentSelection = () => {
                 const selectedIds = [];
                 areas.value.forEach(area => {
                     if (!area) return;
@@ -3193,15 +3239,9 @@ plannedUsage.value = 0;
                         });
                     }
                 });
-                
-                if (selectedIds.length === 0) {
-                    routeError.value = t('route.noSpotSelected');
-                    setTimeout(() => { routeError.value = ""; }, 4000);
-                    return;
-                }
+                if (selectedIds.length === 0) return null;
 
-                routeError.value = "";
-                myRoutes.value.push({
+                const route = {
                     id: uuid(),
                     name: `${t('route.defaultNamePrefix')} ${myRoutes.value.length + 1}`,
                     memo: "",
@@ -3212,9 +3252,37 @@ plannedUsage.value = 0;
                     runHistory: [],
                     generatedSpell: "",
                     generatedTextExport: ""
-                });
+                };
+                myRoutes.value.push(route);
                 save();
+                return route;
+            };
+
+            const saveCurrentRoute = () => {
+                const route = buildRouteFromCurrentSelection();
+                if (!route) {
+                    routeError.value = t('route.noSpotSelected');
+                    setTimeout(() => { routeError.value = ""; }, 4000);
+                    return;
+                }
+                routeError.value = "";
                 showRouteHint(t('route.savedHint'));
+            };
+
+            // 🧭 選択→ルート化の導線を短くするショートカット（エリア管理カードから直接呼べる）。
+            // マイルートセクションは画面のかなり下にあるため、保存の成否をその場でも分かる
+            // トーストで伝え、そのままマイルートセクションまで自動スクロールして、作った
+            // ルートをすぐ並び替え・実行できる状態で見せる。
+            const createRouteFromAreaSelection = () => {
+                const route = buildRouteFromCurrentSelection();
+                if (!route) {
+                    showToast(t('route.noSpotSelected'), 'error');
+                    return;
+                }
+                showToast(t('route.createdFromSelectionHint'));
+                nextTick(() => {
+                    document.getElementById('myRoutesSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
             };
 
             const getRouteAreaNames = (route) => {
@@ -3966,12 +4034,12 @@ plannedUsage.value = 0;
                 exportRouteAsText,
                 addMainArea, addSubArea, addSpot, requestDeleteMainArea, requestDeleteSubArea, requestDeleteSpot,
                 handleSpotChange,
-                saveCurrentRoute, deleteRoute, applyRoute, getRouteStats, getRouteAreaNames, resetCalculatorData,
+                saveCurrentRoute, createRouteFromAreaSelection, deleteRoute, applyRoute, getRouteStats, getRouteAreaNames, resetCalculatorData,
                 moveRouteCard, getSpotNameById, moveRouteSpot, removeSpotFromRoute,
                 runningRouteId, runningSeconds, formatSeconds, startTimer, pauseTimer, resetTimer, toggleRouteExpand, currentTimeMult, recordRouteSplit,
                 getRunHistoryStats, requestClearRunHistory,
                 getAreaMode, getSubMode,
-                getMainAreaTotalLight, getMainAreaPercent, applyAreaPercent, applyPresetToChecked,
+                getMainAreaTotalLight, getMainAreaPercent, applyAreaPercent, applyPresetToChecked, getAreaVisual,
                 showDetailedAreaSettings, openAreaDetailSettings,
 
             };
