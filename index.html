@@ -1001,9 +1001,12 @@
                     </div>
                     <div style="font-size:11px; color:var(--text-gray); margin-top:6px;">{{ t('candle.slideHint') }}</div>
                 </div>
-                <div class="row">
-    <div>{{ t('candle.currentCandles') }}</div>
-    <input type="number" v-model.number="currentCandles">
+                <div class="row" style="flex-direction: column; align-items: flex-start; border-bottom: none; padding-bottom: 0;">
+    <div class="row" style="width: 100%; border-bottom: none; padding: 0;">
+        <div>{{ t('candle.currentCandles') }}</div>
+        <input type="number" v-model.number="currentCandles">
+    </div>
+    <div style="font-size: 11px; color: var(--text-gray); margin-top: 2px;">{{ t('candle.currentCandlesSyncNote') }}</div>
 </div>
 <div class="row">
     <div>{{ t('candle.plannedUsage') }}</div>
@@ -1926,6 +1929,36 @@
             const defaultTarget = new Date();
             defaultTarget.setDate(defaultTarget.getDate() + 14);
             const targetDate = ref(defaultTarget.toISOString().split('T')[0]);
+
+            // 🔗 所持キャンドル数を、item等のプロフィール切替モーダル「💰所持通貨」と共有する。
+            // taipak5000.github.io配下は全ツールが同一オリジンのため、localStorageは実際に
+            // 共有されている——item/profiles.jsのnsKey()と全く同じ命名規則を複製し、
+            // wishOwnCurrency（{candle,heart,starCandle}）のcandleフィールドを読み書きする。
+            // このサイト自体には複数プロフィールを切り替えるUIは実装しない（現在アクティブな
+            // プロフィールにそのまま従うだけ）ため、profiles.js丸ごとの読み込みはしていない。
+            const SKY_ACTIVE_PROFILE_KEY = 'skyActiveProfile_v1';
+            const SKY_DEFAULT_PROFILE_ID = 'default';
+            const skyGetActiveProfileId = () => localStorage.getItem(SKY_ACTIVE_PROFILE_KEY) || SKY_DEFAULT_PROFILE_ID;
+            const skyWishOwnCurrencyKey = () => {
+                const pid = skyGetActiveProfileId();
+                return pid === SKY_DEFAULT_PROFILE_ID ? 'wishOwnCurrency' : `wishOwnCurrency__p_${pid}`;
+            };
+            // 未設定（＝他ツールを一度も使っていない）ならnullを返す。0候補と区別するため。
+            const loadSharedCandleCount = () => {
+                try {
+                    const raw = localStorage.getItem(skyWishOwnCurrencyKey());
+                    if (raw === null) return null;
+                    const parsed = JSON.parse(raw);
+                    return (parsed && typeof parsed.candle === 'number') ? Math.max(0, parsed.candle) : null;
+                } catch (_) { return null; }
+            };
+            const saveSharedCandleCount = (n) => {
+                try {
+                    const key = skyWishOwnCurrencyKey();
+                    const existing = JSON.parse(localStorage.getItem(key)) || {};
+                    localStorage.setItem(key, JSON.stringify({ candle: 0, heart: 0, starCandle: 0, ...existing, candle: Math.max(0, Number(n) || 0) }));
+                } catch (_) { /* noop */ }
+            };
 
             const currentCandles = ref(0);
 const plannedUsage = ref(0);
@@ -3960,6 +3993,28 @@ plannedUsage.value = 0;
                 shortcutsEnabled.value = (savedShortcutsEnabled === null) ? true : (savedShortcutsEnabled === '1');
                 applyLangToDOM();
                 load();
+                // 🔗 所持キャンドル数：他ツールの💰所持通貨に既に値があればそちらを優先して
+                // 取り込み、無ければ（初めてこのサイトを使う/他ツール未使用）逆にこちらの
+                // 値を共有先へ書き出しておく（次から他ツールでも見えるように）。
+                const sharedCandleOnMount = loadSharedCandleCount();
+                if (sharedCandleOnMount !== null) {
+                    currentCandles.value = sharedCandleOnMount;
+                } else if (currentCandles.value > 0) {
+                    saveSharedCandleCount(currentCandles.value);
+                }
+                // 他タブ・同一オリジンの姉妹サイトで所持キャンドル数やアクティブプロフィールが
+                // 変更された場合、このタブにも即座に反映する（リロード不要）。
+                window.addEventListener('storage', (e) => {
+                    if (e.key === SKY_ACTIVE_PROFILE_KEY) {
+                        // アクティブプロフィールが他タブで切り替えられた→新プロフィールの値を取り込む
+                        const shared = loadSharedCandleCount();
+                        if (shared !== null) currentCandles.value = shared;
+                        return;
+                    }
+                    if (e.key !== skyWishOwnCurrencyKey()) return;
+                    const shared = loadSharedCandleCount();
+                    if (shared !== null && shared !== currentCandles.value) currentCandles.value = shared;
+                });
                 // 🎯 マイルートの実測タイマーによる補正済みの係数があれば復元
                 const savedMult = localStorage.getItem('sky_current_time_mult');
                 if (savedMult !== null && !isNaN(parseFloat(savedMult))) {
@@ -4001,7 +4056,7 @@ plannedUsage.value = 0;
             watch(visibleSections, () => { save(); }, { deep: true });
             watch(carryOverPercent, () => { save(); });
             watch(targetDate, () => { save(); });
-            watch(currentCandles, () => { save(); });
+            watch(currentCandles, (v) => { save(); saveSharedCandleCount(v); });
             watch(plannedUsage, () => { save(); });
             watch(heartsToSend, () => { save(); });
             watch(targetCandlesForOptimization, () => { save(); });
