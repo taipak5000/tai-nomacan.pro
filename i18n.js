@@ -23,9 +23,23 @@ window.SKY_TRANSLATIONS = {
 
         // ── 🧭 サイトドック（クイックメニュー） ──
         "dock.ariaLabel": "クイックメニュー",
+        "dock.profile": "プロフィール",
         "dock.areaView": "エリア表示",
         "dock.otherTools": "他のツール",
         "dock.preferences": "環境設定",
+
+        // ── 🗂️ プロフィール切替モーダル（item・companion等と共有） ──
+        "profile.modalTitle": "プロフィール切替",
+        "profile.note": "他のツール（アイテム所持管理など）と共通のプロフィールです。切り替えるとこのページが再読み込みされます。",
+        "profile.saveBtn": "保存",
+        "profile.cancelBtn": "取消",
+        "profile.renameBtn": "名前を変更",
+        "profile.deleteBtn": "削除",
+        "profile.deleteConfirm": "「{name}」を削除しますか？（一覧からの削除のみで、保存済みデータはブラウザ内に残ります）",
+        "profile.colorTitle": "アカウントカラー",
+        "profile.colorResetTitle": "色を初期値に戻す",
+        "profile.addPlaceholder": "新しいプロフィール名",
+        "profile.addBtn": "追加",
 
         // ── ツール名（共通UIチェイン踏襲＋このリポジトリ独自分） ──
         "tools.taiNomacanPro": "ノマキャン計算機プロ",
@@ -42,8 +56,7 @@ window.SKY_TRANSLATIONS = {
         "tools.starCandle": "星のキャンドル計算機",
         "tools.info": "設定・更新情報",
 
-        // ── 表示設定パネル ──
-        "settings.displaySettingsBtn": "表示設定",
+        // ── 表示設定パネル（環境設定モーダル内） ──
         "settings.panelHeader": "各窓の表示・非表示設定",
         "settings.candleManage": "キャンドル管理",
         "settings.optimization": "効率自動最適化",
@@ -274,9 +287,23 @@ window.SKY_TRANSLATIONS = {
 
         // ── 🧭 Site Dock (Quick Menu) ──
         "dock.ariaLabel": "Quick Menu",
+        "dock.profile": "Profile",
         "dock.areaView": "Area View",
         "dock.otherTools": "Other Tools",
         "dock.preferences": "Preferences",
+
+        // ── 🗂️ Profile switcher modal (shared with item, companion, etc.) ──
+        "profile.modalTitle": "Switch Profile",
+        "profile.note": "This profile is shared with other tools (like the Item Collection Tracker). Switching will reload this page.",
+        "profile.saveBtn": "Save",
+        "profile.cancelBtn": "Cancel",
+        "profile.renameBtn": "Rename",
+        "profile.deleteBtn": "Delete",
+        "profile.deleteConfirm": "Delete \"{name}\"? (This only removes it from the list — its saved data stays in this browser.)",
+        "profile.colorTitle": "Account color",
+        "profile.colorResetTitle": "Reset color to default",
+        "profile.addPlaceholder": "New profile name",
+        "profile.addBtn": "Add",
 
         "tools.taiNomacanPro": "Nomacan Calculator Pro",
         "tools.taiNomacan": "Nomacan Calculator",
@@ -292,7 +319,6 @@ window.SKY_TRANSLATIONS = {
         "tools.starCandle": "Star Candle Calculator",
         "tools.info": "Settings & Updates",
 
-        "settings.displaySettingsBtn": "Display Settings",
         "settings.panelHeader": "Show/Hide Each Panel",
         "settings.candleManage": "Candle Management",
         "settings.optimization": "Auto-Optimize Efficiency",

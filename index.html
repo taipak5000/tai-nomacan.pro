@@ -78,6 +78,9 @@
 
         body {
             background-color: var(--bg-color);
+            /* 🎨 プロフィール別アカウントカラー（任意）。item等と共通の--pf-tint-rgbを
+               薄く重ねる（未設定時はtransparentなので見た目に影響しない）。 */
+            background-image: linear-gradient(var(--pf-tint-rgb, transparent), var(--pf-tint-rgb, transparent));
             color: var(--text-color);
             transition: background-color 0.3s ease, color 0.3s ease;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -185,12 +188,6 @@
             box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0.5px 1px rgba(0,0,0,0.04);
             width: 100%;
             box-sizing: border-box;
-        }
-
-        .settings-panel {
-            border: 1px solid var(--accent-blue);
-            background: rgba(0, 122, 255, 0.02);
-            animation: fadeIn 0.2s ease-out;
         }
 
         .section-header {
@@ -789,9 +786,6 @@
             <button class="sidebar-toggle-btn" @click="toggleSidebar">
                 {{ t('sidebar.hamburgerToggle') }}
             </button>
-            <button class="btn-outline-blue" @click="showSettings = !showSettings">
-                {{ t('settings.displaySettingsBtn') }}
-            </button>
             <button class="btn-outline-blue" @click="openAppSettingsModal">
                 {{ t('settings.appSettingsBtn') }}
             </button>
@@ -854,25 +848,6 @@
 
         <!-- ═══ メインコンテンツ ═══ -->
         <div class="main-content">
-
-    <div v-if="showSettings" class="section-card settings-panel">
-        <div class="section-header" style="color: var(--accent-blue); margin-bottom: 8px;">{{ t('settings.panelHeader') }}</div>
-        <div style="display: flex; flex-wrap: wrap; gap: 16px; padding: 4px 0; align-items: center; width:100%;">
-            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;">
-                <input type="checkbox" v-model="visibleSections.candleManage" style="width:18px; height:18px;"> {{ t('settings.candleManage') }}
-            </label>
-            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;">
-                <input type="checkbox" v-model="visibleSections.optimization" style="width:18px; height:18px;"> {{ t('settings.optimization') }}
-            </label>
-            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;">
-                <input type="checkbox" v-model="visibleSections.myRoutes" style="width:18px; height:18px;"> {{ t('settings.myRoutes') }}
-            </label>
-
-            <button class="btn-outline-red" @click="resetCalculatorData" style="padding: 4px 10px; font-size: 12px; margin-left: auto; font-weight: bold; border-radius: 6px;">
-                {{ t('settings.resetInputBtn') }}
-            </button>
-        </div>
-    </div>
 
     <div class="layout-grid">
         <div>
@@ -1492,6 +1467,24 @@
             </div>
 
             <div style="margin-bottom: 18px;">
+                <div style="font-size:13px; font-weight:bold; color: var(--accent-blue); margin-bottom:8px;"><svg class="inline-icon" width="15" height="15"><use href="#i-list"/></svg> {{ t('settings.panelHeader') }}</div>
+                <div style="display:flex; flex-direction:column; gap:8px; background:var(--stat-box-bg); border:1px solid var(--border-color); border-radius:8px; padding:10px 12px;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;">
+                        <input type="checkbox" v-model="visibleSections.candleManage" style="width:18px; height:18px;"> {{ t('settings.candleManage') }}
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;">
+                        <input type="checkbox" v-model="visibleSections.optimization" style="width:18px; height:18px;"> {{ t('settings.optimization') }}
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;">
+                        <input type="checkbox" v-model="visibleSections.myRoutes" style="width:18px; height:18px;"> {{ t('settings.myRoutes') }}
+                    </label>
+                    <button class="btn-outline-red" @click="resetCalculatorData" style="padding: 6px 10px; font-size: 12px; font-weight: bold; border-radius: 6px; align-self: flex-start;">
+                        {{ t('settings.resetInputBtn') }}
+                    </button>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 18px;">
                 <div style="font-size:13px; font-weight:bold; color: var(--accent-blue); margin-bottom:8px;"><svg class="inline-icon" width="15" height="15"><use href="#i-keyboard"/></svg> {{ t('settings.shortcutsSectionHeader') }}</div>
                 <label style="display:flex; align-items:center; justify-content:space-between; gap:8px; cursor:pointer; background:var(--stat-box-bg); border:1px solid var(--border-color); border-radius:8px; padding:10px 12px; margin-bottom:10px;">
                     <span style="font-size:14px;">{{ t('settings.shortcutsEnableLabel') }}</span>
@@ -1526,6 +1519,56 @@
         </div>
     </div>
 
+    <!-- ═══ 🗂️ プロフィール切替モーダル（item・companion等と共有のskyProfiles_v1） ═══ -->
+    <div v-if="showProfileModal" class="app-modal-overlay" @click.self="closeProfileModal">
+        <div class="app-modal-content" style="max-width: 400px;" ref="profileModalCardEl">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                <div style="font-size: 16px; font-weight: bold;">{{ t('profile.modalTitle') }}</div>
+                <button @click="closeProfileModal" style="background:none;border:none;cursor:pointer;line-height:1;padding:0 4px;"><span class="icon-chip" style="width:22px; height:22px;"><svg width="16" height="16"><use href="#i-close"/></svg></span></button>
+            </div>
+            <div style="font-size:12px; color:var(--text-gray); line-height:1.6; margin-bottom:14px;">{{ t('profile.note') }}</div>
+
+            <div style="margin-bottom: 14px;">
+                <div v-for="p in profiles" :key="p.id" style="background:var(--stat-box-bg); border:1px solid var(--border-color); border-radius:8px; padding:8px 10px; margin-bottom:8px;">
+                    <template v-if="pfEditingId === p.id">
+                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                            <input type="text" v-model="pfEditingName" maxlength="30" @keydown.enter="pfConfirmRename(p.id)" @keydown.esc.stop="pfCancelRowState" style="flex:1; min-width:120px; padding:6px 8px; border:1px solid var(--border-color); border-radius:6px; background:var(--input-bg); color:var(--text-color); font-size:14px; box-sizing:border-box;">
+                            <button class="btn-outline-blue" @click="pfConfirmRename(p.id)" style="padding:5px 12px; font-size:12px; font-weight:bold;">{{ t('profile.saveBtn') }}</button>
+                            <button class="btn-outline-blue" @click="pfCancelRowState" style="padding:5px 12px; font-size:12px;">{{ t('profile.cancelBtn') }}</button>
+                        </div>
+                    </template>
+                    <template v-else-if="pfDeletingId === p.id">
+                        <div style="font-size:12.5px; line-height:1.5; margin-bottom:8px;">{{ t('profile.deleteConfirm', { name: pfDisplayName(p) }) }}</div>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-outline-red" @click="pfConfirmDelete(p.id)" style="padding:5px 12px; font-size:12px; font-weight:bold;">{{ t('profile.deleteBtn') }}</button>
+                            <button class="btn-outline-blue" @click="pfCancelRowState" style="padding:5px 12px; font-size:12px;">{{ t('profile.cancelBtn') }}</button>
+                        </div>
+                    </template>
+                    <template v-else>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <input type="color" :value="pfIsSafeColor(p.color) ? p.color : '#FF9500'" @change="pfSetProfileColor(p.id, $event.target.value)" :title="t('profile.colorTitle')" style="width:24px; height:24px; padding:0; border:1px solid var(--border-color); border-radius:6px; background:none; cursor:pointer; flex-shrink:0;">
+                            <span @click="switchProfile(p.id)" :style="{ color: p.id === activeProfileId ? 'var(--accent-blue)' : 'inherit' }" style="flex:1; min-width:0; cursor:pointer; font-size:14px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:flex; align-items:center; gap:4px;">
+                                <svg v-if="p.id === activeProfileId" class="inline-icon ok" width="13" height="13"><use href="#i-check"/></svg>{{ pfDisplayName(p) }}
+                            </span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:6px; margin-top:6px; flex-wrap:wrap;">
+                            <button v-if="p.color" class="btn-outline-blue" @click="pfClearProfileColor(p.id)" style="padding:3px 9px; font-size:11px;"><svg class="inline-icon" width="11" height="11"><use href="#i-sync"/></svg> {{ t('profile.colorResetTitle') }}</button>
+                            <button class="btn-outline-blue" @click="pfStartRename(p)" style="padding:3px 9px; font-size:11px;">{{ t('profile.renameBtn') }}</button>
+                            <button v-if="profiles.length > 1" class="btn-outline-red" @click="pfStartDelete(p.id)" style="padding:3px 9px; font-size:11px;">{{ t('profile.deleteBtn') }}</button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:6px;">
+                <input type="text" v-model="newProfileName" :placeholder="t('profile.addPlaceholder')" maxlength="30" @keydown.enter="pfAddProfile" style="flex:1; min-width:0; padding:8px 10px; border:1px solid var(--border-color); border-radius:8px; background:var(--input-bg); color:var(--text-color); font-size:14px; box-sizing:border-box;">
+                <button class="btn btn-blue" @click="pfAddProfile" style="padding:8px 14px; font-size:13px;">{{ t('profile.addBtn') }}</button>
+            </div>
+
+            <button class="btn-outline-blue" @click="closeProfileModal" style="width:100%; justify-content:center; margin-top:14px; padding:10px; border-radius:10px; font-size:14px;">{{ t('settings.closeBtn') }}</button>
+        </div>
+    </div>
+
     <footer>
         {{ t('footer.copyright') }}<br>
         {{ t('footer.creditLabel') }} <a href="https://x.com/Skyzztai" target="_blank" rel="noopener noreferrer" style="color: var(--accent-blue); text-decoration: underline; font-weight: bold;">@Skyzztai</a>
@@ -1541,6 +1584,10 @@
 
     <!-- ═══ 🧭 サイトドック（クイックメニュー） ═══ -->
     <nav class="site-dock" :aria-label="t('dock.ariaLabel')">
+        <button type="button" @click="openProfileModal">
+            <span class="site-dock-icon"><span class="icon-chip" style="width:28px; height:28px;"><svg width="22" height="22"><use href="#i-folder"/></svg></span></span>
+            <span class="site-dock-label">{{ t('dock.profile') }}</span>
+        </button>
         <button type="button" @click="openAreaDetailSettings">
             <span class="site-dock-icon"><span class="icon-chip" style="width:28px; height:28px;"><svg width="22" height="22"><use href="#i-map"/></svg></span></span>
             <span class="site-dock-label">{{ t('dock.areaView') }}</span>
@@ -1729,12 +1776,14 @@
                 if (except !== 'settings' && showAppSettingsModal.value) showAppSettingsModal.value = false;
                 if (except !== 'confirm' && confirmModal.value.show) confirmModal.value.show = false;
                 if (except !== 'sidebar' && showSidebar.value) showSidebar.value = false;
+                if (except !== 'profile' && showProfileModal.value) showProfileModal.value = false;
             };
 
             // Escで閉じるべき「現在開いている中で最前面のモーダル」を閉じる。
             // このアプリのモーダルが同時に複数開くことは通常ないが、念のため優先順位をつけて判定する。
             const closeTopmostOpenModal = () => {
                 if (confirmModal.value.show) { confirmModal.value.show = false; return; }
+                if (showProfileModal.value) { showProfileModal.value = false; return; }
                 if (showAppSettingsModal.value) { showAppSettingsModal.value = false; return; }
                 if (showSidebar.value) { showSidebar.value = false; return; }
             };
@@ -1858,7 +1907,6 @@
                 }
             };
 
-            const showSettings = ref(false);
             const showSidebar = ref(false);
             const myRoutes = ref([]);
             const routeError = ref(""); 
@@ -1914,23 +1962,24 @@
             defaultTarget.setDate(defaultTarget.getDate() + 14);
             const targetDate = ref(defaultTarget.toISOString().split('T')[0]);
 
-            // 🔗 所持キャンドル数を、item等のプロフィール切替モーダル「💰所持通貨」と共有する。
-            // taipak5000.github.io配下は全ツールが同一オリジンのため、localStorageは実際に
-            // 共有されている——item/profiles.jsのnsKey()と全く同じ命名規則を複製し、
-            // wishOwnCurrency（{candle,heart,starCandle}）のcandleフィールドを読み書きする。
-            // このサイト自体には複数プロフィールを切り替えるUIは実装しない（現在アクティブな
-            // プロフィールにそのまま従うだけ）ため、profiles.js丸ごとの読み込みはしていない。
+            // 🗂️ プロフィール（記録の保存枠）機能。item・companion等の他ツールと全く同じ
+            // skyProfiles_v1 / skyActiveProfile_v1 を使い、taipak5000.github.io配下で
+            // 共有する（同一オリジンのためlocalStorageは実際に共有されている）。
+            // ⚠️ item/profiles.jsのように全ページ共通スクリプトとして読み込むのではなく、
+            // 保存キーの命名規則・データ形式だけを複製してVue側に再実装している
+            // （このアプリのUIはVueコンポーネント側で完結させる方針のため）。
+            const SKY_PROFILES_KEY = 'skyProfiles_v1'; // [{id, name, isDefaultName?, color?}, ...]
             const SKY_ACTIVE_PROFILE_KEY = 'skyActiveProfile_v1';
             const SKY_DEFAULT_PROFILE_ID = 'default';
             const skyGetActiveProfileId = () => localStorage.getItem(SKY_ACTIVE_PROFILE_KEY) || SKY_DEFAULT_PROFILE_ID;
-            const skyWishOwnCurrencyKey = () => {
-                const pid = skyGetActiveProfileId();
-                return pid === SKY_DEFAULT_PROFILE_ID ? 'wishOwnCurrency' : `wishOwnCurrency__p_${pid}`;
-            };
+            // 保存キーをプロフィールごとに名前空間化する（「メイン」＝defaultは無加工の
+            // 生キーのまま＝このプロフィール機能を追加する前からのユーザーデータを無改造で引き継ぐ）。
+            const skyNsKeyFor = (rawKey, pid) => pid === SKY_DEFAULT_PROFILE_ID ? rawKey : `${rawKey}__p_${pid}`;
+            const skyNsKey = (rawKey) => skyNsKeyFor(rawKey, skyGetActiveProfileId());
             // 未設定（＝他ツールを一度も使っていない）ならnullを返す。0候補と区別するため。
             const loadSharedCandleCount = () => {
                 try {
-                    const raw = localStorage.getItem(skyWishOwnCurrencyKey());
+                    const raw = localStorage.getItem(skyNsKey('wishOwnCurrency'));
                     if (raw === null) return null;
                     const parsed = JSON.parse(raw);
                     return (parsed && typeof parsed.candle === 'number') ? Math.max(0, parsed.candle) : null;
@@ -1938,10 +1987,139 @@
             };
             const saveSharedCandleCount = (n) => {
                 try {
-                    const key = skyWishOwnCurrencyKey();
+                    const key = skyNsKey('wishOwnCurrency');
                     const existing = JSON.parse(localStorage.getItem(key)) || {};
                     localStorage.setItem(key, JSON.stringify({ candle: 0, heart: 0, starCandle: 0, ...existing, candle: Math.max(0, Number(n) || 0) }));
                 } catch (_) { /* noop */ }
+            };
+
+            const pfIsSafeId = (id) => typeof id === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(id);
+            const pfIsSafeColor = (c) => typeof c === 'string' && /^#[0-9A-Fa-f]{6}$/.test(c);
+            const pfDefaultName = () => lang.value === 'en' ? 'Main' : 'メイン';
+            // isDefaultName中は保存済みnameを使わず、表示のたびに現在の言語へ翻訳する
+            // （item/profiles.jsのpfDisplayName()と同じ考え方。言語切替に追従させるため）。
+            const pfDisplayName = (p) => (p && p.isDefaultName) ? pfDefaultName() : ((p && p.name) || '');
+
+            const loadProfilesList = () => {
+                try {
+                    let list = JSON.parse(localStorage.getItem(SKY_PROFILES_KEY));
+                    if (!Array.isArray(list)) return null;
+                    list = list.filter(p => p && pfIsSafeId(p.id) && typeof p.name === 'string').map(p => {
+                        if (p.color !== undefined && !pfIsSafeColor(p.color)) { const { color, ...rest } = p; return rest; }
+                        return p;
+                    });
+                    list = list.map(p => (
+                        p.id === SKY_DEFAULT_PROFILE_ID && p.isDefaultName === undefined && (p.name === 'メイン' || p.name === 'Main')
+                            ? { ...p, isDefaultName: true } : p
+                    ));
+                    return list.length > 0 ? list : null;
+                } catch (_) { return null; }
+            };
+            const saveProfilesList = (list) => { try { localStorage.setItem(SKY_PROFILES_KEY, JSON.stringify(list)); } catch (_) { /* noop */ } };
+            const ensureProfilesInitList = () => {
+                let list = loadProfilesList();
+                if (!list) {
+                    list = [{ id: SKY_DEFAULT_PROFILE_ID, name: '', isDefaultName: true }];
+                    saveProfilesList(list);
+                }
+                if (!localStorage.getItem(SKY_ACTIVE_PROFILE_KEY)) localStorage.setItem(SKY_ACTIVE_PROFILE_KEY, SKY_DEFAULT_PROFILE_ID);
+                return list;
+            };
+
+            // 🎨 プロフィール別のアカウントカラー（任意）。他ツールと共通のCSS変数
+            // --pf-tint-rgb に薄く重ねるだけの仕組みなので、色を設定していれば
+            // 他ツールを開いた時と同じ色味がこのサイトでもうっすら反映される。
+            const pfHexToRgb = (hex) => {
+                const m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);
+                return m ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) } : null;
+            };
+            const pfApplyThemeColor = (hex) => {
+                const root = document.documentElement.style;
+                if (!hex || !pfIsSafeColor(hex)) { root.removeProperty('--pf-tint-rgb'); return; }
+                const c = pfHexToRgb(hex);
+                root.setProperty('--pf-tint-rgb', `rgba(${c.r}, ${c.g}, ${c.b}, 0.07)`);
+            };
+
+            const profiles = ref([]);
+            const activeProfileId = ref(skyGetActiveProfileId());
+            const showProfileModal = ref(false);
+            const newProfileName = ref('');
+            const pfEditingId = ref(null);
+            const pfEditingName = ref('');
+            const pfDeletingId = ref(null);
+
+            const openProfileModal = () => {
+                if (showProfileModal.value) return;
+                ftCaptureTrigger();
+                closeOtherTopLevelOverlays('profile');
+                profiles.value = ensureProfilesInitList();
+                pfEditingId.value = null; pfDeletingId.value = null; newProfileName.value = '';
+                showProfileModal.value = true;
+            };
+            const closeProfileModal = () => {
+                showProfileModal.value = false;
+                pfEditingId.value = null; pfDeletingId.value = null;
+            };
+            const switchProfile = (id) => {
+                if (id === skyGetActiveProfileId()) return;
+                localStorage.setItem(SKY_ACTIVE_PROFILE_KEY, id);
+                location.reload();
+            };
+            const pfAddProfile = () => {
+                const trimmed = (newProfileName.value || '').trim();
+                if (!trimmed) return;
+                const list = ensureProfilesInitList();
+                const id = 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+                list.push({ id, name: trimmed });
+                saveProfilesList(list);
+                switchProfile(id);
+            };
+            const pfStartRename = (p) => { pfDeletingId.value = null; pfEditingId.value = p.id; pfEditingName.value = pfDisplayName(p); };
+            const pfStartDelete = (id) => { pfEditingId.value = null; pfDeletingId.value = id; };
+            const pfCancelRowState = () => { pfEditingId.value = null; pfDeletingId.value = null; };
+            const pfConfirmRename = (id) => {
+                const trimmed = (pfEditingName.value || '').trim();
+                pfEditingId.value = null;
+                if (!trimmed) return;
+                const list = ensureProfilesInitList();
+                const p = list.find(x => x.id === id);
+                if (!p) return;
+                p.name = trimmed;
+                p.isDefaultName = false; // 明示的にリネームされたので、以後は翻訳せずそのまま表示する
+                saveProfilesList(list);
+                profiles.value = list;
+            };
+            const pfConfirmDelete = (id) => {
+                pfDeletingId.value = null;
+                const list = ensureProfilesInitList();
+                if (list.length <= 1) return; // 最後の1件は削除させない
+                const remaining = list.filter(p => p.id !== id);
+                saveProfilesList(remaining);
+                if (skyGetActiveProfileId() === id) {
+                    localStorage.setItem(SKY_ACTIVE_PROFILE_KEY, remaining[0].id);
+                    location.reload();
+                    return;
+                }
+                profiles.value = remaining;
+            };
+            const pfSetProfileColor = (id, color) => {
+                if (!pfIsSafeColor(color)) return;
+                const list = ensureProfilesInitList();
+                const p = list.find(x => x.id === id);
+                if (!p) return;
+                p.color = color;
+                saveProfilesList(list);
+                profiles.value = list;
+                if (id === skyGetActiveProfileId()) pfApplyThemeColor(color);
+            };
+            const pfClearProfileColor = (id) => {
+                const list = ensureProfilesInitList();
+                const p = list.find(x => x.id === id);
+                if (!p) return;
+                delete p.color;
+                saveProfilesList(list);
+                profiles.value = list;
+                if (id === skyGetActiveProfileId()) pfApplyThemeColor(null);
             };
 
             const currentCandles = ref(0);
@@ -2603,14 +2781,14 @@ plannedUsage.value = 0;
                         })),
                         visibleSections: visibleSections.value
                     };
-                    localStorage.setItem('sky_tracker_storage_v3', JSON.stringify(dataToSave));
+                    localStorage.setItem(skyNsKey('sky_tracker_storage_v3'), JSON.stringify(dataToSave));
                 } catch (e) { console.error(e); }
             };
 
             const load = () => {
                 let hadSavedData = false;
                 try {
-                    const saved = localStorage.getItem('sky_tracker_storage_v3');
+                    const saved = localStorage.getItem(skyNsKey('sky_tracker_storage_v3'));
                     if (saved) {
                         hadSavedData = true;
                         const decoded = JSON.parse(saved);
@@ -2718,7 +2896,7 @@ plannedUsage.value = 0;
                 // 元々無いだけの場合は表示しない）。
                 if (hadSavedData) showToast(t('storage.loadFailedWarning'), 'error');
 
-                localStorage.removeItem('sky_tracker_storage_v3');
+                localStorage.removeItem(skyNsKey('sky_tracker_storage_v3'));
                 loadInitialData();
             };
 
@@ -4072,9 +4250,11 @@ plannedUsage.value = 0;
             // ♿ 各モーダル／サイドバー本体を指すtemplate ref（フォーカストラップの対象コンテナ）
             const confirmModalCardEl = ref(null);
             const settingsModalCardEl = ref(null);
+            const profileModalCardEl = ref(null);
             const sidebarEl = ref(null);
             useModalFocusTrap(() => confirmModal.value.show, confirmModalCardEl);
             useModalFocusTrap(showAppSettingsModal, settingsModalCardEl);
+            useModalFocusTrap(showProfileModal, profileModalCardEl);
             useModalFocusTrap(showSidebar, sidebarEl); // ♿「他のツール」ドロワーも他モーダルと同じくフォーカストラップの対象にする
 
             onMounted(() => {
@@ -4100,6 +4280,10 @@ plannedUsage.value = 0;
                 const savedShortcutsEnabled = localStorage.getItem('sky_shortcuts_enabled');
                 shortcutsEnabled.value = (savedShortcutsEnabled === null) ? true : (savedShortcutsEnabled === '1');
                 applyLangToDOM();
+                // 🗂️ プロフィール一覧を初期化し、保存済みのアカウントカラーがあれば反映する
+                profiles.value = ensureProfilesInitList();
+                activeProfileId.value = skyGetActiveProfileId();
+                pfApplyThemeColor((profiles.value.find(p => p.id === activeProfileId.value) || {}).color);
                 load();
                 // 🔗 所持キャンドル数：他ツールの💰所持通貨に既に値があればそちらを優先して
                 // 取り込み、無ければ（初めてこのサイトを使う/他ツール未使用）逆にこちらの
@@ -4110,16 +4294,24 @@ plannedUsage.value = 0;
                 } else if (currentCandles.value > 0) {
                     saveSharedCandleCount(currentCandles.value);
                 }
-                // 他タブ・同一オリジンの姉妹サイトで所持キャンドル数やアクティブプロフィールが
-                // 変更された場合、このタブにも即座に反映する（リロード不要）。
+                // 他タブ・同一オリジンの姉妹サイトで所持キャンドル数やプロフィール関連の値が
+                // 変更された場合、このタブにも反映する。
                 window.addEventListener('storage', (e) => {
                     if (e.key === SKY_ACTIVE_PROFILE_KEY) {
-                        // アクティブプロフィールが他タブで切り替えられた→新プロフィールの値を取り込む
-                        const shared = loadSharedCandleCount();
-                        if (shared !== null) currentCandles.value = shared;
+                        // 🩹 アクティブプロフィールが他タブで切り替えられた場合、所持キャンドル数だけ
+                        // でなくエリア選択・マイルート等すべてのデータがプロフィール単位で異なるため、
+                        // 部分的な再同期ではなく素直にリロードして新プロフィールのデータを読み直す。
+                        location.reload();
                         return;
                     }
-                    if (e.key !== skyWishOwnCurrencyKey()) return;
+                    if (e.key === SKY_PROFILES_KEY) {
+                        // プロフィール一覧（名前・アカウントカラー等）が他タブで変更された場合
+                        const list = loadProfilesList() || [];
+                        profiles.value = list;
+                        pfApplyThemeColor((list.find(p => p.id === skyGetActiveProfileId()) || {}).color);
+                        return;
+                    }
+                    if (e.key !== skyNsKey('wishOwnCurrency')) return;
                     const shared = loadSharedCandleCount();
                     if (shared !== null && shared !== currentCandles.value) currentCandles.value = shared;
                 });
@@ -4175,14 +4367,19 @@ plannedUsage.value = 0;
             return {
                 themeMode, toggleTheme, themeAriaLabel,
                 showAppSettingsModal, openAppSettingsModal, shortcutsEnabled,
-                confirmModalCardEl, settingsModalCardEl, sidebarEl,
+                confirmModalCardEl, settingsModalCardEl, profileModalCardEl, sidebarEl,
+                profiles, activeProfileId, showProfileModal, newProfileName,
+                pfEditingId, pfEditingName, pfDeletingId, pfDisplayName, pfIsSafeColor,
+                openProfileModal, closeProfileModal, switchProfile, pfAddProfile,
+                pfStartRename, pfStartDelete, pfCancelRowState, pfConfirmRename, pfConfirmDelete,
+                pfSetProfileColor, pfClearProfileColor,
                 lang, toggleLang, setLang, t, displayAreaName,
                 areas, carryOverPercent, targetDate, eventDays, currentCandles, plannedUsage, targetCandlesForOptimization, isWideScreen, thresholds, candleMemo,
                 isDraggingCarryGauge, startCarryDrag, moveCarryDrag, endCarryDrag, handleCarryGaugeKeydown, carryFillPercent,
                 routeInputSpell, routeSpellMessage, routeSpellMessageType,
                 toasts,
                 confirmModal, executeConfirm,
-                showSettings, showSidebar, openToolsSidebar, toggleSidebar, myRoutes, visibleSections, routeError, routeHintMessage,
+                showSidebar, openToolsSidebar, toggleSidebar, myRoutes, visibleSections, routeError, routeHintMessage,
                 dailyBonusArea, dailyShard, shardPrediction, syncDailyShardWithPrediction,
                 shardNotifyEnabled, shardNotifyStatus, onToggleShardNotify,
                 dailyResetNotifyEnabled, dailyResetNotifyStatus, onToggleDailyResetNotify,
