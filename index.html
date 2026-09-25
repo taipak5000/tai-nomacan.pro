@@ -867,9 +867,6 @@
             <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;">
                 <input type="checkbox" v-model="visibleSections.myRoutes" style="width:18px; height:18px;"> {{ t('settings.myRoutes') }}
             </label>
-            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px;">
-                <input type="checkbox" v-model="visibleSections.spellShare" style="width:18px; height:18px;"> {{ t('settings.spellShare') }}
-            </label>
 
             <button class="btn-outline-red" @click="resetCalculatorData" style="padding: 4px 10px; font-size: 12px; margin-left: auto; font-weight: bold; border-radius: 6px;">
                 {{ t('settings.resetInputBtn') }}
@@ -1076,19 +1073,6 @@
                 <button class="btn btn-orange" @click="optimize">{{ t('optimize.autoSelectBtn') }}</button>
             </div>
 
-            <div v-if="visibleSections.spellShare" class="section-card">
-                <div class="section-header">{{ t('spell.sectionHeader') }}</div>
-                <div style="font-size: 13px; color: var(--text-gray); line-height: 1.7; margin-bottom: 12px;">
-                    {{ t('spell.transferGuideText') }}
-                </div>
-                <a href="https://taipak5000.github.io/tai-transfer/" class="btn btn-blue" style="text-decoration: none; font-size: 14px;">
-                    <svg class="inline-icon" width="14" height="14" style="stroke:#fff;"><use href="#i-sync"/></svg> {{ t('tools.dataTransfer') }}
-                </a>
-
-                <div v-if="spellMessage" :class="['inline-alert', spellMessageType === 'success' ? 'inline-alert-success' : 'inline-alert-error']" style="width:100%; box-sizing:border-box; margin-top: 12px;">
-                    {{ spellMessage }}
-                </div>
-            </div>
         </div>
           
         <div>
@@ -1097,6 +1081,9 @@
 
                 <button class="btn btn-blue" @click="saveCurrentRoute" style="margin-top: 0; margin-bottom: 4px; font-size: 14px; padding: 10px;">
                     {{ t('route.saveCurrentBtn') }}
+                </button>
+                <button class="btn-outline-blue" @click="loadFamousRouteTemplate" style="width: 100%; margin-top: 0; margin-bottom: 4px; font-size: 13px; padding: 8px; font-weight: bold;">
+                    <svg class="inline-icon match" width="13" height="13"><use href="#i-star"/></svg> {{ t('route.loadTemplateBtn') }}
                 </button>
 
                 <div style="margin-top: 10px; margin-bottom: 14px; border: 1px dashed var(--border-color); padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.01);">
@@ -1879,12 +1866,9 @@
             const visibleSections = ref({
                 candleManage: true,
                 optimization: true,
-                spellShare: true,
-                myRoutes: true 
+                myRoutes: true
             });
 
-            const spellMessage = ref("");
-            const spellMessageType = ref("");
 
             // 🔔 トースト通知（画面下部に一時表示するフィードバック。site-dockの標準に合わせて
             // 複数件同時発火しても重ならないよう配列でスタックし、一定時間後に自動で消える）
@@ -2542,7 +2526,7 @@ plannedUsage.value = 0;
                             });
                         }
                         save();
-                        showInlineMessage(t('confirmModal.resetDataDone'), "success");
+                        showToast(t('confirmModal.resetDataDone'), "success");
                     }
                 );
             };
@@ -3318,6 +3302,136 @@ plannedUsage.value = 0;
                 });
             };
 
+            // 🌟 有名プレイヤー公開の「ソロ・試練なし 20本ルート」テンプレート。
+            // areas-data.jsはWiki「Pieces of Light」基準の集計値だが、このルート表は
+            // デイリーキャンドル(DC)等より細かい粒度で組まれており1対1対応しないため、
+            // 既存のWikiベースのエリアツリーには対応付けず、「📥 共有された外部エリア」と
+            // 同じ発想で独立したカスタムメインエリア＋マイルートとして追加する。
+            // 数値・名称は常に日本語固定（言語切替でのマッチング崩れを防ぐため）。
+            const TEMPLATE_ROUTE_AREA_NAME = "20本ルート（ソロ・試練なし）";
+            const FAMOUS_ROUTE_TEMPLATE = {
+                routeName: "20本ルート（ソロ・試練なし）",
+                memo: "有名プレイヤー公開のルートを再現したテンプレートです。※チャレスペ・パン焼きはシーズンパスやフレンドのハート等の条件付きのため、状況により獲得できないことがあります（その場合は個別にチェックを外してください）。",
+                subAreas: [
+                    { name: "雨林（固定）", time: 990, spots: [
+                        { name: "開拓地〜3門", light: 45 },
+                        { name: "小川", light: 227 },
+                        { name: "晴れ間", light: 42 },
+                        { name: "※チャレスペ", light: 750 },
+                        { name: "パン焼き", light: 540 },
+                        { name: "神殿前", light: 173 },
+                    ] },
+                    { name: "草原", time: 480, spots: [
+                        { name: "入ってすぐ", light: 10 },
+                        { name: "蝶々の住処", light: 30 },
+                        { name: "鳥の巣", light: 30 },
+                        { name: "楽園", light: 299 },
+                        { name: "カメの大闇", light: 51 },
+                        { name: "二枚貝", light: 100 },
+                        { name: "貝（小）×n", light: 200 },
+                    ] },
+                    { name: "書庫", time: 240, spots: [
+                        { name: "1F ベンチ近く", light: 5 },
+                        { name: "1F DC", light: 49 },
+                        { name: "1F 台座の近く", light: 11 },
+                        { name: "2F DC1", light: 48 },
+                        { name: "2F DC2", light: 48 },
+                        { name: "2F 4人扉前", light: 10 },
+                        { name: "4F DC1", light: 47 },
+                        { name: "4F DC2", light: 47 },
+                        { name: "4F DC3", light: 47 },
+                        { name: "4F DC4", light: 50 },
+                        { name: "4F その他", light: 18 },
+                    ] },
+                    { name: "花鳥卿", time: 390, spots: [
+                        { name: "ホーム", light: 27 },
+                        { name: "カフェ", light: 50 },
+                        { name: "アリスカフェ", light: 284 },
+                        { name: "カーニバル", light: 210 },
+                    ] },
+                    { name: "雨林→峡谷", time: 390, spots: [
+                        { name: "風の街道 DC", light: 50 },
+                        { name: "風の街道 諸々", light: 25 },
+                        { name: "隠者の峠 DC", light: 50 },
+                        { name: "レースキャンドル", light: 38 },
+                        { name: "隠者レース", light: 200 },
+                        { name: "夢見DC1", light: 50 },
+                        { name: "夢見DC2", light: 50 },
+                        { name: "音楽", light: 100 },
+                    ] },
+                    { name: "他", time: 0, spots: [
+                        { name: "DDC", light: 200 },
+                    ] },
+                    { name: "峡谷", time: 288, spots: [
+                        { name: "スライダー", light: 40 },
+                        { name: "スケートリンク", light: 39 },
+                        { name: "陸レ", light: 140 },
+                        { name: "神殿内", light: 75 },
+                    ] },
+                ]
+            };
+
+            // 📥「テンプレートを読み込む」ボタン: 上記データをカスタムメインエリアとして
+            // （無ければ）追加し、そのスポット全部を指すマイルートを1件登録する。
+            // 呪文インポートと同じく、追加時点ではisSelected:falseのまま
+            // （ルートの「適用」ボタンを押すまで現在の選択状態には影響しない）。
+            const loadFamousRouteTemplate = () => {
+                let templateArea = areas.value.find(a => a && a.name === TEMPLATE_ROUTE_AREA_NAME);
+                if (!templateArea) {
+                    templateArea = {
+                        id: uuid(),
+                        name: TEMPLATE_ROUTE_AREA_NAME,
+                        isExpanded: true,
+                        subAreas: FAMOUS_ROUTE_TEMPLATE.subAreas.map(sub => ({
+                            id: uuid(),
+                            name: sub.name,
+                            isExpanded: true,
+                            light: 0,
+                            time: sub.time,
+                            isSelected: false,
+                            spots: sub.spots.map(sp => ({
+                                id: uuid(),
+                                name: sp.name,
+                                light: sp.light,
+                                time: 0,
+                                isSelected: false,
+                                group: ""
+                            }))
+                        }))
+                    };
+                    areas.value.push(templateArea);
+                }
+
+                const selectedIds = [];
+                templateArea.subAreas.forEach(sub => sub.spots.forEach(s => selectedIds.push(s.id)));
+
+                let route = myRoutes.value.find(r => r && r.name === FAMOUS_ROUTE_TEMPLATE.routeName);
+                if (route) {
+                    route.selectedSpotIds = selectedIds;
+                    showToast(t('route.templateUpdatedHint'));
+                } else {
+                    route = {
+                        id: uuid(),
+                        name: FAMOUS_ROUTE_TEMPLATE.routeName,
+                        memo: FAMOUS_ROUTE_TEMPLATE.memo,
+                        selectedSpotIds: selectedIds,
+                        isExpanded: true,
+                        actualSeconds: 0,
+                        splitTimes: {},
+                        runHistory: [],
+                        generatedSpell: "",
+                        generatedTextExport: ""
+                    };
+                    myRoutes.value.push(route);
+                    showToast(t('route.templateAddedHint'));
+                }
+
+                save();
+                nextTick(() => {
+                    document.getElementById('myRoutesSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            };
+
             const getRouteAreaNames = (route) => {
                 const names = [];
                 if (!route || !Array.isArray(route.selectedSpotIds)) return "";
@@ -3819,12 +3933,6 @@ plannedUsage.value = 0;
                 setTimeout(() => { routeSpellMessage.value = ""; }, 6000);
             };
 
-            const showInlineMessage = (msg, type) => {
-                spellMessage.value = msg; spellMessageType.value = type;
-                if (type === 'success') setTimeout(() => { spellMessage.value = ""; }, 5000);
-                showToast(msg, type);
-            };
-
             const dailyReset = () => {
                 const res = calculated.value;
                 let leftoverPercent = 0.0;
@@ -4071,7 +4179,6 @@ plannedUsage.value = 0;
                 lang, toggleLang, setLang, t, displayAreaName,
                 areas, carryOverPercent, targetDate, eventDays, currentCandles, plannedUsage, targetCandlesForOptimization, isWideScreen, thresholds, candleMemo,
                 isDraggingCarryGauge, startCarryDrag, moveCarryDrag, endCarryDrag, handleCarryGaugeKeydown, carryFillPercent,
-                spellMessage, spellMessageType,
                 routeInputSpell, routeSpellMessage, routeSpellMessageType,
                 toasts,
                 confirmModal, executeConfirm,
@@ -4089,7 +4196,7 @@ plannedUsage.value = 0;
                 exportRouteAsText,
                 addMainArea, addSubArea, addSpot, requestDeleteMainArea, requestDeleteSubArea, requestDeleteSpot,
                 handleSpotChange,
-                saveCurrentRoute, createRouteFromAreaSelection, deleteRoute, applyRoute, getRouteStats, getRouteAreaNames, resetCalculatorData,
+                saveCurrentRoute, createRouteFromAreaSelection, loadFamousRouteTemplate, deleteRoute, applyRoute, getRouteStats, getRouteAreaNames, resetCalculatorData,
                 moveRouteCard, getSpotNameById, moveRouteSpot, removeSpotFromRoute,
                 runningRouteId, runningSeconds, formatSeconds, startTimer, pauseTimer, resetTimer, toggleRouteExpand, currentTimeMult, recordRouteSplit,
                 getRunHistoryStats, requestClearRunHistory,

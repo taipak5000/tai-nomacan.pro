@@ -48,7 +48,6 @@ window.SKY_TRANSLATIONS = {
         "settings.candleManage": "キャンドル管理",
         "settings.optimization": "効率自動最適化",
         "settings.myRoutes": "マイルート管理",
-        "settings.spellShare": "データの共有",
         "settings.resetInputBtn": "入力数値をリセット",
 
         // ── ⚙️ 環境設定モーダル（ダークモード・キーボードショートカット） ──
@@ -127,13 +126,12 @@ window.SKY_TRANSLATIONS = {
         "optimize.targetLabel": "目標本数:",
         "optimize.autoSelectBtn": "高効率エリアを自動選択",
 
-        // ── データの共有（バックアップ・引き継ぎ）カード ──
-        "spell.sectionHeader": "データのバックアップ・引き継ぎ",
-        "spell.transferGuideText": "このサイトのバックアップ・復元は、姉妹サイトの「データ引継ぎ」ツールに統合されました。下のボタンから開いて、他の端末へのデータ移行にご利用ください。",
-
         // ── マイルート管理カード ──
         "route.sectionHeader": "マイルート管理（ルート比較・メモ・タイマー）",
         "route.saveCurrentBtn": "現在の選択をルートとして保存",
+        "route.loadTemplateBtn": "有名プレイヤーのルートを読み込む",
+        "route.templateAddedHint": "テンプレートルートをマイルートに追加しました。「適用」を押すと選択されます",
+        "route.templateUpdatedHint": "テンプレートルートを最新の内容に更新しました",
         "route.importLabel": "他人のルート呪文を読み込む",
         "route.importPlaceholder": "ここにルート共有用の呪文を貼り付け...",
         "route.importBtn": "読み込み",
@@ -299,7 +297,6 @@ window.SKY_TRANSLATIONS = {
         "settings.candleManage": "Candle Management",
         "settings.optimization": "Auto-Optimize Efficiency",
         "settings.myRoutes": "My Routes",
-        "settings.spellShare": "Data Sharing",
         "settings.resetInputBtn": "Reset Entered Values",
 
         // ── ⚙️ Preferences modal (dark mode & keyboard shortcuts) ──
@@ -375,11 +372,11 @@ window.SKY_TRANSLATIONS = {
         "optimize.targetLabel": "Target Amount:",
         "optimize.autoSelectBtn": "Auto-Select High-Efficiency Areas",
 
-        "spell.sectionHeader": "Data Backup & Transfer",
-        "spell.transferGuideText": "Backup and restore for this site have been merged into the sister \"Data Transfer\" tool. Open it below to move your data to another device.",
-
         "route.sectionHeader": "My Routes (Compare, Memo, Timer)",
         "route.saveCurrentBtn": "Save Current Selection as a Route",
+        "route.loadTemplateBtn": "Load a Published Player Route",
+        "route.templateAddedHint": "Added the template route to My Routes. Press \"Apply\" to select it",
+        "route.templateUpdatedHint": "Updated the template route to the latest content",
         "route.importLabel": "Load Someone Else's Route Spell",
         "route.importPlaceholder": "Paste a route-sharing spell here...",
         "route.importBtn": "Load",
