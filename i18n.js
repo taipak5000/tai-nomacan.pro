@@ -10,7 +10,7 @@
 window.SKY_TRANSLATIONS = {
     ja: {
         // ── ページ・ヘッダー ──
-        pageTitleWide: "ノマキャン計算機プロ (Web版)",
+        pageTitleWide: "ノマキャン計算機プロ",
         pageTitle: "ノマキャン計算機プロ",
         themeDark: "ダーク",
         themeLight: "ライト",
@@ -263,7 +263,7 @@ window.SKY_TRANSLATIONS = {
         "time.minSec": "{m}分{s}秒",
     },
     en: {
-        pageTitleWide: "Nomacan Calculator Pro (Web)",
+        pageTitleWide: "Nomacan Calculator Pro",
         pageTitle: "Nomacan Calculator Pro",
         themeDark: "Dark",
         themeLight: "Light",
