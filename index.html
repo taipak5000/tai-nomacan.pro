@@ -466,6 +466,26 @@
         [data-theme="dark"] .timer-box {
             background: rgba(255, 255, 255, 0.03);
         }
+
+        /* 🕯️ 所持キャンドル数（他ツールと自動同期する、このカードの起点となる値）を
+           他の入力行から視覚的に区別するための強調ボックス。 */
+        .candle-owned-box {
+            background: rgba(0, 122, 255, 0.06);
+            border: 1px solid rgba(0, 122, 255, 0.25);
+            border-radius: 10px;
+            padding: 12px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        [data-theme="dark"] .candle-owned-box {
+            background: rgba(0, 122, 255, 0.12);
+        }
+        .candle-owned-box input[type="number"] {
+            font-size: 19px;
+            font-weight: 700;
+            width: 120px;
+            color: var(--accent-blue);
+        }
         .timer-display {
             font-family: 'Courier New', Courier, monospace;
             font-variant-numeric: tabular-nums;
@@ -974,11 +994,22 @@
                     <div style="font-size:11px; color:var(--text-gray); margin-top:6px;">{{ t('candle.slideHint') }}</div>
                 </div>
                 <div class="row" style="flex-direction: column; align-items: flex-start; border-bottom: none; padding-bottom: 0;">
-    <div class="row" style="width: 100%; border-bottom: none; padding: 0;">
-        <div>{{ t('candle.currentCandles') }}</div>
-        <input type="number" v-model.number="currentCandles">
+    <div class="candle-owned-box">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+                <span class="icon-chip" style="width:26px; height:26px;"><svg width="16" height="16"><use href="#i-candle"/></svg></span>
+                {{ t('candle.currentCandles') }}
+            </div>
+            <div style="display:flex; align-items:baseline; gap:8px;">
+                <input type="number" v-model.number="currentCandles" min="0">
+                <span v-if="currentCandles >= 1000" style="font-size:11px; color:var(--text-gray); white-space:nowrap;">({{ fmtCandles(currentCandles) }})</span>
+            </div>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:5px; font-size:11px; color:var(--text-gray); margin-top:8px; line-height:1.5;">
+            <svg class="inline-icon" width="12" height="12" style="flex-shrink:0; margin-top:2px;"><use href="#i-sync"/></svg>
+            <span>{{ t('candle.currentCandlesSyncNote') }}</span>
+        </div>
     </div>
-    <div style="font-size: 11px; color: var(--text-gray); margin-top: 2px;">{{ t('candle.currentCandlesSyncNote') }}</div>
 </div>
 <div class="row">
     <div>{{ t('candle.plannedUsage') }}</div>
@@ -1088,8 +1119,8 @@
                         <input type="text" v-model="route.name" :placeholder="t('route.namePlaceholder')" style="font-weight: bold; font-size: 15px; flex-grow: 1; min-width: 0; border: none; background: transparent; padding: 2px 0; text-align: left;">
 
                         <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; max-width: 100%;">
-                            <button class="btn-outline-blue" @click="moveRouteCard(rIdx, -1)" :disabled="rIdx === 0" style="padding: 4px 6px; font-size: 11px;"><svg class="inline-icon" width="11" height="11" style="transform:rotate(180deg)"><use href="#i-chevron-down"/></svg></button>
-                            <button class="btn-outline-blue" @click="moveRouteCard(rIdx, 1)" :disabled="rIdx === myRoutes.length - 1" style="padding: 4px 6px; font-size: 11px;"><svg class="inline-icon" width="11" height="11"><use href="#i-chevron-down"/></svg></button>
+                            <button class="btn-outline-blue" @click="moveRouteCard(rIdx, -1)" :disabled="rIdx === 0" :aria-label="t('route.moveUp')" style="padding: 4px 6px; font-size: 11px;"><svg class="inline-icon" width="11" height="11" style="transform:rotate(180deg)"><use href="#i-chevron-down"/></svg></button>
+                            <button class="btn-outline-blue" @click="moveRouteCard(rIdx, 1)" :disabled="rIdx === myRoutes.length - 1" :aria-label="t('route.moveDown')" style="padding: 4px 6px; font-size: 11px;"><svg class="inline-icon" width="11" height="11"><use href="#i-chevron-down"/></svg></button>
 
                             <button class="btn-outline-blue" @click="applyRoute(route)" style="padding: 4px 10px; font-size: 12px; background: var(--accent-blue); color: white; font-weight: bold; border: none; border-radius: 6px;">{{ t('route.apply') }}</button>
                             <button class="btn-outline-blue" @click="shareRoute(route)" style="padding: 4px 8px; font-size: 12px; background: var(--accent-purple); color: white; border: none; border-radius: 6px; font-weight: bold;">{{ t('route.share') }}</button>
@@ -1173,8 +1204,8 @@
                                         <span v-if="(route.splitTimes || {})[spotId] != null" style="font-family: monospace; font-size: 10px; color: var(--accent-green); font-weight: bold; white-space: nowrap;"><svg class="inline-icon ok" width="10" height="10"><use href="#i-pin"/></svg>{{ formatSeconds(route.splitTimes[spotId]) }}</span>
                                         <button v-if="runningRouteId === route.id" class="btn-outline-blue" @click="recordRouteSplit(route, spotId)" style="padding: 2px 6px; font-size: 10px; background: var(--accent-green); color: white; border: none; white-space: nowrap;">{{ t('route.lapBtn') }}</button>
                                         <div class="btn-action-group" style="gap: 4px; flex-shrink: 0;">
-                                            <button class="btn-outline-blue" @click="moveRouteSpot(route, sIdx, -1)" :disabled="sIdx === 0" style="padding: 2px 6px; font-size: 10px;"><svg class="inline-icon" width="10" height="10" style="transform:rotate(180deg)"><use href="#i-chevron-down"/></svg></button>
-                                            <button class="btn-outline-blue" @click="moveRouteSpot(route, sIdx, 1)" :disabled="sIdx === route.selectedSpotIds.length - 1" style="padding: 2px 6px; font-size: 10px;"><svg class="inline-icon" width="10" height="10"><use href="#i-chevron-down"/></svg></button>
+                                            <button class="btn-outline-blue" @click="moveRouteSpot(route, sIdx, -1)" :disabled="sIdx === 0" :aria-label="t('route.moveUp')" style="padding: 2px 6px; font-size: 10px;"><svg class="inline-icon" width="10" height="10" style="transform:rotate(180deg)"><use href="#i-chevron-down"/></svg></button>
+                                            <button class="btn-outline-blue" @click="moveRouteSpot(route, sIdx, 1)" :disabled="sIdx === route.selectedSpotIds.length - 1" :aria-label="t('route.moveDown')" style="padding: 2px 6px; font-size: 10px;"><svg class="inline-icon" width="10" height="10"><use href="#i-chevron-down"/></svg></button>
                                             <button class="btn-outline-red" @click="removeSpotFromRoute(route, sIdx)" style="padding: 2px 5px; font-size: 10px; margin-left: 2px;"><svg class="inline-icon warn" width="10" height="10"><use href="#i-close"/></svg></button>
                                         </div>
                                     </div>
@@ -1550,6 +1581,9 @@
                             <span @click="switchProfile(p.id)" :style="{ color: p.id === activeProfileId ? 'var(--accent-blue)' : 'inherit' }" style="flex:1; min-width:0; cursor:pointer; font-size:14px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:flex; align-items:center; gap:4px;">
                                 <svg v-if="p.id === activeProfileId" class="inline-icon ok" width="13" height="13"><use href="#i-check"/></svg>{{ pfDisplayName(p) }}
                             </span>
+                            <span v-if="pfCandleDisplay(p) !== null" :title="t('candle.currentCandles')" style="display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:700; color:var(--accent-blue); background:rgba(0,122,255,0.1); border-radius:20px; padding:3px 8px; flex-shrink:0; white-space:nowrap;">
+                                <svg width="10" height="10"><use href="#i-candle"/></svg>{{ pfCandleDisplay(p) }}
+                            </span>
                         </div>
                         <div style="display:flex; align-items:center; gap:6px; margin-top:6px; flex-wrap:wrap;">
                             <button v-if="p.color" class="btn-outline-blue" @click="pfClearProfileColor(p.id)" style="padding:3px 9px; font-size:11px;"><svg class="inline-icon" width="11" height="11"><use href="#i-sync"/></svg> {{ t('profile.colorResetTitle') }}</button>
@@ -1562,7 +1596,7 @@
 
             <div style="display:flex; gap:6px;">
                 <input type="text" v-model="newProfileName" :placeholder="t('profile.addPlaceholder')" maxlength="30" @keydown.enter="pfAddProfile" style="flex:1; min-width:0; padding:8px 10px; border:1px solid var(--border-color); border-radius:8px; background:var(--input-bg); color:var(--text-color); font-size:14px; box-sizing:border-box;">
-                <button class="btn btn-blue" @click="pfAddProfile" style="padding:8px 14px; font-size:13px;">{{ t('profile.addBtn') }}</button>
+                <button class="btn btn-blue" @click="pfAddProfile" style="width:auto; display:inline-flex; align-items:center; flex-shrink:0; margin-top:0; padding:8px 14px; font-size:13px;">{{ t('profile.addBtn') }}</button>
             </div>
 
             <button class="btn-outline-blue" @click="closeProfileModal" style="width:100%; justify-content:center; margin-top:14px; padding:10px; border-radius:10px; font-size:14px;">{{ t('settings.closeBtn') }}</button>
@@ -1999,6 +2033,21 @@
             // isDefaultName中は保存済みnameを使わず、表示のたびに現在の言語へ翻訳する
             // （item/profiles.jsのpfDisplayName()と同じ考え方。言語切替に追従させるため）。
             const pfDisplayName = (p) => (p && p.isDefaultName) ? pfDefaultName() : ((p && p.name) || '');
+            // 🔗 プロフィール切替モーダルの一覧に、各プロフィールの所持キャンドル数を
+            // 一目で比較できるよう表示する（切り替えなくても残数が分かるように）。
+            // アクティブなプロフィールは編集中の値がそのまま正なので currentCandles を、
+            // それ以外は各プロフィール名前空間のwishOwnCurrencyを直接参照する
+            // （未設定＝一度も他ツールを使っていない場合はnullを返し、バッジ自体を出さない）。
+            const pfCandleDisplay = (p) => {
+                if (!p) return null;
+                if (p.id === activeProfileId.value) return fmtCandles(currentCandles.value);
+                try {
+                    const raw = localStorage.getItem(skyNsKeyFor('wishOwnCurrency', p.id));
+                    if (raw === null) return null;
+                    const parsed = JSON.parse(raw);
+                    return (parsed && typeof parsed.candle === 'number') ? fmtCandles(Math.max(0, parsed.candle)) : null;
+                } catch (_) { return null; }
+            };
 
             const loadProfilesList = () => {
                 try {
@@ -3521,7 +3570,7 @@ plannedUsage.value = 0;
                         { name: "4F DC4", light: 50 },
                         { name: "4F その他", light: 18 },
                     ] },
-                    { name: "花鳥卿", time: 390, spots: [
+                    { name: "花鳥郷", time: 390, spots: [
                         { name: "ホーム", light: 27 },
                         { name: "カフェ", light: 50 },
                         { name: "アリスカフェ", light: 284 },
@@ -4369,7 +4418,7 @@ plannedUsage.value = 0;
                 showAppSettingsModal, openAppSettingsModal, shortcutsEnabled,
                 confirmModalCardEl, settingsModalCardEl, profileModalCardEl, sidebarEl,
                 profiles, activeProfileId, showProfileModal, newProfileName,
-                pfEditingId, pfEditingName, pfDeletingId, pfDisplayName, pfIsSafeColor,
+                pfEditingId, pfEditingName, pfDeletingId, pfDisplayName, pfIsSafeColor, pfCandleDisplay,
                 openProfileModal, closeProfileModal, switchProfile, pfAddProfile,
                 pfStartRename, pfStartDelete, pfCancelRowState, pfConfirmRename, pfConfirmDelete,
                 pfSetProfileColor, pfClearProfileColor,
