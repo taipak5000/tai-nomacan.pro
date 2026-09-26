@@ -266,8 +266,10 @@ window.SKY_TRANSLATIONS = {
         "notify.dailyResetBody": "まもなくデイリーリセットです。「デイリーリセット」ボタンの押し忘れにご注意ください。",
 
         // ── フッター（一部は共通UIチェイン踏襲） ──
+        "footer.disclaimer": "このサイトはSky 星を紡ぐ子どもたちの非公式ファンサイトです。thatgamecompanyは一切関与していません。",
         "footer.copyright": "© 2026 ノマキャン計算機プロ",
         "footer.creditLabel": "作成・ご意見:",
+        "footer.requestForm": "リクエストフォーム",
         "footer.referencesLabel": "参考文献:",
         "footer.infoLink": "設定・更新情報・クレジット・プライバシーポリシー",
 
@@ -520,8 +522,10 @@ window.SKY_TRANSLATIONS = {
         "notify.dailyResetTitle": "Daily Reset Coming Up",
         "notify.dailyResetBody": "The daily reset is coming up soon. Don't forget to press the \"Daily Reset\" button.",
 
+        "footer.disclaimer": "This is an unofficial fan site for Sky: Children of the Light. thatgamecompany is not involved in any way.",
         "footer.copyright": "© 2026 Nomacan Calculator Pro",
         "footer.creditLabel": "Created by / feedback:",
+        "footer.requestForm": "Request form",
         "footer.referencesLabel": "References:",
         "footer.infoLink": "Settings / What's New / Credits / Privacy Policy",
 
