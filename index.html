@@ -1563,7 +1563,7 @@
                 <div v-for="p in profiles" :key="p.id" style="background:var(--stat-box-bg); border:1px solid var(--border-color); border-radius:8px; padding:8px 10px; margin-bottom:8px;">
                     <template v-if="pfEditingId === p.id">
                         <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                            <input type="text" v-model="pfEditingName" maxlength="30" @keydown.enter="pfConfirmRename(p.id)" @keydown.esc.stop="pfCancelRowState" style="flex:1; min-width:120px; padding:6px 8px; border:1px solid var(--border-color); border-radius:6px; background:var(--input-bg); color:var(--text-color); font-size:14px; box-sizing:border-box;">
+                            <input type="text" v-model="pfEditingName" maxlength="30" @keydown.enter="pfConfirmRename(p.id)" @keydown.esc.stop="pfCancelRowState" style="flex:1; min-width:120px; padding:6px 8px; border:1px solid var(--border-color); border-radius:6px; background:var(--input-bg); color:var(--text-color); font-size:16px; box-sizing:border-box;">
                             <button class="btn-outline-blue" @click="pfConfirmRename(p.id)" style="padding:5px 12px; font-size:12px; font-weight:bold;">{{ t('profile.saveBtn') }}</button>
                             <button class="btn-outline-blue" @click="pfCancelRowState" style="padding:5px 12px; font-size:12px;">{{ t('profile.cancelBtn') }}</button>
                         </div>
@@ -1595,7 +1595,7 @@
             </div>
 
             <div style="display:flex; gap:6px;">
-                <input type="text" v-model="newProfileName" :placeholder="t('profile.addPlaceholder')" maxlength="30" @keydown.enter="pfAddProfile" style="flex:1; min-width:0; padding:8px 10px; border:1px solid var(--border-color); border-radius:8px; background:var(--input-bg); color:var(--text-color); font-size:14px; box-sizing:border-box;">
+                <input type="text" v-model="newProfileName" :placeholder="t('profile.addPlaceholder')" maxlength="30" @keydown.enter="pfAddProfile" style="flex:1; min-width:0; padding:8px 10px; border:1px solid var(--border-color); border-radius:8px; background:var(--input-bg); color:var(--text-color); font-size:16px; box-sizing:border-box;">
                 <button class="btn btn-blue" @click="pfAddProfile" style="width:auto; display:inline-flex; align-items:center; flex-shrink:0; margin-top:0; padding:8px 14px; font-size:13px;">{{ t('profile.addBtn') }}</button>
             </div>
 
