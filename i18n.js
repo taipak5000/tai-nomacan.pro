@@ -54,7 +54,7 @@ window.SKY_TRANSLATIONS = {
         "tools.revisit": "再訪精霊データベース",
         "tools.taiScore": "楽譜づくり",
         "tools.starCandle": "星のキャンドル計算機",
-        "tools.info": "設定・更新情報",
+        "tools.info": "設定・クレジット",
 
         // ── 表示設定パネル（環境設定モーダル内） ──
         "settings.panelHeader": "各窓の表示・非表示設定",
@@ -271,7 +271,7 @@ window.SKY_TRANSLATIONS = {
         "footer.creditLabel": "作成・ご意見:",
         "footer.requestForm": "リクエストフォーム",
         "footer.referencesLabel": "参考文献:",
-        "footer.infoLink": "設定・更新情報・クレジット・プライバシーポリシー",
+        "footer.infoLink": "設定・クレジット・プライバシーポリシー",
 
         // ── 時間の単位（分・秒） ──
         "time.minSec": "{m}分{s}秒",
@@ -319,7 +319,7 @@ window.SKY_TRANSLATIONS = {
         "tools.revisit": "Revisit Spirit Database",
         "tools.taiScore": "Sheet Music Maker",
         "tools.starCandle": "Star Candle Calculator",
-        "tools.info": "Settings & Updates",
+        "tools.info": "Settings & Credits",
 
         "settings.panelHeader": "Show/Hide Each Panel",
         "settings.candleManage": "Candle Management",
@@ -527,7 +527,7 @@ window.SKY_TRANSLATIONS = {
         "footer.creditLabel": "Created by / feedback:",
         "footer.requestForm": "Request form",
         "footer.referencesLabel": "References:",
-        "footer.infoLink": "Settings / What's New / Credits / Privacy Policy",
+        "footer.infoLink": "Settings / Credits / Privacy Policy",
 
         "time.minSec": "{m}m {s}s",
     }
